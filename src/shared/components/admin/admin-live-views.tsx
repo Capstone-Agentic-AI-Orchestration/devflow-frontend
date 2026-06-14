@@ -8,6 +8,7 @@ import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestrat
 import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
 import {
   createDevFlowAdminDomain,
+  createDevFlowAdminRepository,
   getDevFlowAdminAuditLogs,
   getDevFlowAdminHealth,
   getDevFlowAdminUsage,
@@ -409,6 +410,19 @@ export function AdminRepositoriesView() {
   const [repoUrl, setRepoUrl] = useState("");
   const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [creatingId, setCreatingId] = useState("");
+  const createRepo = async (projectId: string) => {
+    setCreatingId(projectId);
+    setActionError("");
+    try {
+      await createDevFlowAdminRepository(projectId);
+      await reposState.refresh();
+    } catch (error) {
+      setActionError(compactDevFlowError(error));
+    } finally {
+      setCreatingId("");
+    }
+  };
   const openRepoModal = (item) => {
     setRepoModalItem(item);
     setRepoUrl(item.repoUrl || "https://github.com/");
@@ -446,7 +460,7 @@ export function AdminRepositoriesView() {
       <Card style={{ padding: 0, overflow: "hidden" }}>
         <PanelHeader title="Repository links" subtitle="Open linked GitHub repositories, inspect the PM project record, or assign a repo URL." badge="Admin API" />
         {reposState.loading ? <EmptyState text="Loading repositories..." /> : repositories.length === 0 ? <EmptyState text="No projects are available." /> : repositories.map((item, index) => (
-          <RepoRow key={item.projectId} item={item} border={index < repositories.length - 1} onLink={() => openRepoModal(item)} onOpenProject={() => router.push(`/pm/project/${item.projectId}`)} />
+          <RepoRow key={item.projectId} item={item} border={index < repositories.length - 1} creating={creatingId === item.projectId} onLink={() => openRepoModal(item)} onCreate={() => createRepo(item.projectId)} onOpenProject={() => router.push(`/pm/project/${item.projectId}`)} />
         ))}
       </Card>
       <Modal
@@ -954,7 +968,7 @@ function DomainRow({ domain, border, onVerify }) {
   );
 }
 
-function RepoRow({ item, border, onOpenProject, onLink }) {
+function RepoRow({ item, border, onOpenProject, onLink, onCreate, creating }) {
   const companyName = item.project?.companyName || item.companyName;
   const projectStatus = item.status || (item.repoUrl ? "Linked" : "Missing");
   return (
@@ -965,7 +979,10 @@ function RepoRow({ item, border, onOpenProject, onLink }) {
         <div className="mono" style={{ color: item.repoUrl ? "#93C5FD" : "var(--text-3)", fontSize: 11.5, marginTop: 3, overflowWrap: "anywhere" }}>{item.repoUrl || "No repository URL stored"}</div>
       </div>
       <Badge tone={item.repoUrl ? "green" : "amber"}>{item.repoUrl ? "Linked" : projectStatus}</Badge>
-      {item.repoUrl ? <Button variant="secondary" size="sm" icon={<IconExternalLink size={13} />} onClick={() => window.open(item.repoUrl, "_blank", "noopener,noreferrer")}>GitHub</Button> : <Button variant="secondary" size="sm" onClick={onLink}>Link repo</Button>}
+      {item.repoUrl ? <Button variant="secondary" size="sm" icon={<IconExternalLink size={13} />} onClick={() => window.open(item.repoUrl, "_blank", "noopener,noreferrer")}>GitHub</Button> : <>
+        <Button variant="secondary" size="sm" loading={creating} onClick={onCreate}>Create repo</Button>
+        <Button variant="ghost" size="sm" onClick={onLink}>Link repo</Button>
+      </>}
       <Button variant="ghost" size="sm" onClick={onOpenProject}>Project</Button>
     </div>
   );

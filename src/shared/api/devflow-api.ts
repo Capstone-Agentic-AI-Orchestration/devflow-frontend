@@ -1718,6 +1718,12 @@ export function linkDevFlowAdminRepository(projectId: string, repoUrl: string): 
   });
 }
 
+export function createDevFlowAdminRepository(projectId: string): Promise<{ repoUrl: string }> {
+  return request<{ repoUrl: string }>(`/admin/projects/${projectId}/repository/create`, {
+    method: "POST",
+  });
+}
+
 export function listDevFlowAdminHandoffs(): Promise<DevFlowAdminHandoff[]> {
   return request<DevFlowAdminHandoff[]>("/admin/handoffs");
 }
