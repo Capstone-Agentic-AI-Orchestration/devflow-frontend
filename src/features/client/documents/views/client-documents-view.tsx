@@ -1,9 +1,11 @@
 // @ts-nocheck
 "use client";
 
+import { useState } from "react";
 import { Badge, Button, Card } from "@/shared/components/ui";
 import { IconDownload, IconFileText, IconRefresh } from "@/shared/components/icons";
 import { ClientPageHeader } from "@/features/client/shared/components/client-page-header";
+import { downloadDevFlowProjectArtifact } from "@/shared/api/devflow-api";
 import { useDevFlowProjectOutputs } from "@/shared/hooks/use-devflow-projects";
 import { ProjectDocumentsPanel } from "@/shared/components/collaboration/project-documents-panel";
 import { compactDevFlowError, formatDevFlowDate } from "@/shared/utils/devflow-projects";
@@ -15,6 +17,21 @@ export function ClientDocumentsView() {
   const refresh = () => {
     refreshProjects();
     outputs.refresh();
+  };
+  const [downloadError, setDownloadError] = useState("");
+  const [downloadingId, setDownloadingId] = useState("");
+
+  const downloadArtifact = async (artifact) => {
+    if (!selectedProjectId) return;
+    setDownloadingId(artifact.id);
+    setDownloadError("");
+    try {
+      await downloadDevFlowProjectArtifact(selectedProjectId, artifact.id, artifact.displayName || artifact.filePath || "artifact");
+    } catch (nextError) {
+      setDownloadError(nextError instanceof Error ? nextError.message : String(nextError));
+    } finally {
+      setDownloadingId("");
+    }
   };
 
   return (
@@ -35,6 +52,8 @@ export function ClientDocumentsView() {
         </div>
         {selectedProjectError || outputs.error ? (
           <div style={{ padding: 24, color: "#FCA5A5" }}>{compactDevFlowError(selectedProjectError || outputs.error)}</div>
+        ) : downloadError ? (
+          <div style={{ padding: 24, color: "#FCA5A5" }}>{compactDevFlowError(downloadError)}</div>
         ) : outputs.artifacts.length === 0 ? (
           <div style={{ padding: 24, color: "var(--text-3)" }}>{selectedProjectLoading || outputs.loading ? "Loading documents..." : "No client-visible documents have been shared yet."}</div>
         ) : (
@@ -47,7 +66,9 @@ export function ClientDocumentsView() {
               </div>
               <Badge tone={artifact.reviewStatus === "APPROVED" ? "green" : artifact.reviewStatus === "REVISION_REQUESTED" ? "amber" : "blue"}>{artifact.reviewStatus}</Badge>
               <div style={{ color: "var(--text-2)", fontSize: 12 }}>{formatDevFlowDate(artifact.sharedAt || artifact.createdAt)}</div>
-              <Button variant="ghost" size="sm" icon={<IconDownload size={13} />} disabled />
+              <Button variant="ghost" size="sm" icon={<IconDownload size={13} />} disabled={downloadingId === artifact.id} onClick={() => downloadArtifact(artifact)}>
+                {downloadingId === artifact.id ? "Downloading" : "Download"}
+              </Button>
             </div>
           ))
         )}

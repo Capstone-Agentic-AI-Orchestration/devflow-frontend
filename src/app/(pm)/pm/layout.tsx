@@ -3,7 +3,7 @@ import { RequireAuth } from "@/shared/auth/require-auth";
 
 export default function PMLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RequireAuth allowedRoles={["PM", "ADMIN"]}>
+    <RequireAuth allowedRoles={["PM"]}>
       <PMConsoleShell>{children}</PMConsoleShell>
     </RequireAuth>
   );

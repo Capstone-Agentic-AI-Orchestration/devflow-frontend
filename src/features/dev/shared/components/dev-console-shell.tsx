@@ -103,15 +103,17 @@ function DevSidebar({ route, profile, onNavigate, mobileOpen, setMobileOpen }) {
           <div className="pm-org-name">Developer</div>
           <div className="pm-org-meta">Alphaexplora - Internal</div>
         </div>
-        <nav className="cs-nav" style={{ overflowY: "auto", minHeight: 0 }}>
-          {DEV_NAV.map((item) => (
-            <a key={item.id} className={"cs-nav-item" + (isActive(item.id) ? " active" : "")} onClick={() => { onNavigate(item.id); setMobileOpen?.(false); }}>
-              <span className="cs-nav-icon">{item.icon}</span>
-              <span className="cs-nav-label">{item.label}</span>
-              {item.badge !== undefined && (typeof item.badge === "number" ? <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span> : <span className="dev-live-pill"><span className="dot" />{item.badge}</span>)}
-            </a>
-          ))}
-        </nav>
+        <div className="cs-nav-scroll">
+          <nav className="cs-nav">
+            {DEV_NAV.map((item) => (
+              <a key={item.id} className={"cs-nav-item" + (isActive(item.id) ? " active" : "")} onClick={() => { onNavigate(item.id); setMobileOpen?.(false); }}>
+                <span className="cs-nav-icon">{item.icon}</span>
+                <span className="cs-nav-label">{item.label}</span>
+                {item.badge !== undefined && (typeof item.badge === "number" ? <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span> : <span className="dev-live-pill"><span className="dot" />{item.badge}</span>)}
+              </a>
+            ))}
+          </nav>
+        </div>
         <div className="cs-spacer" />
         <a className="cs-support"><IconLifeBuoy size={15} /> Help &amp; Support</a>
         <div className="cs-user">

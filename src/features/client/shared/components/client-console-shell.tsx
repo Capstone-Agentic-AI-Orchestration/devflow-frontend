@@ -97,15 +97,17 @@ function ClientSidebar({ route, profile, engagement, onNavigate, mobileOpen, set
           <div className="cs-engagement-status"><span className="dot" /> {engagement.status}</div>
         </div>
 
-        <nav className="cs-nav">
-          {CLIENT_NAV.map((item) => (
-            <a key={item.id} className={"cs-nav-item" + (route === item.id ? " active" : "")} onClick={() => { onNavigate(item.id); setMobileOpen?.(false); }}>
-              <span className="cs-nav-icon">{item.icon}</span>
-              <span className="cs-nav-label">{item.label}</span>
-              {item.badge !== undefined && (typeof item.badge === "number" ? <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span> : <span className="cs-nav-badge cs-nav-badge--text">{item.badge}</span>)}
-            </a>
-          ))}
-        </nav>
+        <div className="cs-nav-scroll">
+          <nav className="cs-nav">
+            {CLIENT_NAV.map((item) => (
+              <a key={item.id} className={"cs-nav-item" + (route === item.id ? " active" : "")} onClick={() => { onNavigate(item.id); setMobileOpen?.(false); }}>
+                <span className="cs-nav-icon">{item.icon}</span>
+                <span className="cs-nav-label">{item.label}</span>
+                {item.badge !== undefined && (typeof item.badge === "number" ? <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span> : <span className="cs-nav-badge cs-nav-badge--text">{item.badge}</span>)}
+              </a>
+            ))}
+          </nav>
+        </div>
 
         <div className="cs-spacer" />
         <a className="cs-support"><IconLifeBuoy size={15} /> Help &amp; Support</a>

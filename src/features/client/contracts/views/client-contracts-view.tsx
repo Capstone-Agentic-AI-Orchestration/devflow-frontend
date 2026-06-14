@@ -51,6 +51,7 @@ export function ClientContractsView() {
         allowReview
         defaultClientVisible={true}
         defaultKind="CONTRACT"
+        kindFilter="CONTRACT"
       />
     </div>
   );
