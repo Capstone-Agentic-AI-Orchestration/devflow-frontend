@@ -75,16 +75,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session]);
 
   useEffect(() => {
+    if (!session) return;
     let mounted = true;
 
-    refreshDevFlowUser().catch(() => null).finally(() => {
-      if (!mounted) return;
-    });
+    refreshDevFlowUser().catch(() => null);
 
     return () => {
       mounted = false;
     };
-  }, [refreshDevFlowUser]);
+  }, [session]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });

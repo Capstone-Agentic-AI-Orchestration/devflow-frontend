@@ -805,7 +805,7 @@ export function AdminSettingsView() {
         <Card style={{ padding: 18 }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 12px" }}>Platform settings</h3>
           {settingsState.error && <div style={{ color: "#FCA5A5", fontSize: 12.5, marginBottom: 10 }}>{settingsState.error}</div>}
-          {settingsState.loading ? <div style={{ color: "var(--text-3)", fontSize: 12.5 }}>Loading settings...</div> : settingsState.data.length === 0 ? <div style={{ color: "var(--text-3)", fontSize: 12.5 }}>No settings saved yet.</div> : settingsState.data.map((setting) => <SignalRow key={setting.id} icon={<IconSettings size={14} />} label={setting.key} value={formatDevFlowDate(setting.updatedAt)} tone="blue" />)}
+          {settingsState.loading ? <div style={{ color: "var(--text-3)", fontSize: 12.5 }}>Loading settings...</div> : settingsState.data.length === 0 ? <div style={{ color: "var(--text-3)", fontSize: 12.5 }}>No settings saved yet.</div> : settingsState.data.map((setting) => <SignalRow key={setting.key} icon={<IconSettings size={14} />} label={setting.key} value={formatDevFlowDate(setting.updatedAt)} tone="blue" />)}
         </Card>
       </div>
       <Modal

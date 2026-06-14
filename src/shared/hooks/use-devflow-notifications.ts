@@ -37,7 +37,14 @@ export function useDevFlowNotifications() {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    setLoading(true);
+    setError("");
+    getDevFlowNotifications()
+      .then((result) => { if (active) setNotifications(result); })
+      .catch((nextError) => { if (active) { setNotifications([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const unreadCount = useMemo(

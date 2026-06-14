@@ -469,12 +469,11 @@ export interface DevFlowAdminAuditLog {
 }
 
 export interface DevFlowPlatformSetting {
-  id: string;
   key: string;
   value: unknown;
   updatedById: string | null;
-  createdAt: string;
   updatedAt: string;
+  createdAt: string;
 }
 
 export interface DevFlowProjectMember {
@@ -1028,9 +1027,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
+      signal: controller.signal,
       ...init,
       headers: {
         "Content-Type": "application/json",
@@ -1039,6 +1042,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       },
     });
   } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new DevFlowApiError({
+        status: 0,
+        kind: "network",
+        message: "The DevFlow API did not respond within 15 seconds. Check that the backend is running and try again.",
+        details: "Request timed out",
+      });
+    }
     throw new DevFlowApiError({
       status: 0,
       kind: "network",
@@ -1046,6 +1057,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       details: error instanceof Error ? error.message : String(error),
     });
   }
+
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const rawBody = await response.text().catch(() => "");
@@ -1154,6 +1167,10 @@ export function rejectDevFlowInquiry(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listDevFlowProjectDetails(): Promise<DevFlowProjectDetail[]> {
+  return request<DevFlowProjectDetail[]>("/projects/details");
 }
 
 export function getDevFlowProject(projectId: string): Promise<DevFlowProjectDetail> {

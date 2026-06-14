@@ -31,13 +31,25 @@ export function RequireAuth({
       return;
     }
 
+    if (devFlowUser) {
+      if (!allowedRoles?.length || allowedRoles.includes(devFlowUser.role)) {
+        setRoleChecked(true);
+        return;
+      }
+      router.replace(homePathForRole(devFlowUser.role));
+      return;
+    }
+
+    if (devFlowUserError) return;
+
     let active = true;
     setRoleChecked(false);
     refreshDevFlowUser()
       .then((nextUser) => {
-        if (!active || !nextUser || !allowedRoles?.length) return;
-        if (allowedRoles.includes(nextUser.role)) return;
-        router.replace(homePathForRole(nextUser.role));
+        if (!active) return;
+        if (nextUser && allowedRoles?.length && !allowedRoles.includes(nextUser.role)) {
+          router.replace(homePathForRole(nextUser.role));
+        }
       })
       .catch(() => null)
       .finally(() => {
@@ -47,7 +59,7 @@ export function RequireAuth({
     return () => {
       active = false;
     };
-  }, [allowedKey, initialized, refreshDevFlowUser, router, user?.id]);
+  }, [allowedKey, devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, router, user?.id]);
 
   useEffect(() => {
     if (!roleChecked) return;

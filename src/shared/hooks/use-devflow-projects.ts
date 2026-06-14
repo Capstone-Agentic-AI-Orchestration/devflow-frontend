@@ -11,6 +11,7 @@ import {
   getDevFlowProjectTimeline,
   getDevFlowProjectWorkOrders,
   getDevFlowCollaborationDocuments,
+  listDevFlowProjectDetails,
   listDevFlowProjects,
   type DevFlowAgentProviderStatus,
   type DevFlowArtifact,
@@ -43,7 +44,14 @@ export function useDevFlowProjects() {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    setLoading(true);
+    setError("");
+    listDevFlowProjects()
+      .then((result) => { if (active) setProjects(result); })
+      .catch((nextError) => { if (active) { setProjects([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   return { projects, loading, error, refresh };
@@ -75,7 +83,18 @@ export function useDevFlowOrchestrationStatus(projectId?: string | null) {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setStatus(null); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowOrchestrationStatus(projectId)
+      .then((result) => { if (active) setStatus(result); })
+      .catch((nextError) => { if (active) { setStatus(null); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId]);
 
   return { status, loading, error, refresh };
@@ -107,7 +126,18 @@ export function useDevFlowOrchestrationProviderStatus(projectId?: string | null)
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setStatus(null); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowOrchestrationProviderStatus(projectId)
+      .then((result) => { if (active) setStatus(result); })
+      .catch((nextError) => { if (active) { setStatus(null); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId]);
 
   return { status, loading, error, refresh };
@@ -139,7 +169,18 @@ export function useDevFlowProject(projectId?: string | null) {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setProject(null); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowProject(projectId)
+      .then((result) => { if (active) setProject(result); })
+      .catch((nextError) => { if (active) { setProject(null); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId]);
 
   return { project, loading, error, refresh };
@@ -167,19 +208,71 @@ export function useDevFlowProjectDirectory() {
     setLoading(true);
     setError("");
     try {
-      const summaries = await listDevFlowProjects();
-      const details = await Promise.all(summaries.map((project) => getDevFlowProject(project.id)));
+      const details = await listDevFlowProjectDetails();
       setProjects(details);
-    } catch (nextError) {
-      setProjects([]);
-      setError(nextError instanceof Error ? nextError.message : String(nextError));
+    } catch {
+      try {
+        const summaries = await listDevFlowProjects();
+        const results = await Promise.allSettled(summaries.map((project) => getDevFlowProject(project.id)));
+        const details: DevFlowProjectDetail[] = [];
+        const errors: string[] = [];
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            details.push(result.value);
+          } else {
+            errors.push(result.reason instanceof Error ? result.reason.message : String(result.reason));
+          }
+        }
+        setProjects(details);
+        if (details.length === 0 && summaries.length > 0) {
+          setError(errors[0] || "All project detail requests failed");
+        }
+      } catch (nextError) {
+        setProjects([]);
+        setError(nextError instanceof Error ? nextError.message : String(nextError));
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    setLoading(true);
+    setError("");
+    listDevFlowProjectDetails()
+      .then((details) => { if (active) setProjects(details); })
+      .catch(() => {
+        if (!active) return;
+        return listDevFlowProjects()
+          .then((summaries) => {
+            if (!active) return;
+            if (summaries.length === 0) {
+              setProjects([]);
+              return;
+            }
+            return Promise.allSettled(summaries.map((project) => getDevFlowProject(project.id)))
+              .then((results) => {
+                if (!active) return;
+                const details: DevFlowProjectDetail[] = [];
+                const errors: string[] = [];
+                for (const result of results) {
+                  if (result.status === "fulfilled") {
+                    details.push(result.value);
+                  } else {
+                    errors.push(result.reason instanceof Error ? result.reason.message : String(result.reason));
+                  }
+                }
+                setProjects(details);
+                if (details.length === 0 && summaries.length > 0) {
+                  setError(errors[0] || "All project detail requests failed");
+                }
+              });
+          });
+      })
+      .catch((nextError) => { if (active) { setProjects([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   return { projects, loading, error, refresh };
@@ -244,7 +337,33 @@ export function useDevFlowProjectOutputs(projectId?: string | null, options?: { 
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setArtifacts([]); setDocuments([]); setEvents([]); setTasks([]); setTimeline([]); setWorkOrders([]); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    Promise.all([
+      getDevFlowProjectArtifacts(projectId),
+      includeDocuments ? getDevFlowCollaborationDocuments(projectId) : Promise.resolve([]),
+      includeEvents ? getDevFlowProjectEvents(projectId) : Promise.resolve([]),
+      includeTasks ? getDevFlowProjectTasks(projectId) : Promise.resolve([]),
+      includeTimeline ? getDevFlowProjectTimeline(projectId) : Promise.resolve([]),
+      includeWorkOrders ? getDevFlowProjectWorkOrders(projectId) : Promise.resolve([]),
+    ])
+      .then(([nextArtifacts, nextDocuments, nextEvents, nextTasks, nextTimeline, nextWorkOrders]) => {
+        if (!active) return;
+        setArtifacts(nextArtifacts);
+        setDocuments(nextDocuments);
+        setEvents(nextEvents);
+        setTasks(nextTasks);
+        setTimeline(nextTimeline);
+        setWorkOrders(nextWorkOrders);
+      })
+      .catch((nextError) => { if (active) { setArtifacts([]); setDocuments([]); setEvents([]); setTasks([]); setTimeline([]); setWorkOrders([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId, includeDocuments, includeEvents, includeTasks, includeTimeline, includeWorkOrders]);
 
   return { artifacts, documents, events, tasks, timeline, workOrders, loading, error, refresh };
