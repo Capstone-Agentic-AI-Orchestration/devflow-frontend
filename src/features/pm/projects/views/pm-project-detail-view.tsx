@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AgentLiveStrip } from "@/features/pm/shared/components/pm-agent-live-strip";
 import { PMPageHeader } from "@/features/pm/shared/components/pm-page-header";
-import { Badge, Button, Card, Field, Input, Modal, ProgressBar, Select, Tabs, Textarea } from "@/shared/components/ui";
+import { Badge, Button, Card, Field, Input, Select, Tabs, Textarea } from "@/shared/components/ui";
 import { DevFlowProjectTimeline } from "@/shared/components/project-timeline/devflow-project-timeline";
 import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestration/orchestration-provider-status-panel";
 import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
@@ -28,6 +28,7 @@ import {
   IconFileText,
   IconFolder,
   IconGitBranch,
+  IconGitHub,
   IconHash,
   IconLock,
   IconMessageCircle,
@@ -49,6 +50,7 @@ import {
 import {
   addDevFlowProjectMember,
   addDevFlowProjectTaskComment,
+  createDevFlowAdminRepository,
   createDevFlowKickoffTasks,
   createDevFlowKickoffWorkOrders,
   createDevFlowProjectTask,
@@ -166,6 +168,7 @@ function BackendProjectDetail({ project, onBack }) {
   const [saving, setSaving] = useState(false);
   const [starting, setStarting] = useState(false);
   const [orchestrationAction, setOrchestrationAction] = useState("");
+  const [creatingRepo, setCreatingRepo] = useState(false);
   const [error, setError] = useState("");
   const [memberSearchError, setMemberSearchError] = useState("");
   const [memberSearchLoading, setMemberSearchLoading] = useState(false);
@@ -397,6 +400,19 @@ function BackendProjectDetail({ project, onBack }) {
     }
   };
 
+  const handleCreateRepo = async () => {
+    setCreatingRepo(true);
+    setError("");
+    try {
+      const result = await createDevFlowAdminRepository(detail.id);
+      setDetail({ ...detail, repoUrl: result.repoUrl });
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : String(nextError));
+    } finally {
+      setCreatingRepo(false);
+    }
+  };
+
   const startRun = async () => {
     const blockers = orchestrationReadinessBlockers(detail, outputs.workOrders, outputs.loading);
     const providerBlocker = provider.error || (provider.status && !provider.status.available ? provider.status.reason : "");
@@ -590,6 +606,8 @@ function BackendProjectDetail({ project, onBack }) {
               blockers={orchestrationBlockers}
               starting={starting}
               actionId={orchestrationAction}
+              creatingRepo={creatingRepo}
+              onCreateRepo={handleCreateRepo}
               onStart={startRun}
               onRerunReady={rerunReadyWorkOrders}
               onRetryFailedWorkOrder={retryFailedWorkOrder}
@@ -830,7 +848,7 @@ function BackendProjectDetail({ project, onBack }) {
   );
 }
 
-function BackendOrchestrationPanel({ detail, status, statusLoading, statusError, providerStatus, providerLoading, providerError, githubVerification, githubVerificationLoading, githubVerificationError, llmVerification, llmVerificationLoading, llmVerificationError, workOrders, artifacts, events, runs, runsLoading, runsError, blockers, starting, actionId, onStart, onRerunReady, onRetryFailedWorkOrder, onVerifyGithubDelivery, onVerifyLlmProvider, onRefresh }) {
+function BackendOrchestrationPanel({ detail, status, statusLoading, statusError, providerStatus, providerLoading, providerError, githubVerification, githubVerificationLoading, githubVerificationError, llmVerification, llmVerificationLoading, llmVerificationError, workOrders, artifacts, events, runs, runsLoading, runsError, blockers, starting, actionId, creatingRepo, onCreateRepo, onStart, onRerunReady, onRetryFailedWorkOrder, onVerifyGithubDelivery, onVerifyLlmProvider, onRefresh }) {
   const readyWorkOrders = workOrders.filter((workOrder) => workOrder.status === "READY");
   const executableWorkOrders = readyWorkOrders.filter((workOrder) => workOrder.instructions?.trim());
   const failedWorkOrders = workOrders.filter((workOrder) => workOrder.status === "FAILED");
@@ -947,12 +965,17 @@ function BackendOrchestrationPanel({ detail, status, statusLoading, statusError,
         </div>
       )}
 
-      {detail.repoUrl && (
+      {detail.repoUrl ? (
         <div className="row gap-2" style={{ marginTop: 14, padding: 10, border: "1px solid rgba(16,185,129,.24)", background: "rgba(16,185,129,.08)", borderRadius: 8, color: "var(--text-2)", fontSize: 12.5, justifyContent: "space-between", flexWrap: "wrap" }}>
           <span className="row gap-2"><IconGitBranch size={13} style={{ color: "#6EE7B7" }} /> Generated repository is linked.</span>
           <a href={detail.repoUrl} target="_blank" rel="noreferrer" className="row gap-1" style={{ color: "#93C5FD", fontWeight: 700 }}>
             Open repo <IconExternalLink size={12} />
           </a>
+        </div>
+      ) : (
+        <div className="row gap-2" style={{ marginTop: 14, padding: 10, border: "1px solid rgba(59,130,246,.24)", background: "rgba(59,130,246,.07)", borderRadius: 8, color: "var(--text-2)", fontSize: 12.5, justifyContent: "space-between", flexWrap: "wrap" }}>
+          <span className="row gap-2"><IconGitHub size={13} style={{ color: "#93C5FD" }} /> No GitHub repository linked.</span>
+          <Button variant="secondary" size="sm" loading={creatingRepo} onClick={onCreateRepo}>Create GitHub repository</Button>
         </div>
       )}
 

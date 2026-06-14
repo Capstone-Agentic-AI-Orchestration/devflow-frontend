@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { DevFlowUserRole } from "@/shared/api/devflow-api";
 import { compactDevFlowError } from "@/shared/utils/devflow-projects";
@@ -14,9 +14,11 @@ export function RequireAuth({
   allowedRoles?: DevFlowUserRole[];
   children: ReactNode;
 }) {
-  const { devFlowUser, devFlowUserError, initialized, signOut, user } = useAuth();
+  const { devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, signOut, user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [roleChecked, setRoleChecked] = useState(false);
+  const allowedKey = useMemo(() => allowedRoles?.join("|") ?? "", [allowedRoles]);
 
   useEffect(() => {
     if (!initialized || user) return;
@@ -24,10 +26,47 @@ export function RequireAuth({
   }, [initialized, pathname, router, user]);
 
   useEffect(() => {
+    if (!initialized || !user) {
+      setRoleChecked(false);
+      return;
+    }
+
+    if (devFlowUser) {
+      if (!allowedRoles?.length || allowedRoles.includes(devFlowUser.role)) {
+        setRoleChecked(true);
+        return;
+      }
+      router.replace(homePathForRole(devFlowUser.role));
+      return;
+    }
+
+    if (devFlowUserError) return;
+
+    let active = true;
+    setRoleChecked(false);
+    refreshDevFlowUser()
+      .then((nextUser) => {
+        if (!active) return;
+        if (nextUser && allowedRoles?.length && !allowedRoles.includes(nextUser.role)) {
+          router.replace(homePathForRole(nextUser.role));
+        }
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (active) setRoleChecked(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [allowedKey, devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, router, user?.id]);
+
+  useEffect(() => {
+    if (!roleChecked) return;
     if (!devFlowUser || !allowedRoles?.length) return;
     if (allowedRoles.includes(devFlowUser.role)) return;
     router.replace(homePathForRole(devFlowUser.role));
-  }, [allowedRoles, devFlowUser, router]);
+  }, [allowedRoles, devFlowUser, roleChecked, router]);
 
   const returnToSignIn = async () => {
     await signOut().catch(() => null);
@@ -53,7 +92,7 @@ export function RequireAuth({
     );
   }
 
-  if (!devFlowUser) {
+  if (!roleChecked || !devFlowUser) {
     return <AuthRouteState title="Loading role" body="Resolving your DevFlow role from the backend." />;
   }
 

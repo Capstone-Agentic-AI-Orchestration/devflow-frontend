@@ -1,6 +1,6 @@
 import { supabase } from "@/shared/auth/supabase-client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
 
 export type DevFlowApiErrorKind =
   | "unauthenticated"
@@ -45,8 +45,13 @@ export type DevFlowProjectStatus =
   | "FAILED";
 
 export type DevFlowUserRole = "CLIENT" | "PM" | "DEV" | "ADMIN";
+export type DevFlowProfileStatus = "ACTIVE" | "SUSPENDED";
 
 export type DevFlowInquiryStatus = "NEW" | "APPROVED" | "REJECTED";
+
+export type DevFlowScheduleEventType = "MILESTONE" | "MEETING" | "DUE_DATE" | "REMINDER" | "OTHER";
+export type DevFlowScheduleVisibility = "PRIVATE" | "TEAM" | "CLIENT";
+export type DevFlowDeveloperAvailabilityStatus = "AVAILABLE" | "LIMITED" | "UNAVAILABLE";
 
 export type DevFlowClientInviteStatus = "PENDING" | "ACCEPTED" | "REVOKED";
 
@@ -159,6 +164,19 @@ export interface DevFlowAuthUser {
   email: string | null;
   fullName: string | null;
   role: DevFlowUserRole;
+  status?: DevFlowProfileStatus;
+}
+
+export interface DevFlowProfileSelf extends DevFlowAuthUser {
+  status: DevFlowProfileStatus;
+  preferences: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateDevFlowProfileInput {
+  fullName?: string;
+  preferences?: Record<string, unknown>;
 }
 
 export interface DevFlowProfileSearchResult {
@@ -292,6 +310,170 @@ export interface DevFlowProfile {
   email: string | null;
   fullName: string | null;
   role: DevFlowUserRole;
+}
+
+export type DevFlowAdminDomainStatus = "PLANNED" | "PENDING_VERIFICATION" | "VERIFIED" | "FAILED" | "DISABLED";
+
+export interface DevFlowAdminUser extends DevFlowProfile {
+  status: DevFlowProfileStatus;
+  createdAt: string;
+  updatedAt: string;
+  memberships?: Array<{ projectId: string; role: DevFlowUserRole }>;
+  createdProjects?: Array<{ id: string }>;
+  projectCount: number;
+}
+
+export interface DevFlowAdminDomain {
+  id: string;
+  name: string;
+  type: string;
+  owner: string | null;
+  target: string | null;
+  environment: string;
+  status: DevFlowAdminDomainStatus;
+  verifiedAt: string | null;
+  createdById: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DevFlowAdminRepository {
+  projectId: string;
+  companyName: string;
+  status: DevFlowProjectStatus;
+  repoUrl: string | null;
+  runId: string | null;
+  linked: boolean;
+  updatedAt: string;
+}
+
+export interface DevFlowAdminHandoff {
+  projectId: string;
+  companyName: string;
+  projectStatus: DevFlowProjectStatus;
+  repoUrl: string | null;
+  deliveryReviewStatus: DevFlowProjectDeliveryReviewStatus;
+  clientVisibleArtifacts: number;
+  publishedArtifacts: number;
+  activeWorkOrders: number;
+  updatedAt: string;
+}
+
+export interface DevFlowAdminUsage {
+  totals: {
+    tokensConsumed: number;
+    tokenBudget: number;
+    budgetUtilization: number;
+    runCount: number;
+    eventCount: number;
+  };
+  projects: Array<{
+    projectId: string;
+    companyName: string;
+    status: DevFlowProjectStatus;
+    tokensConsumed: number;
+    tokenBudget: number;
+    retryCount: number;
+    maxRetries: number;
+  }>;
+  recentRuns: DevFlowOrchestrationRun[];
+}
+
+export interface DevFlowScheduleEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  startsAt: string;
+  endsAt: string;
+  type: DevFlowScheduleEventType;
+  projectId: string | null;
+  ownerId: string;
+  visibility: DevFlowScheduleVisibility;
+  createdAt: string;
+  updatedAt: string;
+  project: Pick<DevFlowProjectSummary, "id" | "companyName" | "status"> | null;
+  owner: Pick<DevFlowProfile, "id" | "email" | "fullName" | "role">;
+}
+
+export interface CreateDevFlowScheduleEventInput {
+  title: string;
+  description?: string;
+  startsAt: string;
+  endsAt: string;
+  type?: DevFlowScheduleEventType;
+  projectId?: string | null;
+  visibility?: DevFlowScheduleVisibility;
+}
+
+export interface UpdateDevFlowScheduleEventInput extends Partial<CreateDevFlowScheduleEventInput> {}
+
+export interface DevFlowDeveloper {
+  userId: string;
+  role: "DEV";
+  displayName: string;
+  email: string | null;
+  skills: string[];
+  weeklyCapacityHours: number | null;
+  availabilityStatus: DevFlowDeveloperAvailabilityStatus;
+  notes: string | null;
+  assignedProjectCount: number;
+  openTaskCount: number;
+  activeWorkOrderCount: number;
+  projects: Array<Pick<DevFlowProjectSummary, "id" | "companyName" | "status" | "updatedAt" | "lifecycle">>;
+  updatedAt: string | null;
+}
+
+export interface UpdateDevFlowDeveloperCapacityInput {
+  skills?: string[];
+  weeklyCapacityHours?: number | null;
+  availabilityStatus?: DevFlowDeveloperAvailabilityStatus;
+  notes?: string | null;
+}
+
+export interface DevFlowPmSummary {
+  totals: {
+    projects: number;
+    pendingInvites: number;
+    openTasks: number;
+    activeWorkOrders: number;
+    recentInquiries: number;
+  };
+  projectStatusCounts: Record<string, number>;
+  recentProjects: Array<Pick<DevFlowProjectSummary, "id" | "companyName" | "status" | "updatedAt" | "lifecycle">>;
+  recentInquiries: Pick<DevFlowInquiry, "id" | "companyName" | "contactName" | "email" | "status" | "createdAt">[];
+}
+
+export interface DevFlowAdminHealth {
+  ok: boolean;
+  checkedAt: string;
+  services: {
+    database: string;
+    projects: number;
+    profiles: number;
+    runningRuns: number;
+    failedRuns: number;
+  };
+  domains: Array<{ status: DevFlowAdminDomainStatus; _count: number }>;
+}
+
+export interface DevFlowAdminAuditLog {
+  id: string;
+  actorId: string | null;
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  summary: string;
+  metadata: unknown;
+  createdAt: string;
+  actor: DevFlowProfile | null;
+}
+
+export interface DevFlowPlatformSetting {
+  key: string;
+  value: unknown;
+  updatedById: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export interface DevFlowProjectMember {
@@ -845,9 +1027,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
+      signal: controller.signal,
       ...init,
       headers: {
         "Content-Type": "application/json",
@@ -856,6 +1042,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       },
     });
   } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new DevFlowApiError({
+        status: 0,
+        kind: "network",
+        message: "The DevFlow API did not respond within 15 seconds. Check that the backend is running and try again.",
+        details: "Request timed out",
+      });
+    }
     throw new DevFlowApiError({
       status: 0,
       kind: "network",
@@ -863,6 +1057,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       details: error instanceof Error ? error.message : String(error),
     });
   }
+
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const rawBody = await response.text().catch(() => "");
@@ -909,6 +1105,14 @@ function parseApiErrorBody(rawBody: string): { message: string } {
   }
 
   return { message: rawBody };
+}
+
+function fileNameFromDisposition(disposition: string | null): string | null {
+  if (!disposition) return null;
+  const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match?.[1]) return decodeURIComponent(utf8Match[1]);
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  return match?.[1] || null;
 }
 
 export function listDevFlowProjects(): Promise<DevFlowProjectSummary[]> {
@@ -963,6 +1167,10 @@ export function rejectDevFlowInquiry(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export function listDevFlowProjectDetails(): Promise<DevFlowProjectDetail[]> {
+  return request<DevFlowProjectDetail[]>("/projects/details");
 }
 
 export function getDevFlowProject(projectId: string): Promise<DevFlowProjectDetail> {
@@ -1322,6 +1530,17 @@ export function getCurrentDevFlowUser(): Promise<DevFlowAuthUser> {
   return request<DevFlowAuthUser>("/auth/me");
 }
 
+export function getCurrentDevFlowProfile(): Promise<DevFlowProfileSelf> {
+  return request<DevFlowProfileSelf>("/profiles/me");
+}
+
+export function updateCurrentDevFlowProfile(input: UpdateDevFlowProfileInput): Promise<DevFlowProfileSelf> {
+  return request<DevFlowProfileSelf>("/profiles/me", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
 export function searchDevFlowProfiles(input: {
   q?: string;
   roles?: DevFlowUserRole[];
@@ -1334,6 +1553,212 @@ export function searchDevFlowProfiles(input: {
 
   const query = params.toString();
   return request<DevFlowProfileSearchResult[]>(`/profiles${query ? `?${query}` : ""}`);
+}
+
+export function listDevFlowScheduleEvents(): Promise<DevFlowScheduleEvent[]> {
+  return request<DevFlowScheduleEvent[]>("/schedule/events");
+}
+
+export function createDevFlowScheduleEvent(input: CreateDevFlowScheduleEventInput): Promise<DevFlowScheduleEvent> {
+  return request<DevFlowScheduleEvent>("/schedule/events", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateDevFlowScheduleEvent(
+  id: string,
+  input: UpdateDevFlowScheduleEventInput,
+): Promise<DevFlowScheduleEvent> {
+  return request<DevFlowScheduleEvent>(`/schedule/events/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function deleteDevFlowScheduleEvent(id: string): Promise<{ deleted: true }> {
+  return request<{ deleted: true }>(`/schedule/events/${id}`, { method: "DELETE" });
+}
+
+export function getDevFlowPmSummary(): Promise<DevFlowPmSummary> {
+  return request<DevFlowPmSummary>("/reports/pm-summary");
+}
+
+export function listDevFlowDevelopers(): Promise<DevFlowDeveloper[]> {
+  return request<DevFlowDeveloper[]>("/developers");
+}
+
+export function getDevFlowDeveloper(id: string): Promise<DevFlowDeveloper> {
+  return request<DevFlowDeveloper>(`/developers/${id}`);
+}
+
+export function updateDevFlowDeveloperCapacity(input: UpdateDevFlowDeveloperCapacityInput): Promise<DevFlowDeveloper> {
+  return request<DevFlowDeveloper>("/developers/me/capacity", {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export async function downloadDevFlowProjectArtifact(
+  projectId: string,
+  artifactId: string,
+  fallbackFileName = "artifact",
+): Promise<void> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/projects/${projectId}/artifacts/${artifactId}/download`, {
+      headers: {
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+    });
+  } catch (error) {
+    throw new DevFlowApiError({
+      status: 0,
+      kind: "network",
+      message: "Cannot reach the DevFlow API. Check that the backend is running and try again.",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  if (!response.ok) {
+    const rawBody = await response.text().catch(() => "");
+    const parsed = parseApiErrorBody(rawBody);
+    throw new DevFlowApiError({
+      status: response.status,
+      kind: kindForStatus(response.status),
+      message: messageForStatus(response.status, parsed.message),
+      details: parsed.message,
+      rawBody,
+    });
+  }
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileNameFromDisposition(response.headers.get("content-disposition")) || fallbackFileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function listDevFlowAdminUsers(input: {
+  q?: string;
+  role?: DevFlowUserRole | "ALL";
+} = {}): Promise<DevFlowAdminUser[]> {
+  const params = new URLSearchParams();
+  if (input.q) params.set("q", input.q);
+  if (input.role && input.role !== "ALL") params.set("role", input.role);
+  const query = params.toString();
+  return request<DevFlowAdminUser[]>(`/admin/users${query ? `?${query}` : ""}`);
+}
+
+export function updateDevFlowAdminUserRole(id: string, role: DevFlowUserRole): Promise<DevFlowAdminUser> {
+  return request<DevFlowAdminUser>(`/admin/users/${id}/role`, {
+    method: "PATCH",
+    body: JSON.stringify({ role }),
+  });
+}
+
+export function updateDevFlowAdminUserStatus(id: string, status: DevFlowProfileStatus): Promise<DevFlowAdminUser> {
+  return request<DevFlowAdminUser>(`/admin/users/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function listDevFlowAdminDomains(): Promise<DevFlowAdminDomain[]> {
+  return request<DevFlowAdminDomain[]>("/admin/domains");
+}
+
+export function createDevFlowAdminDomain(input: {
+  name: string;
+  type: string;
+  owner?: string;
+  target?: string;
+  environment?: string;
+}): Promise<DevFlowAdminDomain> {
+  return request<DevFlowAdminDomain>("/admin/domains", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateDevFlowAdminDomain(
+  id: string,
+  input: Partial<Pick<DevFlowAdminDomain, "type" | "owner" | "target" | "environment" | "status">>,
+): Promise<DevFlowAdminDomain> {
+  return request<DevFlowAdminDomain>(`/admin/domains/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
+}
+
+export function verifyDevFlowAdminDomain(id: string): Promise<DevFlowAdminDomain> {
+  return request<DevFlowAdminDomain>(`/admin/domains/${id}/verify`, { method: "POST" });
+}
+
+export function deleteDevFlowAdminDomain(id: string): Promise<{ deleted: true }> {
+  return request<{ deleted: true }>(`/admin/domains/${id}`, { method: "DELETE" });
+}
+
+export function listDevFlowAdminRepositories(): Promise<DevFlowAdminRepository[]> {
+  return request<DevFlowAdminRepository[]>("/admin/repositories");
+}
+
+export function linkDevFlowAdminRepository(projectId: string, repoUrl: string): Promise<DevFlowAdminRepository> {
+  return request<DevFlowAdminRepository>(`/admin/projects/${projectId}/repository`, {
+    method: "PATCH",
+    body: JSON.stringify({ repoUrl }),
+  });
+}
+
+export function createDevFlowAdminRepository(projectId: string): Promise<{ repoUrl: string }> {
+  return request<{ repoUrl: string }>(`/admin/projects/${projectId}/repository/create`, {
+    method: "POST",
+  });
+}
+
+export function listDevFlowAdminHandoffs(): Promise<DevFlowAdminHandoff[]> {
+  return request<DevFlowAdminHandoff[]>("/admin/handoffs");
+}
+
+export function overrideDevFlowAdminHandoff(
+  projectId: string,
+  input: { note: string; markReady?: boolean },
+): Promise<DevFlowProjectSummary> {
+  return request<DevFlowProjectSummary>(`/admin/projects/${projectId}/handoff/override`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getDevFlowAdminUsage(): Promise<DevFlowAdminUsage> {
+  return request<DevFlowAdminUsage>("/admin/usage");
+}
+
+export function getDevFlowAdminHealth(): Promise<DevFlowAdminHealth> {
+  return request<DevFlowAdminHealth>("/admin/health");
+}
+
+export function getDevFlowAdminAuditLogs(limit = 100): Promise<DevFlowAdminAuditLog[]> {
+  return request<DevFlowAdminAuditLog[]>(`/admin/audit-logs?limit=${limit}`);
+}
+
+export function getDevFlowPlatformSettings(): Promise<DevFlowPlatformSetting[]> {
+  return request<DevFlowPlatformSetting[]>("/admin/settings");
+}
+
+export function updateDevFlowPlatformSetting(key: string, value: Record<string, unknown>): Promise<DevFlowPlatformSetting> {
+  return request<DevFlowPlatformSetting>(`/admin/settings/${key}`, {
+    method: "PATCH",
+    body: JSON.stringify({ value }),
+  });
 }
 
 export function createDevFlowProject(input: CreateDevFlowProjectInput): Promise<DevFlowProjectSummary> {

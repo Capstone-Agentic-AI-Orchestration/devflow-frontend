@@ -23,6 +23,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string) => Promise<DevFlowAuthUser | null>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
+  refreshDevFlowUser: () => Promise<DevFlowAuthUser | null>;
   signOut: () => Promise<void>;
 }
 
@@ -54,26 +55,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-
+  const refreshDevFlowUser = useCallback(async () => {
     if (!session) {
       setDevFlowUser(null);
       setDevFlowUserError(null);
-      return;
+      return null;
     }
 
-    getCurrentDevFlowUser()
-      .then((user) => {
-        if (!mounted) return;
-        setDevFlowUser(user);
-        setDevFlowUserError(null);
-      })
-      .catch((error) => {
-        if (!mounted) return;
-        setDevFlowUser(null);
-        setDevFlowUserError(error instanceof Error ? error.message : String(error));
-      });
+    try {
+      const user = await getCurrentDevFlowUser();
+      setDevFlowUser(user);
+      setDevFlowUserError(null);
+      return user;
+    } catch (error) {
+      setDevFlowUser(null);
+      setDevFlowUserError(error instanceof Error ? error.message : String(error));
+      throw error;
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (!session) return;
+    let mounted = true;
+
+    refreshDevFlowUser().catch(() => null);
 
     return () => {
       mounted = false;
@@ -134,9 +139,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       resetPassword,
       updatePassword,
+      refreshDevFlowUser,
       signOut,
     }),
-    [devFlowUser, devFlowUserError, initialized, resetPassword, session, signIn, signOut, signUp, updatePassword],
+    [devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, resetPassword, session, signIn, signOut, signUp, updatePassword],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

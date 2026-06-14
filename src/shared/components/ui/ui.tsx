@@ -12,25 +12,22 @@ import {
 } from "@/shared/components/icons";
 /* ---------------- Logo ---------------- */
 function Logo({ size = 28 }) {
-  // Simple A-mark + wordmark; navy-friendly white logo
+  const markSize = size + 18;
   return (
-    <div className="row gap-3" style={{ alignItems: "center" }}>
-      <div
-        style={{
-          width: size + 6, height: size + 6, borderRadius: 9,
-          background: "linear-gradient(135deg, #2F6BFF 0%, #8B5CF6 100%)",
-          display: "grid", placeItems: "center",
-          boxShadow: "0 8px 22px rgba(79,139,255,.45), inset 0 0 0 1px rgba(255,255,255,.1)",
-          position: "relative",
-        }}
-      >
-        <svg width={size - 6} height={size - 6} viewBox="0 0 24 24" fill="none">
-          <path d="M12 3 L21 21 L15.5 21 L12 13 L8.5 21 L3 21 Z" fill="white" />
-          <circle cx="12" cy="9" r="2.2" fill="white" opacity=".9" />
+    <div className="alpha-logo" style={{ "--logo-mark-size": `${markSize}px` }}>
+      <div className="alpha-logo-mark" aria-hidden="true">
+        <svg width={markSize} height={markSize} viewBox="0 0 96 96" fill="none">
+          <path d="M16 57C11 40 17 22 33 12" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+          <path d="M63 12C79 20 87 38 80 56" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+          <path d="M22 78L48 16L74 78L48 66L22 78Z" stroke="currentColor" strokeWidth="7" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M38 55L48 31L58 55L48 50L38 55Z" stroke="currentColor" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
+          <path d="M25 88L34 70" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+          <path d="M12 88L24 65" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+          <path d="M39 82C47 85 57 85 65 81" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
         </svg>
       </div>
-      <div style={{ fontWeight: 700, letterSpacing: "-0.02em", fontSize: 17 }}>
-        <span>Alpha</span><span style={{ color: "#94A3B8", fontWeight: 600 }}>explora</span>
+      <div className="alpha-logo-wordmark">
+        ALPHAEXPLORA
       </div>
     </div>
   );
@@ -229,14 +226,6 @@ function Skeleton({ w = "100%", h = 14, r = 6, style }) {
   return <div className="skeleton" style={{ width: w, height: h, borderRadius: r, ...style }} />;
 }
 
-function ProgressBar({ percent = 0, color = "var(--accent)", height = 6 }) {
-  return (
-    <div style={{ width: "100%", background: "var(--surface-2)", borderRadius: height, height, overflow: "hidden", margin: "6px 0" }}>
-      <div style={{ width: `${Math.min(100, Math.max(0, percent))}%`, height: "100%", background: color, borderRadius: height, transition: "width .3s ease" }} />
-    </div>
-  );
-}
-
 export {
   Logo,
   Button,
@@ -254,5 +243,4 @@ export {
   TopBar,
   EmptyState,
   Skeleton,
-  ProgressBar,
 };

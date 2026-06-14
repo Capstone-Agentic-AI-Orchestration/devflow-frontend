@@ -15,12 +15,13 @@ export function ProjectDocumentsPanel({
   allowReview = false,
   defaultClientVisible = true,
   defaultKind = "GENERAL",
+  kindFilter = null,
 }) {
   const { documents, loading, error, refresh, createDocument, reviewDocument } = useDevFlowCollaborationDocuments(projectId);
   const [form, setForm] = useState({ title: "", description: "", fileName: "", externalUrl: "", kind: defaultKind, clientVisible: defaultClientVisible });
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
-  const visibleDocuments = useMemo(() => documents, [documents]);
+  const visibleDocuments = useMemo(() => kindFilter ? documents.filter((document) => document.kind === kindFilter) : documents, [documents, kindFilter]);
 
   const submit = async () => {
     if (!form.title.trim()) return;

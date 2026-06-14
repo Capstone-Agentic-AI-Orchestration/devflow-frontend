@@ -1,4 +1,4 @@
-import { AdminProjectsView } from "@/features/admin/views/admin-views";
+import { AdminProjectsView } from "@/features/admin/projects/views/admin-projects-view";
 
 export default function AdminProjectsPage() {
   return <AdminProjectsView />;

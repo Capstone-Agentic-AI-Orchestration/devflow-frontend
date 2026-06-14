@@ -113,25 +113,27 @@ function PMSidebar({ route, profile, onNavigate, mobileOpen, setMobileOpen }) {
           <div className="pm-org-meta">Alphaexplora - Internal</div>
         </div>
 
-        <nav className="cs-nav" style={{ overflowY: "auto", minHeight: 0 }}>
-          {PM_NAV.map((item) => (
-            <a
-              key={item.id}
-              className={"cs-nav-item" + ((base === item.id || (item.id === "projects" && base === "project") || (item.id === "clients" && base === "client") || (item.id === "team" && base === "dev")) ? " active" : "")}
-              onClick={() => {
-                onNavigate(item.id);
-                setMobileOpen?.(false);
-              }}
-            >
-              <span className="cs-nav-icon">{item.icon}</span>
-              <span className="cs-nav-label">
-                {item.label}
-                {item.sublabel && <span style={{ color: "var(--text-3)", fontWeight: 400, marginLeft: 4, fontSize: 11 }}>- {item.sublabel}</span>}
-              </span>
-              {item.badge !== undefined && <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span>}
-            </a>
-          ))}
-        </nav>
+        <div className="cs-nav-scroll">
+          <nav className="cs-nav">
+            {PM_NAV.map((item) => (
+              <a
+                key={item.id}
+                className={"cs-nav-item" + ((base === item.id || (item.id === "projects" && base === "project") || (item.id === "clients" && base === "client") || (item.id === "team" && base === "dev")) ? " active" : "")}
+                onClick={() => {
+                  onNavigate(item.id);
+                  setMobileOpen?.(false);
+                }}
+              >
+                <span className="cs-nav-icon">{item.icon}</span>
+                <span className="cs-nav-label">
+                  {item.label}
+                  {item.sublabel && <span style={{ color: "var(--text-3)", fontWeight: 400, marginLeft: 4, fontSize: 11 }}>- {item.sublabel}</span>}
+                </span>
+                {item.badge !== undefined && <span className="cs-nav-badge cs-nav-badge--count">{item.badge}</span>}
+              </a>
+            ))}
+          </nav>
+        </div>
 
         <div className="cs-spacer" />
 

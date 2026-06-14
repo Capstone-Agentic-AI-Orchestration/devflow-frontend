@@ -3,7 +3,7 @@ import { RequireAuth } from "@/shared/auth/require-auth";
 
 export default function DevLayout({ children }: { children: React.ReactNode }) {
   return (
-    <RequireAuth allowedRoles={["DEV", "ADMIN"]}>
+    <RequireAuth allowedRoles={["DEV"]}>
       <DevConsoleShell>{children}</DevConsoleShell>
     </RequireAuth>
   );

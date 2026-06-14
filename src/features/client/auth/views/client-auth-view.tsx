@@ -1,69 +1,116 @@
 // @ts-nocheck
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Field, Input, Logo } from "@/shared/components/ui";
 import { IconArrowLeft, IconArrowRight, IconCheck, IconEye, IconEyeOff, IconMail, IconShield } from "@/shared/components/icons";
 import { useAuth } from "@/shared/auth/auth-provider";
-import { homePathForRole } from "@/shared/auth/role-routing";
+import { loginPathForRole } from "@/shared/auth/role-routing";
 import { getDevFlowClientInviteStatus } from "@/shared/api/devflow-api";
+
+const BRAND_HEADINGS = {
+  "sign-in": <>Welcome back to <span className="gradient-text">Alphaexplora.</span></>,
+  "sign-up": <>One last step to start your <span className="gradient-text">engagement.</span></>,
+  forgot: <>No worries, we'll get you <span className="gradient-text">back in.</span></>,
+  reset: <>Choose a new <span className="gradient-text">password.</span></>,
+};
 
 export function ClientAuthView({ mode = "sign-in" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
-  const title = {
-    "sign-in": "Sign in to your dashboard",
-    "sign-up": "Create your account",
-    forgot: "Forgot your password?",
-    reset: "Reset your password",
-  }[mode];
 
   return (
     <div className="auth-shell" data-screen-label={`Client Auth - ${mode}`}>
-      <AuthBrandPanel
-        heading={mode === "sign-up" ? "One last step to start your engagement." : mode === "forgot" ? "No worries, we'll get you back in." : "Welcome back to Alphaexplora."}
-        sub="Track your engagement, message your project manager, review documents, and approve deliverables in one secure place."
-      />
-      <main className="auth-form-side">
-        <div className="auth-form-top">
-          {mode === "sign-in" ? (
-            <>
-              <span>Don&apos;t have an account?</span>
-              <a className="auth-link" onClick={() => router.push("/")}>Submit an inquiry first</a>
-            </>
-          ) : (
-            <a className="auth-link" onClick={() => router.push("/client/sign-in")}><IconArrowLeft size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />Back to sign in</a>
-          )}
-        </div>
+      <div className="auth-shell-main">
+        <AuthBrandPanel
+          heading={BRAND_HEADINGS[mode]}
+          sub="Track your engagement, message your project manager, review documents, and approve deliverables in one secure place."
+        />
+        <main className="auth-form-side">
+          <button type="button" className="auth-back-home" onClick={() => router.push("/")}>
+            <IconArrowLeft size={15} /> Back to home
+          </button>
 
-        <div className="auth-form-card">
-          {mode === "sign-in" && <SignInForm onDone={(role) => router.push(nextPath || homePathForRole(role))} />}
-          {mode === "sign-up" && <SignUpForm initialEmail={searchParams.get("email") || ""} onDone={(role) => router.push(nextPath || homePathForRole(role))} />}
-          {mode === "forgot" && <ForgotForm />}
-          {mode === "reset" && <ResetForm onDone={() => router.push("/client/sign-in")} />}
-        </div>
+          <div className="auth-form-card">
+            {mode === "sign-in" && <SignInForm onDone={(role) => router.push(loginPathForRole(role, nextPath))} />}
+            {mode === "sign-up" && <SignUpForm initialEmail={searchParams.get("email") || ""} onDone={(role) => router.push(loginPathForRole(role, nextPath))} />}
+            {mode === "forgot" && <ForgotForm />}
+            {mode === "reset" && <ResetForm onDone={() => router.push("/client/sign-in")} />}
+          </div>
 
-        <div style={{ fontSize: 12, color: "var(--text-3)" }}>
-          Need help signing in? <a className="auth-link">Contact support</a>
+          <div className="auth-form-footnote">
+            Need help signing in? <button type="button" className="auth-link auth-link-btn">Contact support</button>
+          </div>
+        </main>
+      </div>
+
+      <div className="auth-shell-footer">
+        <div>© 2026 Alphaexplora IT Services. All rights reserved.</div>
+        <div className="row gap-4">
+          <span className="row gap-2"><span className="dot" /> All systems normal</span>
+          <div className="row gap-3"><span>Terms</span><span>Privacy</span><span>Help</span></div>
         </div>
-      </main>
+      </div>
+    </div>
+  );
+}
+
+const FLOW_STAGES = [
+  { label: "Inquiry", tint: "#4F8BFF" },
+  { label: "Scope", tint: "#14B8A6" },
+  { label: "Build", tint: "#F59E0B" },
+  { label: "Review", tint: "#10B981" },
+  { label: "Handoff", tint: "#93C5FD" },
+];
+
+function AuthFlowStrip() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive((index) => (index + 1) % FLOW_STAGES.length), 1800);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="auth-flow-strip">
+      <div className="auth-flow-line"><span style={{ width: `${(active / (FLOW_STAGES.length - 1)) * 100}%` }} /></div>
+      <div className="auth-flow-nodes">
+        {FLOW_STAGES.map((stage, index) => {
+          const done = index < active;
+          const isActive = index === active;
+          return (
+            <div className="auth-flow-node" key={stage.label}>
+              <span
+                className={`auth-flow-dot${done ? " is-done" : ""}${isActive ? " is-active" : ""}`}
+                style={{ "--tint": stage.tint, "--tint-soft": `${stage.tint}aa`, "--tint-glow": `${stage.tint}22` }}
+              >
+                {done ? <IconCheck size={11} stroke={3} /> : index + 1}
+              </span>
+              <small className={done || isActive ? "is-on" : ""}>{stage.label}</small>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 function AuthBrandPanel({ heading, sub }) {
+  const router = useRouter();
   return (
     <aside className="auth-brand">
       <div className="auth-brand-orb auth-brand-orb--1" />
       <div className="auth-brand-orb auth-brand-orb--2" />
       <div className="auth-brand-orb auth-brand-orb--3" />
-      <div style={{ position: "relative", zIndex: 2 }}><Logo /></div>
+      <button type="button" className="auth-brand-logo" onClick={() => router.push("/")} aria-label="Back to home">
+        <Logo />
+      </button>
       <div className="auth-brand-content">
-        <span className="auth-brand-eyebrow"><span style={{ width: 7, height: 7, borderRadius: "50%", background: "#4F8BFF", boxShadow: "0 0 10px #4F8BFF" }} /> Enterprise IT Solutions, Intelligently Delivered</span>
+        <span className="eyebrow auth-brand-eyebrow"><span className="dot" /> Enterprise IT Solutions, Intelligently Delivered</span>
         <h2 className="auth-brand-heading">{heading}</h2>
         <p className="auth-brand-sub">{sub}</p>
+        <AuthFlowStrip />
         <div className="auth-quote">
           <div className="auth-quote-text">From kickoff to production deploy in twelve business days.</div>
           <div className="auth-quote-author">
@@ -75,15 +122,12 @@ function AuthBrandPanel({ heading, sub }) {
           </div>
         </div>
       </div>
-      <div style={{ position: "relative", zIndex: 2, fontSize: 12, color: "var(--text-3)", display: "flex", justifyContent: "space-between", gap: 12, marginTop: 32 }}>
-        <div>2026 Alphaexplora IT Services</div>
-        <div className="row gap-3"><a>Terms</a><a>Privacy</a><a>Help</a></div>
-      </div>
     </aside>
   );
 }
 
 function SignInForm({ onDone }) {
+  const router = useRouter();
   const { signIn } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
@@ -117,7 +161,7 @@ function SignInForm({ onDone }) {
       <div className="auth-form-fields">
         <Field label="Work Email" error={errors.email}><Input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
         <Field label="Password" error={errors.password}><PasswordInput value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></Field>
-        <div className="row" style={{ justifyContent: "space-between" }}>
+        <div className="row auth-form-row" style={{ justifyContent: "space-between" }}>
           <label className="auth-checkbox"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> Remember me for 30 days</label>
           <a className="auth-link" href="/client/forgot">Forgot password?</a>
         </div>
@@ -127,11 +171,15 @@ function SignInForm({ onDone }) {
         </Button>
         <div className="row gap-2" style={{ justifyContent: "center", marginTop: 8, fontSize: 12.5, color: "var(--text-3)" }}><IconShield size={13} /> Secure, end-to-end encrypted session</div>
       </div>
+      <div className="auth-switch">
+        Don't have an account? <button type="button" className="auth-link auth-link-btn" onClick={() => router.push("/client/sign-up")}>Sign up</button>
+      </div>
     </form>
   );
 }
 
 function SignUpForm({ initialEmail = "", onDone }) {
+  const router = useRouter();
   const { signUp } = useAuth();
   const [form, setForm] = useState({ email: initialEmail, password: "", confirm: "", terms: false });
   const [errors, setErrors] = useState({});
@@ -185,7 +233,7 @@ function SignUpForm({ initialEmail = "", onDone }) {
         </Field>
         <Field label="Set Password" error={errors.password}><PasswordInput value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder="At least 8 characters" /></Field>
         <Field label="Confirm Password" error={errors.confirm}><PasswordInput value={form.confirm} onChange={(event) => setForm({ ...form, confirm: event.target.value })} placeholder="Re-enter password" /></Field>
-        <label className="auth-checkbox" style={{ alignItems: "flex-start", gap: 10 }}><input type="checkbox" checked={form.terms} onChange={(event) => setForm({ ...form, terms: event.target.checked })} /> I agree to Alphaexplora&apos;s Terms of Service and Privacy Policy.</label>
+        <label className="auth-checkbox" style={{ alignItems: "flex-start", gap: 10 }}><input type="checkbox" checked={form.terms} onChange={(event) => setForm({ ...form, terms: event.target.checked })} /> I agree to Alphaexplora's Terms of Service and Privacy Policy.</label>
         {errors.terms && <span className="field-error">{errors.terms}</span>}
         {submitError && <div className="auth-inline-error">{submitError}</div>}
         {submitNotice && <div style={{ padding: 12, borderRadius: 10, background: "rgba(16,185,129,.10)", border: "1px solid rgba(16,185,129,.25)", color: "#B7F7D8", fontSize: 13, lineHeight: 1.5 }}>{submitNotice}</div>}
@@ -193,11 +241,15 @@ function SignUpForm({ initialEmail = "", onDone }) {
           {submitting ? "Creating account..." : "Create Account & Sign In"}
         </Button>
       </div>
+      <div className="auth-switch">
+        Already have an account? <button type="button" className="auth-link auth-link-btn" onClick={() => router.push("/client/sign-in")}>Sign in</button>
+      </div>
     </form>
   );
 }
 
 function ForgotForm() {
+  const router = useRouter();
   const { resetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -230,24 +282,31 @@ function ForgotForm() {
         <h1>Check your inbox</h1>
         <p className="lede" style={{ marginTop: 10 }}>We sent a reset link to <strong style={{ color: "white" }}>{email}</strong>.</p>
         <Button variant="secondary" size="lg" style={{ width: "100%", marginTop: 24 }} onClick={() => setSent(false)}>Try another email</Button>
+        <div className="auth-switch">
+          Remembered it? <button type="button" className="auth-link auth-link-btn" onClick={() => router.push("/client/sign-in")}>Sign in</button>
+        </div>
       </div>
     );
   }
   return (
     <form onSubmit={submit} noValidate>
       <h1>Forgot your password?</h1>
-      <p className="lede">We&apos;ll email you a secure link to reset it.</p>
+      <p className="lede">We'll email you a secure link to reset it.</p>
       <div className="auth-form-fields">
         <Field label="Work Email" error={error}><Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" /></Field>
         <Button type="submit" variant="primary" size="lg" iconRight={<IconArrowRight />} style={{ width: "100%" }} disabled={submitting}>
           {submitting ? "Sending..." : "Send reset link"}
         </Button>
       </div>
+      <div className="auth-switch">
+        Remembered your password? <button type="button" className="auth-link auth-link-btn" onClick={() => router.push("/client/sign-in")}>Sign in</button>
+      </div>
     </form>
   );
 }
 
 function ResetForm({ onDone }) {
+  const router = useRouter();
   const { updatePassword } = useAuth();
   const [done, setDone] = useState(false);
   const [form, setForm] = useState({ password: "", confirm: "" });
@@ -296,6 +355,9 @@ function ResetForm({ onDone }) {
         <Button type="submit" variant="primary" size="lg" iconRight={<IconArrowRight />} style={{ width: "100%" }} disabled={submitting}>
           {submitting ? "Updating..." : "Reset password"}
         </Button>
+      </div>
+      <div className="auth-switch">
+        Remembered it? <button type="button" className="auth-link auth-link-btn" onClick={() => router.push("/client/sign-in")}>Sign in</button>
       </div>
     </form>
   );

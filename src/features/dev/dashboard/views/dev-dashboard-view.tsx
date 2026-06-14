@@ -2,10 +2,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Badge, Button, Card } from "@/shared/components/ui";
 import { IconArrowRight, IconCheckCircle, IconCpu, IconFolder, IconRefresh } from "@/shared/components/icons";
 import { DevPageHeader } from "@/features/dev/shared/components/dev-page-header";
 import { useAuth } from "@/shared/auth/auth-provider";
+import { getDevFlowDeveloper } from "@/shared/api/devflow-api";
 import { useDevFlowProjects } from "@/shared/hooks/use-devflow-projects";
 import { BackendAwareRouteState } from "@/shared/components/backend-aware-route-state";
 import { compactDevFlowError, devflowLifecycleView } from "@/shared/utils/devflow-projects";
@@ -14,10 +16,27 @@ export function DevDashboardView() {
   const router = useRouter();
   const { devFlowUser } = useAuth();
   const { projects, loading, error, refresh } = useDevFlowProjects();
+  const [developer, setDeveloper] = useState(null);
+  const [developerError, setDeveloperError] = useState("");
   const name = devFlowUser?.fullName || devFlowUser?.email?.split("@")[0] || "Developer";
   const openTasks = projects.reduce((total, project) => total + (project.lifecycle?.signals?.openTasks || 0), 0);
   const activeWorkOrders = projects.reduce((total, project) => total + (project.lifecycle?.signals?.activeWorkOrders || 0), 0);
   const inDelivery = projects.filter((project) => project.lifecycle?.signals?.orchestrationStarted).length;
+
+  useEffect(() => {
+    let active = true;
+    if (!devFlowUser?.id) return;
+    getDevFlowDeveloper(devFlowUser.id)
+      .then((nextDeveloper) => {
+        if (active) setDeveloper(nextDeveloper);
+      })
+      .catch((nextError) => {
+        if (active) setDeveloperError(nextError instanceof Error ? nextError.message : String(nextError));
+      });
+    return () => {
+      active = false;
+    };
+  }, [devFlowUser?.id]);
 
   return (
     <div data-screen-label="Dev - Dashboard">
@@ -36,6 +55,7 @@ export function DevDashboardView() {
         <Metric icon={<IconFolder size={17} />} label="Assigned projects" value={loading ? "..." : String(projects.length)} sub={error ? compactDevFlowError(error) : "From /projects"} />
         <Metric icon={<IconCheckCircle size={17} />} label="Open tasks" value={loading ? "..." : String(openTasks)} sub="Role-scoped tasks" />
         <Metric icon={<IconCpu size={17} />} label="Active handoffs" value={loading ? "..." : String(activeWorkOrders)} sub={`${inDelivery} orchestration runs visible`} />
+        <Metric icon={<IconCpu size={17} />} label="Capacity" value={developer?.weeklyCapacityHours == null ? "Unset" : `${developer.weeklyCapacityHours}h`} sub={developerError ? compactDevFlowError(developerError) : developer?.availabilityStatus || "Update in settings"} />
       </div>
 
       <Card style={{ padding: 0, overflow: "hidden", marginBottom: 20 }}>

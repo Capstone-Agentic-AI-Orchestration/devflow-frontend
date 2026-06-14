@@ -2,8 +2,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Badge, Button, Card } from "@/shared/components/ui";
+import { Button, Card } from "@/shared/components/ui";
 import { ContactCloser, Footer, TopNav, useReveal } from "@/shared/components/layout";
 import {
   IconArrowRight,
@@ -33,7 +34,7 @@ function HeroWords({ text }) {
 }
 
 /* --- Hero --- */
-function Hero({ onCta }) {
+function LegacyHero({ onCta }) {
   return (
     <section style={{ position: "relative", paddingTop: 80, paddingBottom: 80 }}>
       <div className="container" style={{ position: "relative", textAlign: "center", maxWidth: 1080 }}>
@@ -67,6 +68,222 @@ function Hero({ onCta }) {
         {/* Outcome strip below the CTAs — abstract, business-facing */}
         <div className="mt-16 fade-up" style={{ animationDelay: ".9s", position: "relative", zIndex: 1 }}>
           <HeroOutcomeStrip />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+LegacyHero.displayName = "LegacyHero";
+
+function Hero({ onCta }) {
+  return (
+    <section className="kinetic-hero">
+      <Image
+        className="kinetic-hero-art"
+        src="/images/animated-workflow-hero.png"
+        alt=""
+        aria-hidden="true"
+        width={1280}
+        height={900}
+        priority
+      />
+      <div className="kinetic-hero-scrim" aria-hidden="true" />
+      <div className="container kinetic-hero-inner">
+        <div className="kinetic-copy">
+          <span className="eyebrow"><span className="dot" /> Enterprise IT delivery for Philippine MSMEs</span>
+          <h1 className="kinetic-title mt-6">
+            <span className="kinetic-title-line"><HeroWords text="Build production-ready" /></span>
+            <span className="kinetic-title-line kinetic-title-line--accent"><HeroWords text="systems with momentum." /></span>
+          </h1>
+          <p className="lead kinetic-lead mt-6 fade-up" style={{ animationDelay: ".55s" }}>
+            A premium delivery workspace where PMs, developers, clients, and AI-assisted workflows
+            move through scope, build, review, and handoff with visible progress.
+          </p>
+
+          <div className="row gap-3 mt-8 fade-up kinetic-actions" style={{ animationDelay: ".7s" }}>
+            <Button variant="primary" size="lg" icon={<IconZap />} iconRight={<IconArrowRight />} onClick={onCta}>
+              Start Building
+            </Button>
+            <Button variant="secondary" size="lg" iconRight={<IconArrowUpRight />}>
+              View Dashboard
+            </Button>
+          </div>
+        </div>
+
+        <HeroMotionStage />
+      </div>
+      <HeroMarquee />
+    </section>
+  );
+}
+
+function HeroMotionStage() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive((index) => (index + 1) % 5), 1800);
+    return () => clearInterval(id);
+  }, []);
+
+  const stages = [
+    { label: "Inquiry", value: "Client brief captured", meta: "Public intake", tint: "#4F8BFF" },
+    { label: "Scope", value: "PM gate aligned", meta: "Kickoff ready", tint: "#14B8A6" },
+    { label: "Build", value: "Work orders moving", meta: "Team + agents", tint: "#F59E0B" },
+    { label: "Review", value: "Artifacts validated", meta: "Client visible", tint: "#10B981" },
+    { label: "Handoff", value: "Delivery package ready", meta: "Repo + docs", tint: "#93C5FD" },
+  ];
+
+  return (
+    <div className="hero-stage fade-up" style={{ animationDelay: ".35s" }}>
+      <div className="hero-stage-grid" aria-hidden="true" />
+      <div className="hero-stage-orbit" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="hero-stage-window">
+        <div className="hero-stage-top">
+          <div className="row gap-2">
+            <span className="chrome-dot" />
+            <span className="chrome-dot" />
+            <span className="chrome-dot" />
+          </div>
+          <span className="mono">delivery.graph</span>
+        </div>
+        <div className="hero-stage-body">
+          <div className="hero-stage-map" aria-hidden="true">
+            {stages.map((stage, index) => (
+              <span
+                key={stage.label}
+                className={active === index ? "is-active" : ""}
+                style={{ "--node-tint": stage.tint }}
+              />
+            ))}
+          </div>
+          <div className="hero-stage-list">
+            {stages.map((stage, index) => (
+              <button
+                className={`stage-card ${active === index ? "is-active" : ""}`}
+                key={stage.label}
+                onMouseEnter={() => setActive(index)}
+                onFocus={() => setActive(index)}
+                type="button"
+                style={{ "--stage-tint": stage.tint }}
+              >
+                <span className="mono">{stage.label}</span>
+                <strong>{stage.value}</strong>
+                <small>{stage.meta}</small>
+                <i />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="hero-stage-note">
+        <span className="badge badge-green"><span className="dot" /> Live</span>
+        <strong>Backend-reflective by design</strong>
+        <p>Motion follows the same project lifecycle your PM, DEV, and CLIENT workspaces use.</p>
+      </div>
+    </div>
+  );
+}
+
+function HeroMarquee() {
+  const labels = ["Intake", "Kickoff", "Work orders", "Artifacts", "Client review", "Delivery handoff"];
+  return (
+    <div className="hero-marquee" aria-hidden="true">
+      <div className="hero-marquee-track">
+        {[...labels, ...labels].map((label, index) => (
+          <span key={`${label}-${index}`}>{label}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InteractiveDeliveryExperience() {
+  const [active, setActive] = useState(0);
+  const panels = [
+    {
+      kicker: "01",
+      title: "A guided delivery cockpit",
+      body: "Project managers see motion around the same checkpoints the backend tracks: intake, kickoff, work orders, artifacts, and delivery review.",
+      stat: "5 phases",
+      tint: "#4F8BFF",
+    },
+    {
+      kicker: "02",
+      title: "Animated, not decorative",
+      body: "Interactions are tied to real operational surfaces, so hover and focus states teach the workflow instead of adding noise.",
+      stat: "Role aware",
+      tint: "#14B8A6",
+    },
+    {
+      kicker: "03",
+      title: "Premium client confidence",
+      body: "Clients get a polished sense of progress while the app keeps the same clear SaaS structure and backend-driven data model.",
+      stat: "Live handoff",
+      tint: "#F59E0B",
+    },
+  ];
+
+  return (
+    <section className="section interactive-delivery">
+      <div className="container">
+        <div className="interactive-head" data-reveal>
+          <span className="eyebrow"><span className="dot" /> Interactive experience layer</span>
+          <h2 className="h-1 mt-4">Premium motion that still behaves like product UI.</h2>
+          <p className="lead mt-4">
+            Inspired by high-end animated websites, tuned for a serious delivery platform.
+          </p>
+        </div>
+
+        <div className="interactive-grid mt-12">
+          <div className="interactive-preview" data-reveal>
+            <div className="preview-rail">
+              {panels.map((panel, index) => (
+                <button
+                  key={panel.kicker}
+                  className={active === index ? "is-active" : ""}
+                  onMouseEnter={() => setActive(index)}
+                  onFocus={() => setActive(index)}
+                  onClick={() => setActive(index)}
+                  type="button"
+                  style={{ "--panel-tint": panel.tint }}
+                >
+                  <span>{panel.kicker}</span>
+                  {panel.title}
+                </button>
+              ))}
+            </div>
+            <div className="preview-canvas" style={{ "--panel-tint": panels[active].tint }}>
+              <div className="preview-scan" />
+              <div className="preview-card preview-card-a">
+                <span className="mono">{panels[active].stat}</span>
+                <strong>{panels[active].title}</strong>
+              </div>
+              <div className="preview-card preview-card-b">
+                <span className="badge badge-blue"><span className="dot" /> Synced</span>
+                <p>{panels[active].body}</p>
+              </div>
+              <div className="preview-pulse" />
+            </div>
+          </div>
+
+          <div className="interactive-copy" data-reveal>
+            {panels.map((panel, index) => (
+              <article
+                key={panel.kicker}
+                className={active === index ? "is-active" : ""}
+                onMouseEnter={() => setActive(index)}
+                style={{ "--panel-tint": panel.tint }}
+              >
+                <span className="mono">{panel.kicker}</span>
+                <h3>{panel.title}</h3>
+                <p>{panel.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -180,8 +397,121 @@ function Features() {
   );
 }
 
-/* --- How it works (4-step horizontal timeline) --- */
+/* --- How it works (interactive delivery flow) --- */
 function HowItWorks() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setActive((index) => (index + 1) % 4), 2600);
+    return () => clearInterval(id);
+  }, []);
+
+  const steps = [
+    {
+      n: "01",
+      title: "Submit Inquiry",
+      desc: "A guided intake captures scope, users, workflow pain points, and delivery urgency.",
+      signal: "Client brief",
+      metric: "10 min",
+      tint: "#4F8BFF",
+    },
+    {
+      n: "02",
+      title: "Discovery & Approval",
+      desc: "A PM turns the brief into a milestone plan, invite flow, team setup, and approval gates.",
+      signal: "PM workspace",
+      metric: "Day 1-2",
+      tint: "#14B8A6",
+    },
+    {
+      n: "03",
+      title: "Development & Reviews",
+      desc: "Work orders, artifacts, comments, and delivery events move through the live backend.",
+      signal: "DEV + AI flow",
+      metric: "Days 3-10",
+      tint: "#F59E0B",
+    },
+    {
+      n: "04",
+      title: "Delivery & Support",
+      desc: "Clients review the final package with repository, docs, timeline, and handoff status.",
+      signal: "Client handoff",
+      metric: "Day 12",
+      tint: "#10B981",
+    },
+  ];
+  const current = steps[active];
+
+  return (
+    <section className="section flow-lab">
+      <div className="container">
+        <div className="flow-lab-head" data-reveal>
+          <span className="eyebrow"><span className="dot" /> The flow</span>
+          <h2 className="h-1 mt-4">How it <span className="gradient-text">works</span></h2>
+          <p className="lead mt-4">
+            From a single inquiry to a deployed system, every phase has a visible state.
+          </p>
+        </div>
+
+        <div className="flow-lab-grid mt-16">
+          <div className="flow-lab-preview" data-reveal style={{ "--flow-tint": current.tint }}>
+            <div className="flow-preview-glow" />
+            <div className="flow-preview-top">
+              <span className="badge badge-blue"><span className="dot" /> Active phase</span>
+              <span className="mono">{current.metric}</span>
+            </div>
+            <div className="flow-preview-core">
+              <span className="flow-preview-number">{current.n}</span>
+              <h3>{current.title}</h3>
+              <p>{current.desc}</p>
+            </div>
+            <div className="flow-preview-bottom">
+              <div>
+                <span className="mono">Signal</span>
+                <strong>{current.signal}</strong>
+              </div>
+              <div>
+                <span className="mono">Status</span>
+                <strong>In motion</strong>
+              </div>
+            </div>
+            <div className="flow-preview-rings" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+
+          <div className="flow-lab-steps" data-reveal>
+            <div className="flow-lab-path" aria-hidden="true">
+              <span style={{ height: `${((active + 1) / steps.length) * 100}%` }} />
+            </div>
+            {steps.map((step, index) => (
+              <button
+                key={step.n}
+                type="button"
+                className={`flow-step ${active === index ? "is-active" : ""}`}
+                onMouseEnter={() => setActive(index)}
+                onFocus={() => setActive(index)}
+                onClick={() => setActive(index)}
+                style={{ "--flow-tint": step.tint, transitionDelay: `${index * 55}ms` }}
+              >
+                <span className="flow-step-index">{step.n}</span>
+                <span className="flow-step-copy">
+                  <strong>{step.title}</strong>
+                  <small>{step.desc}</small>
+                </span>
+                <span className="flow-step-meta mono">{step.metric}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --- Legacy static timeline kept for reference while the flow lab evolves --- */
+function LegacyHowItWorks() {
   const steps = [
     { n: "01", title: "Submit Inquiry", desc: "Tell us your vision through a guided onboarding form." },
     { n: "02", title: "Discovery & Approval", desc: "Our PM aligns scope, deliverables, and timelines with you." },
@@ -243,6 +573,7 @@ function HowItWorks() {
     </section>
   );
 }
+LegacyHowItWorks.displayName = "LegacyHowItWorks";
 
 /* --- MSME social proof strip --- */
 function TrustedBy() {
@@ -444,15 +775,16 @@ function HomePage({ onSubmittedForm, scrollTarget, onScrolled }) {
       const id = setTimeout(() => {
         const el = document.getElementById(scrollTarget);
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        onScrolled && onScrolled();
+        if (onScrolled) onScrolled();
       }, 120);
       return () => clearTimeout(id);
     }
-  }, [scrollTarget]);
+  }, [onScrolled, scrollTarget]);
 
   return (
     <div data-screen-label="01 Landing">
       <Hero onCta={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })} />
+      <InteractiveDeliveryExperience />
       <Features />
       <HowItWorks />
       <TrustedBy />
@@ -471,7 +803,13 @@ export function MarketingHomeView() {
   const navigate = (route, scrollId) => {
     if (route === "home" && scrollId) {
       setScrollTo(scrollId);
+      return;
     }
+    if (route === "home") {
+      router.push("/");
+      return;
+    }
+    router.push(`/${route}`);
   };
 
   return (

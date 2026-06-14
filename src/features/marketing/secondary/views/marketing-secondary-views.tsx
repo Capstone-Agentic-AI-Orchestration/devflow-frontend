@@ -193,6 +193,178 @@ export function AboutView() {
   );
 }
 
+const resourceInfo = {
+  changelog: {
+    eyebrow: "Product updates",
+    title: "Changelog placeholder for the Alphaexplora platform.",
+    gradient: "Changelog",
+    summary: "This page will track public product updates, delivery workspace improvements, backend orchestration releases, and client portal refinements.",
+    cards: ["Release notes", "Workspace improvements", "Orchestration updates"],
+  },
+  roadmap: {
+    eyebrow: "Product roadmap",
+    title: "Roadmap placeholder connected to the delivery platform.",
+    gradient: "Roadmap",
+    summary: "Future roadmap entries will cover PM planning, DEV execution, CLIENT review, GitHub delivery, provider readiness, and reporting surfaces.",
+    cards: ["Near-term priorities", "Role workspace expansion", "Automation milestones"],
+  },
+  customers: {
+    eyebrow: "Customer stories",
+    title: "Customers placeholder for Philippine MSME outcomes.",
+    gradient: "Customers",
+    summary: "This area will feature customer narratives, project timelines, before-and-after workflows, and production handoff results.",
+    cards: ["MSME portals", "Internal tools", "Client delivery stories"],
+  },
+  careers: {
+    eyebrow: "Careers",
+    title: "Careers placeholder for future Alphaexplora roles.",
+    gradient: "Careers",
+    summary: "Hiring information will live here when roles open across delivery, engineering, design, security, and customer success.",
+    cards: ["Delivery roles", "Engineering roles", "Internship pathways"],
+  },
+  press: {
+    eyebrow: "Press",
+    title: "Press placeholder for company announcements.",
+    gradient: "Press",
+    summary: "This page will collect press releases, company boilerplate, product screenshots, brand assets, and media contact details.",
+    cards: ["Media kit", "Announcements", "Company profile"],
+  },
+  partners: {
+    eyebrow: "Partners",
+    title: "Partners placeholder for integrations and delivery alliances.",
+    gradient: "Partners",
+    summary: "Future partner information will cover cloud providers, GitHub delivery, Supabase-backed auth/data, and implementation alliances.",
+    cards: ["Cloud partners", "Integration partners", "Delivery alliances"],
+  },
+  documentation: {
+    eyebrow: "Documentation",
+    title: "Documentation placeholder for the DevFlow delivery system.",
+    gradient: "Documentation",
+    summary: "This documentation hub will explain project lifecycle, roles, onboarding, artifact review, delivery handoff, and support workflows.",
+    cards: ["Getting started", "Workspace guides", "Delivery playbooks"],
+  },
+  "api-reference": {
+    eyebrow: "API reference",
+    title: "API Reference placeholder for backend-connected workflows.",
+    gradient: "API Reference",
+    summary: "This area will summarize public API concepts, authentication, project endpoints, artifacts, notifications, and orchestration status.",
+    cards: ["Auth and profiles", "Projects and artifacts", "Notifications and events"],
+  },
+  guides: {
+    eyebrow: "Guides",
+    title: "Guides placeholder for project teams.",
+    gradient: "Guides",
+    summary: "Step-by-step guides will help clients, PMs, and developers move from inquiry to kickoff, review, delivery, and support.",
+    cards: ["Client onboarding", "PM workflow", "Developer handoff"],
+  },
+  community: {
+    eyebrow: "Community",
+    title: "Community placeholder for Alphaexplora operators and clients.",
+    gradient: "Community",
+    summary: "Community information will include events, support channels, partner updates, and learning resources for Philippine MSMEs.",
+    cards: ["Events", "Support channels", "Learning resources"],
+  },
+  status: {
+    eyebrow: "System status",
+    title: "Status placeholder for platform health.",
+    gradient: "Status",
+    summary: "This page will display uptime, incident notes, provider readiness, and delivery system availability when status reporting is enabled.",
+    cards: ["API health", "Provider status", "Incident history"],
+  },
+  "terms-of-service": {
+    eyebrow: "Legal",
+    title: "Terms of Service placeholder.",
+    gradient: "Terms",
+    summary: "Formal terms will describe engagement scope, acceptable use, ownership, payment, delivery responsibilities, and support terms.",
+    cards: ["Engagement terms", "Client responsibilities", "Ownership rules"],
+  },
+  "privacy-policy": {
+    eyebrow: "Privacy",
+    title: "Privacy Policy placeholder.",
+    gradient: "Privacy",
+    summary: "Privacy information will explain how Alphaexplora handles inquiries, client accounts, project records, analytics, and support data.",
+    cards: ["Data collected", "Data use", "Retention"],
+  },
+  security: {
+    eyebrow: "Security",
+    title: "Security placeholder for delivery safeguards.",
+    gradient: "Security",
+    summary: "Security documentation will cover Supabase auth, role-based access, backend guards, auditability, GitHub delivery, and operational checks.",
+    cards: ["Role access", "Credential handling", "Operational checks"],
+  },
+  dpa: {
+    eyebrow: "Data processing",
+    title: "DPA placeholder for enterprise clients.",
+    gradient: "DPA",
+    summary: "The Data Processing Addendum will describe controller/processor responsibilities, subprocessors, safeguards, and request handling.",
+    cards: ["Processing scope", "Safeguards", "Subprocessors"],
+  },
+  cookies: {
+    eyebrow: "Cookies",
+    title: "Cookie policy placeholder.",
+    gradient: "Cookies",
+    summary: "Cookie information will explain essential cookies, authentication session storage, analytics preferences, and opt-out controls.",
+    cards: ["Essential cookies", "Session storage", "Preferences"],
+  },
+};
+
+function labelFromSlug(slug) {
+  return slug.split("-").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ");
+}
+
+export function ResourceInfoView({ slug }) {
+  useReveal();
+  const { navigate } = useMarketingNav("resources");
+  const info = resourceInfo[slug] || {
+    eyebrow: "Resource",
+    title: `${labelFromSlug(slug)} placeholder.`,
+    gradient: labelFromSlug(slug),
+    summary: "This connected placeholder keeps the footer navigation complete while the final content is prepared.",
+    cards: ["Overview", "Details", "Next steps"],
+  };
+
+  return (
+    <MarketingShell route="resources">
+      <div data-screen-label={`Resource ${labelFromSlug(slug)}`}>
+        <PageHero
+          eyebrow={info.eyebrow}
+          title={info.title}
+          gradientWord={info.gradient}
+          subtitle={info.summary}
+        />
+        <section className="container" style={{ paddingBottom: 64 }}>
+          <Card data-reveal style={{ padding: 32 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 28, alignItems: "start" }}>
+              <div>
+                <Badge tone="blue">Connected placeholder</Badge>
+                <h2 className="h-2 mt-4">This page is wired into the marketing system.</h2>
+                <p className="text-2 mt-4" style={{ fontSize: 15, lineHeight: 1.65 }}>
+                  It uses the same header, sticky logo, footer, contact flow, and visual language as the rest of the site.
+                  Replace this placeholder copy later without changing navigation.
+                </p>
+                <div className="row gap-3 mt-6" style={{ flexWrap: "wrap" }}>
+                  <Button variant="primary" iconRight={<IconArrowRight />} onClick={() => navigate("home", "contact")}>Start a project</Button>
+                  <Button variant="secondary" onClick={() => navigate("platform")}>View platform</Button>
+                </div>
+              </div>
+              <div style={{ display: "grid", gap: 12 }}>
+                {info.cards.map((card, index) => (
+                  <div key={card} className="resource-info-row" data-reveal style={{ transitionDelay: `${index * 70}ms` }}>
+                    <span className="mono">{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{card}</strong>
+                    <p>Placeholder content connected to {labelFromSlug(slug)}.</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </section>
+        <SecondaryContactCloser />
+      </div>
+    </MarketingShell>
+  );
+}
+
 export function SubmittedView() {
   const { navigate } = useMarketingNav("submitted");
   return (

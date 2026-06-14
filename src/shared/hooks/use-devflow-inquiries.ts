@@ -26,7 +26,14 @@ export function useDevFlowInquiries(status?: DevFlowInquiryStatus | "ALL") {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    setLoading(true);
+    setError("");
+    listDevFlowInquiries(status && status !== "ALL" ? status : undefined)
+      .then((result) => { if (active) setInquiries(result); })
+      .catch((nextError) => { if (active) { setInquiries([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [status]);
 
   return { inquiries, loading, error, refresh };

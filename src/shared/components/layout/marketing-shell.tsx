@@ -91,7 +91,7 @@ function TopNav({ route, onNavigate }) {
     <nav className={"topnav" + (scrolled ? " scrolled" : "")}>
       <div className="topnav-inner">
         <a className="brand" onClick={() => onNavigate("home")} style={{ cursor: "pointer" }}>
-          <Logo />
+          <Logo size={24} />
         </a>
         <div className="links">
           {links.map(l => (
@@ -159,7 +159,7 @@ function ContactCloser({ onSubmitted }) {
           <span className="eyebrow"><span className="dot" /> Get in touch</span>
           <h2 className="h-1 mt-4">Ready to <span className="gradient-text">transform</span> your enterprise?</h2>
           <p className="lead mt-4" style={{ margin: "16px auto 0" }}>
-            Let&apos;s discuss how Alphaexplora can accelerate your digital transformation
+            Let's discuss how Alphaexplora can accelerate your digital transformation
             and drive measurable business outcomes.
           </p>
         </div>
@@ -210,7 +210,7 @@ function ContactCloser({ onSubmitted }) {
                 <div>
                   <div style={{ fontWeight: 600, marginBottom: 4 }}>Project Manager review within 1–2 days</div>
                   <div style={{ color: "var(--text-2)", fontSize: 13.5, lineHeight: 1.55 }}>
-                    Every inquiry is read by a real PM. We&apos;ll align scope, send credentials, and onboard your team.
+                    Every inquiry is read by a real PM. We'll align scope, send credentials, and onboard your team.
                   </div>
                 </div>
               </div>
@@ -305,11 +305,51 @@ function SocialBtn({ children, label }) {
 /* ---------- Footer ---------- */
 function Footer({ onNavigate }) {
   const cols = [
-    { title: "Product", links: ["Platform", "How It Works", "Pricing", "Changelog", "Roadmap"] },
-    { title: "Company", links: ["About", "Customers", "Careers", "Press", "Partners"] },
-    { title: "Resources", links: ["Documentation", "API Reference", "Guides", "Community", "Status"] },
-    { title: "Legal", links: ["Terms of Service", "Privacy Policy", "Security", "DPA", "Cookies"] },
+    {
+      title: "Product",
+      links: [
+        { label: "Platform", route: "platform", desc: "What Alphaexplora delivers" },
+        { label: "How It Works", route: "how-it-works", desc: "The delivery lifecycle" },
+        { label: "Pricing", route: "pricing", desc: "Project and enterprise plans" },
+        { label: "Changelog", route: "resources/changelog", desc: "Product updates placeholder" },
+        { label: "Roadmap", route: "resources/roadmap", desc: "What is coming next" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { label: "About", route: "about", desc: "Mission and team" },
+        { label: "Customers", route: "resources/customers", desc: "Example customer stories" },
+        { label: "Careers", route: "resources/careers", desc: "Future hiring information" },
+        { label: "Press", route: "resources/press", desc: "Media kit placeholder" },
+        { label: "Partners", route: "resources/partners", desc: "Integration partners" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { label: "Documentation", route: "resources/documentation", desc: "Delivery docs placeholder" },
+        { label: "API Reference", route: "resources/api-reference", desc: "Backend API overview" },
+        { label: "Guides", route: "resources/guides", desc: "Implementation guides" },
+        { label: "Community", route: "resources/community", desc: "Community channels" },
+        { label: "Status", route: "resources/status", desc: "System status placeholder" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { label: "Terms of Service", route: "resources/terms-of-service", desc: "Terms placeholder" },
+        { label: "Privacy Policy", route: "resources/privacy-policy", desc: "Privacy placeholder" },
+        { label: "Security", route: "resources/security", desc: "Security practices" },
+        { label: "DPA", route: "resources/dpa", desc: "Data processing addendum" },
+        { label: "Cookies", route: "resources/cookies", desc: "Cookie policy" },
+      ],
+    },
   ];
+  const handleFooterLink = (link) => {
+    if (link.route === "contact") onNavigate("home", "contact");
+    else onNavigate(link.route);
+  };
   return (
     <footer className="footer">
       <div className="container-wide">
@@ -330,7 +370,18 @@ function Footer({ onNavigate }) {
             <div key={col.title}>
               <h5>{col.title}</h5>
               <ul>
-                {col.links.map(l => <li key={l}><a>{l}</a></li>)}
+                {col.links.map(link => (
+                  <li key={link.label}>
+                    <button
+                      type="button"
+                      className="footer-link"
+                      title={link.desc}
+                      onClick={() => handleFooterLink(link)}
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}

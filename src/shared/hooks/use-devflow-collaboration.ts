@@ -51,7 +51,18 @@ export function useDevFlowConversations(projectId?: string | null) {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setConversations([]); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowConversations(projectId)
+      .then((result) => { if (active) setConversations(result); })
+      .catch((nextError) => { if (active) { setConversations([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId]);
 
   return { conversations, loading, error, refresh, createConversation };
@@ -90,7 +101,18 @@ export function useDevFlowConversationMessages(projectId?: string | null, conver
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId || !conversationId) {
+      if (active) { setMessages([]); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowConversationMessages(projectId, conversationId)
+      .then((result) => { if (active) setMessages(result); })
+      .catch((nextError) => { if (active) { setMessages([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId, conversationId]);
 
   return { messages, loading, error, refresh, sendMessage };
@@ -136,7 +158,18 @@ export function useDevFlowCollaborationDocuments(projectId?: string | null) {
   };
 
   useEffect(() => {
-    void refresh();
+    let active = true;
+    if (!projectId) {
+      if (active) { setDocuments([]); setLoading(false); setError(""); }
+      return;
+    }
+    setLoading(true);
+    setError("");
+    getDevFlowCollaborationDocuments(projectId)
+      .then((result) => { if (active) setDocuments(result); })
+      .catch((nextError) => { if (active) { setDocuments([]); setError(nextError instanceof Error ? nextError.message : String(nextError)); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [projectId]);
 
   return { documents, loading, error, refresh, createDocument, reviewDocument };
