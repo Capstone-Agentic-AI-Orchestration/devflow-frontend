@@ -146,8 +146,9 @@ describe('devflowLifecycleView', () => {
     const project = {
       status: 'PENDING' as const,
       lifecycle: {
+        stage: 'IN_ORCHESTRATION' as const,
         label: 'In Orchestration',
-        tone: 'purple',
+        tone: 'purple' as const,
         progress: 68,
         nextAction: 'Review outputs',
         signals: {
@@ -156,6 +157,8 @@ describe('devflowLifecycleView', () => {
           orchestrationStarted: true,
           clientReviewOpen: false,
           revisionOpen: false,
+          deliveryAccepted: false,
+          deliveryRevisionOpen: false,
           totalTasks: 10,
           openTasks: 3,
           totalWorkOrders: 5,

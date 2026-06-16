@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Field, Input, Logo } from "@/shared/components/ui";
-import { IconArrowLeft, IconArrowRight, IconCheck, IconEye, IconEyeOff, IconMail, IconShield } from "@/shared/components/icons";
+import { IconArrowLeft, IconArrowRight, IconCheck, IconEye, IconEyeOff, IconGitHub, IconMail, IconShield } from "@/shared/components/icons";
 import { useAuth } from "@/shared/auth/auth-provider";
 import { loginPathForRole } from "@/shared/auth/role-routing";
 import { getDevFlowClientInviteStatus } from "@/shared/api/devflow-api";
@@ -20,6 +20,17 @@ export function ClientAuthView({ mode = "sign-in" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
+  const { devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, user } = useAuth();
+
+  useEffect(() => {
+    if (!initialized || !user || devFlowUser || devFlowUserError) return;
+    refreshDevFlowUser().catch(() => null);
+  }, [devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, user]);
+
+  useEffect(() => {
+    if (!devFlowUser) return;
+    router.replace(loginPathForRole(devFlowUser.role, nextPath));
+  }, [devFlowUser, nextPath, router]);
 
   return (
     <div className="auth-shell" data-screen-label={`Client Auth - ${mode}`}>
@@ -128,11 +139,13 @@ function AuthBrandPanel({ heading, sub }) {
 
 function SignInForm({ onDone }) {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const searchParams = useSearchParams();
+  const { signIn, signInWithOAuth } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [oauthSubmitting, setOauthSubmitting] = useState(false);
   const [remember, setRemember] = useState(true);
   const submit = async (event) => {
     event.preventDefault();
@@ -154,11 +167,26 @@ function SignInForm({ onDone }) {
     }
   };
 
+  const startGithub = async () => {
+    setSubmitError("");
+    setOauthSubmitting(true);
+    try {
+      await signInWithOAuth("github", searchParams.get("next"));
+    } catch (error) {
+      setOauthSubmitting(false);
+      setSubmitError(error instanceof Error ? error.message : "Unable to start GitHub sign in.");
+    }
+  };
+
   return (
     <form onSubmit={submit} noValidate>
       <h1>Sign in to your dashboard</h1>
-      <p className="lede">Use the credentials your project manager sent you.</p>
+      <p className="lede">Use your GitHub account to access your assigned DevFlow workspace.</p>
       <div className="auth-form-fields">
+        <Button type="button" variant="secondary" size="lg" icon={<IconGitHub />} style={{ width: "100%" }} disabled={oauthSubmitting || submitting} onClick={startGithub}>
+          {oauthSubmitting ? "Opening GitHub..." : "Continue with GitHub"}
+        </Button>
+        <div className="auth-divider"><span>or use password while local demos are enabled</span></div>
         <Field label="Work Email" error={errors.email}><Input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></Field>
         <Field label="Password" error={errors.password}><PasswordInput value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></Field>
         <div className="row auth-form-row" style={{ justifyContent: "space-between" }}>
@@ -180,12 +208,14 @@ function SignInForm({ onDone }) {
 
 function SignUpForm({ initialEmail = "", onDone }) {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const searchParams = useSearchParams();
+  const { signInWithOAuth, signUp } = useAuth();
   const [form, setForm] = useState({ email: initialEmail, password: "", confirm: "", terms: false });
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [submitNotice, setSubmitNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [oauthSubmitting, setOauthSubmitting] = useState(false);
   const submit = async (event) => {
     event.preventDefault();
     const next = {};
@@ -219,6 +249,17 @@ function SignUpForm({ initialEmail = "", onDone }) {
     }
   };
 
+  const startGithub = async () => {
+    setSubmitError("");
+    setOauthSubmitting(true);
+    try {
+      await signInWithOAuth("github", searchParams.get("next"));
+    } catch (error) {
+      setOauthSubmitting(false);
+      setSubmitError(error instanceof Error ? error.message : "Unable to start GitHub sign up.");
+    }
+  };
+
   return (
     <form onSubmit={submit} noValidate>
       <div style={{ padding: 14, borderRadius: 12, background: "rgba(47,107,255,.10)", border: "1px solid rgba(79,139,255,.30)", display: "flex", gap: 12, marginBottom: 24 }}>
@@ -226,8 +267,12 @@ function SignUpForm({ initialEmail = "", onDone }) {
         <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}><strong style={{ color: "white" }}>You were invited by Alphaexplora.</strong> Complete your account to access your client dashboard.</div>
       </div>
       <h1>Create your account</h1>
-      <p className="lede">Set a password to finish onboarding.</p>
+      <p className="lede">Use GitHub to finish onboarding and access your assigned role.</p>
       <div className="auth-form-fields">
+        <Button type="button" variant="secondary" size="lg" icon={<IconGitHub />} style={{ width: "100%" }} disabled={oauthSubmitting || submitting} onClick={startGithub}>
+          {oauthSubmitting ? "Opening GitHub..." : "Continue with GitHub"}
+        </Button>
+        <div className="auth-divider"><span>or create a password while local demos are enabled</span></div>
         <Field label="Work Email" error={errors.email} helper="Use the email from your invitation.">
           <Input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" />
         </Field>
