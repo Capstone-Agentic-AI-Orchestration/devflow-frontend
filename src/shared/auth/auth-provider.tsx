@@ -9,9 +9,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { Provider, Session, User } from "@supabase/supabase-js";
 import { acceptDevFlowClientInvites, getCurrentDevFlowUser, type DevFlowAuthUser } from "@/shared/api/devflow-api";
 import { supabase } from "./supabase-client";
+
+type DevFlowOAuthProvider = Extract<Provider, "github" | "google">;
 
 interface AuthContextValue {
   initialized: boolean;
@@ -20,6 +22,7 @@ interface AuthContextValue {
   devFlowUser: DevFlowAuthUser | null;
   devFlowUserError: string | null;
   signIn: (email: string, password: string) => Promise<DevFlowAuthUser>;
+  signInWithOAuth: (provider: DevFlowOAuthProvider, nextPath?: string | null) => Promise<void>;
   signUp: (email: string, password: string) => Promise<DevFlowAuthUser | null>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
@@ -96,6 +99,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return user;
   }, []);
 
+  const signInWithOAuth = useCallback(async (provider: DevFlowOAuthProvider, nextPath?: string | null) => {
+    const redirectPath = process.env.NEXT_PUBLIC_AUTH_REDIRECT_PATH || "/client/sign-in";
+    const redirectUrl = new URL(redirectPath, window.location.origin);
+    if (nextPath) redirectUrl.searchParams.set("next", nextPath);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: redirectUrl.toString(),
+        scopes: provider === "github" ? "read:user user:email" : undefined,
+      },
+    });
+    if (error) throw error;
+  }, []);
+
   const signUp = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
@@ -136,13 +154,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       devFlowUser,
       devFlowUserError,
       signIn,
+      signInWithOAuth,
       signUp,
       resetPassword,
       updatePassword,
       refreshDevFlowUser,
       signOut,
     }),
-    [devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, resetPassword, session, signIn, signOut, signUp, updatePassword],
+    [devFlowUser, devFlowUserError, initialized, refreshDevFlowUser, resetPassword, session, signIn, signInWithOAuth, signOut, signUp, updatePassword],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

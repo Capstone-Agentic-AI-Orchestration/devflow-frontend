@@ -36,9 +36,12 @@ Only publishable browser-safe values belong in `.env.local`.
 NEXT_PUBLIC_API_URL="http://localhost:4000"
 NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-publishable-or-anon-key"
+NEXT_PUBLIC_AUTH_REDIRECT_PATH="/client/sign-in"
 ```
 
 Do not put `SUPABASE_SERVICE_ROLE_KEY`, database URLs, GitHub private keys, or server model keys in this frontend app.
+
+GitHub login is handled through Supabase Auth. Configure GitHub in the Supabase dashboard and add `/client/sign-in` for local, production, and preview redirect URLs. The backend still owns final role access through `GET /auth/me`.
 
 ## Verification
 
