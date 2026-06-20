@@ -1,11 +1,13 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AgentLiveStrip } from "@/features/pm/shared/components/pm-agent-live-strip";
+import { ActivityConsole } from "@/shared/components/orchestration/activity-console";
+import { useSocketSubscription } from "@/shared/hooks/use-socket-subscription";
 import { PMPageHeader } from "@/features/pm/shared/components/pm-page-header";
-import { Badge, Button, Card, Field, Input, Select, Tabs, Textarea } from "@/shared/components/ui";
+import { Badge, Button, Card, Field, Input, Modal, Select, Tabs, Textarea } from "@/shared/components/ui";
 import { DevFlowProjectTimeline } from "@/shared/components/project-timeline/devflow-project-timeline";
 import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestration/orchestration-provider-status-panel";
 import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
@@ -19,6 +21,7 @@ import {
   IconCheckCircle,
   IconCircle,
   IconClipboard,
+  IconClose,
   IconCode,
   IconCpu,
   IconDatabase,
@@ -50,6 +53,8 @@ import {
 import {
   addDevFlowProjectMember,
   addDevFlowProjectTaskComment,
+  approveDevFlowGate1,
+  approveDevFlowGate2,
   createDevFlowAdminRepository,
   createDevFlowKickoffTasks,
   createDevFlowKickoffWorkOrders,
@@ -301,41 +306,32 @@ function BackendProjectDetail({ project, onBack }) {
     refreshDeliveryReadiness();
   }, [detail.id]);
 
+  // WebSocket subscription replaces 4-second polling for live orchestration state
+  const fallbackPollFn = useCallback(async () => {
+    try {
+      const result = await getDevFlowOrchestrationStatus(detail.id);
+      return result ? { status: result.status, currentNode: result.currentNode ?? '', runId: result.runId ?? '' } : null;
+    } catch {
+      return null;
+    }
+  }, [detail.id]);
+
+  useSocketSubscription({
+    projectId: detail.id,
+    initialStatus: detail.status,
+    initialCurrentNode: detail.runId ? 'started' : undefined,
+    initialRunId: detail.runId ?? undefined,
+    onStateChange: (state) => {
+      setDetail((prev) => prev ? { ...prev, status: state.status as DevFlowProjectStatus } : prev);
+    },
+    fallbackPollFn,
+  });
+
+  // Refresh outputs when orchestration state transitions
   useEffect(() => {
-    const liveRun = Boolean(detail.runId) && !["DELIVERED", "FAILED"].includes(detail.status);
-    const activeRun = orchestrationRuns.some((run) => run.status === "RUNNING");
-    const activeWorkOrder = outputs.workOrders.some((workOrder) => workOrder.status === "DISPATCHED");
-
-    if (!liveRun && !activeRun && !activeWorkOrder && !orchestrationAction) return;
-
-    let mounted = true;
-    let pending = false;
-    const refreshLiveSnapshot = async () => {
-      if (pending) return;
-      pending = true;
-      try {
-        const updated = await getDevFlowProject(detail.id);
-        if (!mounted) return;
-        setDetail(updated);
-        await Promise.all([
-          outputs.refresh?.(),
-          orchestration.refresh?.(),
-          provider.refresh?.(),
-          refreshOrchestrationRuns(true),
-        ]);
-      } catch {
-        // Existing hooks surface their own request errors; avoid replacing the page with a transient live-refresh failure.
-      } finally {
-        pending = false;
-      }
-    };
-
-    const timer = window.setInterval(refreshLiveSnapshot, 4000);
-    return () => {
-      mounted = false;
-      window.clearInterval(timer);
-    };
-  }, [detail.id, detail.runId, detail.status, orchestration.status?.status, orchestrationAction, outputs.workOrders.length, orchestrationRuns.length]);
+    if (!orchestration.status?.currentNode) return;
+    outputs.refresh?.();
+  }, [orchestration.status?.currentNode]);
 
   const saveProject = async () => {
     setSaving(true);
@@ -442,6 +438,22 @@ function BackendProjectDetail({ project, onBack }) {
       setError(nextError instanceof Error ? nextError.message : String(nextError));
     } finally {
       setStarting(false);
+    }
+  };
+
+  const [gateAction, setGateAction] = useState("");
+
+  const approveGate = async (gate: "architecture" | "code", approved: boolean) => {
+    setGateAction(`${gate}-${approved}`);
+    setError("");
+    try {
+      const fn = gate === "architecture" ? approveDevFlowGate1 : approveDevFlowGate2;
+      await fn(detail.id, approved);
+      setDetail(await getDevFlowProject(detail.id));
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : String(nextError));
+    } finally {
+      setGateAction("");
     }
   };
 
@@ -771,13 +783,73 @@ function BackendProjectDetail({ project, onBack }) {
                   {gate.notes && <div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 6 }}>{gate.notes}</div>}
                 </div>
               ))}
+              {detail.status === "AWAITING_GATE_1" && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ color: "#FBBF24", fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                    Architecture gate — review the project contract before code generation begins
+                  </div>
+                  <div style={{ color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.6, marginBottom: 12 }}>
+                    The AI has generated a project contract based on your brief. Review the file manifest and acceptance criteria below.
+                    Approving will start parallel code generation across all agent modules.
+                    Rejecting will abort the run — you can provide notes to improve the contract.
+                  </div>
+                  {(workOrders.length > 0 || artifacts.length > 0) && (
+                    <div style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(79,139,255,.08)", borderRadius: 8 }}>
+                      {detail._count.artifacts > 0 && <div>Generated artifacts: {detail._count.artifacts}</div>}
+                      <div>Expected work orders: {workOrders.length}</div>
+                      <div>Acceptance criteria: {detail.brief ? `${detail.brief.slice(0, 80)}...` : 'Defined in contract'}</div>
+                    </div>
+                  )}
+                  <div className="row gap-2" style={{ marginTop: 12 }}>
+                    <Button variant="primary" size="sm" icon={<IconCheck size={13} />} onClick={() => approveGate("architecture", true)} disabled={!!gateAction}>
+                      {gateAction === "architecture-true" ? "Approving..." : "Approve gate 1"}
+                    </Button>
+                    <Button variant="secondary" size="sm" icon={<IconClose size={13} />} onClick={() => approveGate("architecture", false)} disabled={!!gateAction}>
+                      {gateAction === "architecture-false" ? "Rejecting..." : "Reject gate 1"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {detail.status === "AWAITING_GATE_2" && (
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ color: "#FBBF24", fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                    Code gate — review generated artifacts before GitHub delivery
+                  </div>
+                  <div style={{ color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.6, marginBottom: 12 }}>
+                    All AI agents have completed code generation. Review the artifacts grouped by agent below.
+                    Approving will commit all approved artifacts to the project GitHub repository.
+                    Rejecting will allow the agents to retry with your feedback.
+                  </div>
+                  {artifacts.length > 0 && (
+                    <div style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(16,185,129,.08)", borderRadius: 8 }}>
+                      <div style={{ fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>Generated artifacts by agent:</div>
+                      {groupArtifactsByAgent(artifacts).map(([agent, items]) => (
+                        <div key={agent} style={{ margin: "2px 0" }}>
+                          {agent}: {items.length} files
+                        </div>
+                      ))}
+                      <div style={{ marginTop: 4, color: "var(--text-3)" }}>Total: {artifacts.length} artifacts across {groupArtifactsByAgent(artifacts).length} agents</div>
+                    </div>
+                  )}
+                  <div className="row gap-2" style={{ marginTop: 12 }}>
+                    <Button variant="primary" size="sm" icon={<IconCheck size={13} />} onClick={() => approveGate("code", true)} disabled={!!gateAction}>
+                      {gateAction === "code-true" ? "Approving..." : "Approve gate 2"}
+                    </Button>
+                    <Button variant="secondary" size="sm" icon={<IconClose size={13} />} onClick={() => approveGate("code", false)} disabled={!!gateAction}>
+                      {gateAction === "code-false" ? "Rejecting..." : "Reject gate 2"}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </Card>
             <Card style={{ padding: 22 }}>
               <SectionTitle title="Run budget" subtitle="Supervisor budget state" />
               {detail.runBudget ? (
                 <>
                   <MiniStat label="Tokens consumed" value={`${detail.runBudget.tokensConsumed} / ${detail.runBudget.tokenBudget}`} />
-                  <ProgressBar percent={budgetPct} color="#8B5CF6" />
+                  <div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,.08)", marginTop: 8, overflow: "hidden" }}>
+                    <div style={{ width: `${budgetPct}%`, height: "100%", borderRadius: 3, background: "#8B5CF6", transition: "width .3s" }} />
+                  </div>
                   <MiniStat label="Retries" value={`${detail.runBudget.retryCount} / ${detail.runBudget.maxRetries}`} />
                 </>
               ) : (
@@ -864,6 +936,16 @@ function BackendOrchestrationPanel({ detail, status, statusLoading, statusError,
   const actionBlocked = blockers.length > 0 || Boolean(providerUnavailable) || Boolean(githubDeliveryUnavailable);
   const activeProviderLabel = providerStatus?.activeMode === "llm" ? "LLM" : providerStatus?.activeMode === "mock" ? "Mock" : "Agent";
   const autopushView = githubAutopushStatus(detail, githubDelivery, providerStatus?.activeMode);
+  const [previewArtifact, setPreviewArtifact] = useState(null);
+
+  const handleSelectArtifact = async (artifact) => {
+    try {
+      const full = await getDevFlowProjectArtifact(detail.id, artifact.id);
+      setPreviewArtifact(full);
+    } catch {
+      setPreviewArtifact(artifact);
+    }
+  };
 
   return (
     <Card style={{ padding: 22 }}>
@@ -928,8 +1010,27 @@ function BackendOrchestrationPanel({ detail, status, statusLoading, statusError,
           artifacts={artifacts}
           events={events}
           loading={statusLoading || runsLoading}
+          onSelectArtifact={handleSelectArtifact}
+          useWebSocket
         />
       </div>
+
+      <div style={{ marginTop: 14 }}>
+        <ActivityConsole />
+      </div>
+
+      {previewArtifact && previewArtifact.content && (
+        <div style={{ marginTop: 14, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(79,139,255,.22)" }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "center", padding: "8px 14px", background: "rgba(79,139,255,.08)", borderBottom: "1px solid rgba(79,139,255,.16)" }}>
+            <div className="row gap-2">
+              <span className="mono" style={{ fontSize: 12.5, fontWeight: 700 }}>{previewArtifact.filePath?.split("/").pop()}</span>
+              <span style={{ color: "var(--text-3)", fontSize: 11.5 }}>{previewArtifact.agentType}</span>
+            </div>
+            <button onClick={() => setPreviewArtifact(null)} style={{ background: "none", border: 0, color: "var(--text-3)", cursor: "pointer", fontSize: 14, fontFamily: "inherit" }}>✕</button>
+          </div>
+          <pre style={{ margin: 0, padding: 14, fontSize: 13, lineHeight: 1.5, overflow: "auto", maxHeight: 400, background: "rgba(0,0,0,.2)", color: "#E2E8F0", fontFamily: "'JetBrains Mono','Fira Code',monospace", whiteSpace: "pre", tabSize: 2 }}>{previewArtifact.content}</pre>
+        </div>
+      )}
 
       {latestRun && (
         <div style={{ marginTop: 14, padding: 12, border: "1px solid rgba(79,139,255,.24)", background: "rgba(79,139,255,.07)", borderRadius: 10 }}>
@@ -2168,6 +2269,15 @@ function ArtifactPreviewModal({ open, onClose, artifact, loading, error, sharing
             {artifact.reviewedAt && <span style={{ color: "var(--text-3)", fontSize: 12 }}>Reviewed {formatBackendDate(artifact.reviewedAt)}</span>}
             {artifact.publishedAt && <span style={{ color: "var(--text-3)", fontSize: 12 }}>Published {formatBackendDate(artifact.publishedAt)}</span>}
           </div>
+          {artifact.content && (
+            <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+              <div className="row" style={{ justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "rgba(255,255,255,.04)", borderBottom: "1px solid var(--border)" }}>
+                <span style={{ fontSize: 12, color: "var(--text-3)", fontFamily: "mono" }}>{artifact.filePath?.split("/").pop()}</span>
+                <span style={{ fontSize: 11, color: "var(--text-3)" }}>{(artifact.content.length / 1024).toFixed(1)} KB</span>
+              </div>
+              <pre style={{ margin: 0, padding: 14, fontSize: 13, lineHeight: 1.5, overflow: "auto", maxHeight: 480, background: "rgba(0,0,0,.25)", color: "#E2E8F0", fontFamily: "'JetBrains Mono', 'Fira Code', monospace", whiteSpace: "pre", tabSize: 2 }}>{artifact.content}</pre>
+            </div>
+          )}
           <ArtifactValidationPanel artifact={artifact} />
           <div style={{ display: "grid", gap: 10, padding: 12, border: "1px solid rgba(79,139,255,.22)", background: "rgba(79,139,255,.06)", borderRadius: 10 }}>
             <div className="row" style={{ justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
@@ -2506,9 +2616,19 @@ function formatBackendDate(value) {
     month: "short",
     day: "numeric",
     year: "numeric",
-    hour: "numeric",
+    hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function groupArtifactsByAgent(artifacts: Array<{ agentType?: string }>): Array<[string, Array<{ agentType?: string }>]> {
+  const groups = new Map<string, Array<{ agentType?: string }>>();
+  for (const artifact of artifacts) {
+    const agent = (artifact.agentType || "unknown").toUpperCase();
+    if (!groups.has(agent)) groups.set(agent, []);
+    groups.get(agent)!.push(artifact);
+  }
+  return Array.from(groups.entries());
 }
 
 function SectionTitle({ title, subtitle, icon }) {

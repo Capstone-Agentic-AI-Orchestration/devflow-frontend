@@ -193,10 +193,15 @@ export function DevOutputView({ projectId }) {
             ) : outputs.artifacts.length === 0 ? (
               <div style={{ padding: 18, color: "var(--text-3)" }}>No generated artifacts have been recorded yet.</div>
             ) : outputs.artifacts.map((artifact) => (
-              <div key={artifact.id} style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)" }}>
-                <div className="mono" style={{ fontSize: 12, fontWeight: 700 }}>{artifact.displayName || artifact.filePath}</div>
-                <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 4 }}>{artifact.agentType} - {formatDevFlowDate(artifact.createdAt)}</div>
-              </div>
+              <details key={artifact.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                <summary style={{ padding: "12px 18px", cursor: "pointer", fontWeight: 700, fontSize: 13, listStyle: "none", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ flex: 1 }} className="mono">{artifact.displayName || artifact.filePath}</span>
+                  <span style={{ color: "var(--text-3)", fontSize: 11.5, fontWeight: 400 }}>{artifact.agentType} - {formatDevFlowDate(artifact.createdAt)}</span>
+                </summary>
+                {artifact.content && (
+                  <pre style={{ margin: 0, padding: "8px 18px 14px", fontSize: 13, lineHeight: 1.5, overflow: "auto", maxHeight: 360, background: "rgba(0,0,0,.15)", color: "#E2E8F0", fontFamily: "'JetBrains Mono','Fira Code',monospace", whiteSpace: "pre", tabSize: 2 }}>{artifact.content}</pre>
+                )}
+              </details>
             ))}
           </Card>
           <Card style={{ padding: 18 }}>

@@ -1,7 +1,8 @@
 "use client";
 
+import { useOrchestrationStore } from "@/shared/store/orchestration-store";
 import type { ReactNode } from "react";
-import { Badge, Card } from "@/shared/components/ui";
+import { Badge, Button, Card } from "@/shared/components/ui";
 import {
   IconActivity,
   IconAlertTriangle,
@@ -40,12 +41,15 @@ interface OrchestrationLiveVisualizerProps {
   events?: DevFlowEventLog[];
   loading?: boolean;
   compact?: boolean;
+  onSelectArtifact?: (artifact: DevFlowArtifact) => void;
+  useWebSocket?: boolean;
 }
 
 interface FlowStage {
   id: string;
   label: string;
   subtitle: string;
+  context: string;
   nodes: string[];
   statuses: string[];
   icon: ReactNode;
@@ -87,7 +91,7 @@ const AGENT_LANES: Array<{
 
 export function OrchestrationLiveVisualizer({
   project,
-  status,
+  status: propStatus,
   providerStatus,
   runs = [],
   workOrders = [],
@@ -95,26 +99,44 @@ export function OrchestrationLiveVisualizer({
   events = [],
   loading = false,
   compact = false,
+  onSelectArtifact,
+  useWebSocket = false,
 }: OrchestrationLiveVisualizerProps) {
+  const wsState = useOrchestrationStore((s) => s.orchestrationState);
+  const wsStreams = useOrchestrationStore((s) => s.agentStreams);
+
+  const resolvedStatus = useWebSocket && wsState ? {
+    status: wsState.status,
+    currentNode: wsState.currentNode,
+    error: wsState.error,
+  } : propStatus;
+
+  const effectiveProject = useWebSocket && wsState ? {
+    ...(project || { id: '', status: wsState.status, runId: wsState.runId, repoUrl: null, stackKey: '' }),
+    status: wsState.status,
+    runId: wsState.runId,
+  } as OrchestrationLiveVisualizerProps['project'] : project;
+
   const latestRun = runs[0] || null;
-  const currentNode = normalizeNode(status?.currentNode || latestRun?.currentNode || "");
-  const runStatus = latestRun?.status || status?.status || project?.status || "PENDING";
-  const isFailed = runStatus === "FAILED" || project?.status === "FAILED";
-  const isDelivered = project?.status === "DELIVERED" || runStatus === "SUCCEEDED";
+  const currentNode = normalizeNode(resolvedStatus?.currentNode || latestRun?.currentNode || (wsState?.currentNode ?? ""));
+  const runStatus = latestRun?.status || resolvedStatus?.status || effectiveProject?.status || "PENDING";
+  const isFailed = runStatus === "FAILED" || effectiveProject?.status === "FAILED";
+  const isDelivered = effectiveProject?.status === "DELIVERED" || runStatus === "SUCCEEDED";
   const activeProvider = providerStatus?.activeMode === "llm" ? "LLM" : providerStatus?.activeMode === "mock" ? "Mock" : "Agent";
   const readyWorkOrders = workOrders.filter((workOrder) => workOrder.status === "READY");
   const activeWorkOrders = workOrders.filter((workOrder) => workOrder.status === "DISPATCHED" || (workOrder.executionStartedAt && !workOrder.executionCompletedAt && !workOrder.executionError));
   const completedWorkOrders = workOrders.filter((workOrder) => workOrder.status === "COMPLETED");
   const failedWorkOrders = workOrders.filter((workOrder) => workOrder.status === "FAILED");
-  const activeIndex = resolveActiveStageIndex(currentNode, status?.status || project?.status || latestRun?.status, isDelivered);
+  const activeIndex = resolveActiveStageIndex(currentNode, resolvedStatus?.status || effectiveProject?.status || latestRun?.status, isDelivered);
+  const activeWsAgents = useWebSocket ? Object.keys(wsStreams).length : 0;
   const stages = buildStages({
     readyCount: readyWorkOrders.length,
     workOrderCount: workOrders.length,
     artifactCount: artifacts.length,
     completedCount: completedWorkOrders.length,
     failedCount: failedWorkOrders.length,
-    repoLinked: Boolean(project?.repoUrl),
-  });
+    repoLinked: Boolean(effectiveProject?.repoUrl),
+  }, currentNode, runStatus);
   const progress = resolveProgress(activeIndex, stages.length, isDelivered, isFailed);
   const activityFeed = buildActivityFeed({ events, artifacts, workOrders, latestRun });
   const latestActivity = activityFeed[0];
@@ -138,24 +160,27 @@ export function OrchestrationLiveVisualizer({
         <div style={{ minWidth: 180, textAlign: "right" }}>
           <div className="mono" style={{ color: "white", fontSize: 22, fontWeight: 900 }}>{progress}%</div>
           <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 2 }}>workflow progress</div>
-        </div>
-      </div>
+              {useWebSocket && activeWsAgents > 0 && (
+                <span style={{ color: "var(--text-3)", fontSize: 12 }}>{activeWsAgents} agents active via WebSocket</span>
+              )}
+            </div>
+          </div>
 
-      <div style={{ marginTop: 16 }}>
-        <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.78)", border: "1px solid rgba(148,163,184,.14)", overflow: "hidden" }}>
-          <div
-            className={latestRun?.status === "RUNNING" || activeWorkOrders.length ? "orchestration-live-fill" : undefined}
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              background: isFailed
-                ? "linear-gradient(90deg, #EF4444, #FCA5A5)"
-                : "linear-gradient(90deg, #2F6BFF, #10B981, #A78BFA)",
-              transition: "width .35s ease",
-            }}
-          />
-        </div>
-      </div>
+          <div style={{ marginTop: 16 }}>
+            <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.78)", border: "1px solid rgba(148,163,184,.14)", overflow: "hidden" }}>
+              <div
+                className={latestRun?.status === "RUNNING" || activeWorkOrders.length ? "orchestration-live-fill" : undefined}
+                style={{
+                  width: `${progress}%`,
+                  height: "100%",
+                  background: isFailed
+                    ? "linear-gradient(90deg, #EF4444, #FCA5A5)"
+                    : "linear-gradient(90deg, #2F6BFF, #10B981, #A78BFA)",
+                  transition: "width .35s ease",
+                }}
+              />
+            </div>
+          </div>
 
       <div
         style={{
@@ -204,6 +229,7 @@ export function OrchestrationLiveVisualizer({
                 workOrders={workOrders.filter((workOrder) => workOrder.agentType === lane.agentType)}
                 artifacts={artifacts.filter((artifact) => artifact.agentType?.toLowerCase() === lane.agentType.toLowerCase())}
                 executions={(latestRun?.executions || []).filter((execution) => execution.agentType === lane.agentType)}
+                onSelectArtifact={onSelectArtifact}
               />
             ))}
           </div>
@@ -291,11 +317,21 @@ function FlowStageCard({ stage, state, current }: { stage: FlowStage; state: Sta
         </div>
         <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.25 }}>{stage.label}</div>
         <div style={{ color: "var(--text-3)", fontSize: 11.5, lineHeight: 1.45, marginTop: 4 }}>{stage.subtitle}</div>
+        {(state === "active" || state === "blocked") && stage.context && (
+          <div style={{ color: state === "blocked" ? "#FCA5A5" : "#93C5FD", fontSize: 11.5, lineHeight: 1.45, marginTop: 6, fontStyle: "italic" }}>
+            {stage.context}
+          </div>
+        )}
       </div>
       <div className="row" style={{ justifyContent: "space-between", gap: 8, position: "relative" }}>
         <span className="mono" style={{ color: current ? "#93C5FD" : "var(--text-2)", fontSize: 11.5, overflowWrap: "anywhere" }}>{stage.metric}</span>
         {current && <span style={{ width: 7, height: 7, borderRadius: 999, background: "#3B82F6", boxShadow: "0 0 12px #3B82F6" }} />}
       </div>
+      {state === "done" && stage.context && (
+        <div style={{ color: "#6EE7B7", fontSize: 11, lineHeight: 1.4, marginTop: 2 }}>
+          {stage.context}
+        </div>
+      )}
     </div>
   );
 }
@@ -305,11 +341,13 @@ function AgentLane({
   workOrders,
   artifacts,
   executions,
+  onSelectArtifact,
 }: {
   lane: { agentType: DevFlowWorkOrderAgentType; label: string; color: string; icon: ReactNode };
   workOrders: DevFlowWorkOrder[];
   artifacts: DevFlowArtifact[];
   executions: DevFlowOrchestrationRun["executions"];
+  onSelectArtifact?: (artifact: DevFlowArtifact) => void;
 }) {
   const active = workOrders.find((workOrder) => workOrder.status === "DISPATCHED" || (workOrder.executionStartedAt && !workOrder.executionCompletedAt));
   const failed = workOrders.filter((workOrder) => workOrder.status === "FAILED").length + executions.filter((execution) => execution.status === "FAILED").length;
@@ -337,12 +375,89 @@ function AgentLane({
       <div style={{ color: "white", fontSize: 12, fontWeight: 700, lineHeight: 1.35, minHeight: 32, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
         {label}
       </div>
+      {artifacts.length > 0 && onSelectArtifact && (
+        <div style={{ marginTop: 8, display: "grid", gap: 3 }}>
+          {artifacts.slice(0, 3).map((a) => (
+            <button
+              key={a.id}
+              onClick={() => onSelectArtifact(a)}
+              style={{
+                background: "rgba(255,255,255,.06)",
+                border: "1px solid rgba(148,163,184,.12)",
+                borderRadius: 5,
+                padding: "4px 8px",
+                color: "var(--text-2)",
+                fontSize: 11,
+                fontFamily: "mono",
+                cursor: "pointer",
+                textAlign: "left",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title="Click to preview"
+            >
+              {a.filePath.split("/").pop()}
+            </button>
+          ))}
+          {artifacts.length > 3 && (
+            <div style={{ color: "var(--text-3)", fontSize: 10.5, padding: "2px 8px" }}>+{artifacts.length - 3} more files</div>
+          )}
+        </div>
+      )}
       <div className="row" style={{ justifyContent: "space-between", gap: 8, marginTop: 9, color: "var(--text-3)", fontSize: 11 }}>
         <span>{workOrders.length} orders</span>
         <span>{artifacts.length} files</span>
       </div>
     </div>
   );
+}
+
+function buildStageContext(stageId: string, currentNode: string, currentStatus: string): string {
+  const contexts: Record<string, Record<string, string>> = {
+    intake: {
+      default: "Defining the project scope, user goals, and executable work orders.",
+      active: "Analyzing project brief and preparing work orders for execution...",
+      done: "Intake complete. Work orders are ready for execution.",
+    },
+    requirements: {
+      default: "Parsing the project brief into structured, agent-readable requirements.",
+      active: "Parsing your project brief into structured requirements...",
+      done: "Requirements parsed successfully with complexity assessment.",
+    },
+    contract: {
+      default: "Generating an architecture contract with file manifest and acceptance criteria.",
+      active: "Negotiating project contract with file manifest and acceptance criteria...",
+      done: "Contract generated. Ready for architecture review.",
+    },
+    coding: {
+      default: "Frontend, backend, database, and architecture agents generating code in parallel.",
+      active: "AI agents are generating code across all modules...",
+      done: "All code agents completed. Outputs ready for validation.",
+    },
+    validation: {
+      default: "Validating generated artifacts against contract requirements.",
+      active: "Running validation checks on generated artifacts...",
+      done: "Validation passed. All artifacts meet contract requirements.",
+    },
+    "gate-2": {
+      default: "Awaiting PM review before GitHub delivery.",
+      active: "Waiting for your review of the generated code.",
+      done: "Gate 2 approved. Ready for delivery.",
+    },
+    github: {
+      default: "Committing approved artifacts to the project repository.",
+      active: "Committing artifacts to GitHub and finalizing delivery...",
+      done: "Project delivered to GitHub successfully.",
+    },
+  };
+
+  const stageContexts = contexts[stageId];
+  if (!stageContexts) return "";
+
+  if (currentStatus === "FAILED") return "An error occurred during this stage. Check the activity log for details.";
+  if (currentNode.includes(stageId) || (currentStatus && stageId === "gate-2" && currentStatus === "AWAITING_GATE_2")) return stageContexts.active;
+  return stageContexts.default;
 }
 
 function buildStages(input: {
@@ -352,12 +467,13 @@ function buildStages(input: {
   completedCount: number;
   failedCount: number;
   repoLinked: boolean;
-}): FlowStage[] {
+}, currentNode: string, runStatus: string): FlowStage[] {
   return [
     {
       id: "intake",
       label: "Use case intake",
       subtitle: "Kickoff scope, user goals, and executable work orders.",
+      context: buildStageContext("intake", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.INTAKE,
       statuses: ["PENDING"],
       icon: <IconClipboard size={15} />,
@@ -367,6 +483,7 @@ function buildStages(input: {
       id: "requirements",
       label: "Requirements",
       subtitle: "Agent-readable requirements, constraints, and context.",
+      context: buildStageContext("requirements", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.REQUIREMENTS,
       statuses: ["PARSING_REQUIREMENTS"],
       icon: <IconFileText size={15} />,
@@ -376,6 +493,7 @@ function buildStages(input: {
       id: "contract",
       label: "Contract + Gate 1",
       subtitle: "Architecture contract and approval boundary.",
+      context: buildStageContext("contract", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.CONTRACT,
       statuses: ["NEGOTIATING_CONTRACT", "AWAITING_GATE_1"],
       icon: <IconShield size={15} />,
@@ -385,6 +503,7 @@ function buildStages(input: {
       id: "coding",
       label: "Agent coding",
       subtitle: "Frontend, backend, database, and architecture output.",
+      context: buildStageContext("coding", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.CODING,
       statuses: ["GENERATING_CODE"],
       icon: <IconCode size={15} />,
@@ -394,6 +513,7 @@ function buildStages(input: {
       id: "validation",
       label: "Validation",
       subtitle: "Output contracts, file checks, and artifact health.",
+      context: buildStageContext("validation", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.VALIDATION,
       statuses: [],
       icon: <IconCheckCircle size={15} />,
@@ -403,6 +523,7 @@ function buildStages(input: {
       id: "gate-2",
       label: "PM Gate 2",
       subtitle: "Review queue before GitHub delivery.",
+      context: buildStageContext("gate-2", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.GATE_2,
       statuses: ["AWAITING_GATE_2"],
       icon: <IconActivity size={15} />,
@@ -412,6 +533,7 @@ function buildStages(input: {
       id: "github",
       label: "GitHub delivery",
       subtitle: "Repository commit, delivery handoff, and final state.",
+      context: buildStageContext("github", currentNode, runStatus),
       nodes: STAGE_NODE_GROUPS.GITHUB,
       statuses: ["COMMITTING", "DELIVERED"],
       icon: <IconGitBranch size={15} />,
@@ -477,10 +599,10 @@ function buildActivityFeed({
 function resolveActiveStageIndex(currentNode: string, currentStatus: string | null | undefined, delivered: boolean): number {
   if (delivered) return 6;
   const normalizedStatus = currentStatus || "";
-  const byNode = buildStages({ readyCount: 0, workOrderCount: 0, artifactCount: 0, completedCount: 0, failedCount: 0, repoLinked: false })
+  const byNode = buildStages({ readyCount: 0, workOrderCount: 0, artifactCount: 0, completedCount: 0, failedCount: 0, repoLinked: false }, currentNode, normalizedStatus)
     .findIndex((stage) => stage.nodes.includes(currentNode));
   if (byNode >= 0) return byNode;
-  const byStatus = buildStages({ readyCount: 0, workOrderCount: 0, artifactCount: 0, completedCount: 0, failedCount: 0, repoLinked: false })
+  const byStatus = buildStages({ readyCount: 0, workOrderCount: 0, artifactCount: 0, completedCount: 0, failedCount: 0, repoLinked: false }, currentNode, normalizedStatus)
     .findIndex((stage) => stage.statuses.includes(normalizedStatus));
   return byStatus >= 0 ? byStatus : 0;
 }

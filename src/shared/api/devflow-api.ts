@@ -1808,3 +1808,17 @@ export function rerunReadyDevFlowWorkOrders(projectId: string): Promise<StartDev
     method: "POST",
   });
 }
+
+export function approveDevFlowGate1(projectId: string, approved: boolean, notes?: string): Promise<unknown> {
+  return request(`/projects/${projectId}/gates/architecture`, {
+    method: "POST",
+    body: JSON.stringify({ approved, notes }),
+  });
+}
+
+export function approveDevFlowGate2(projectId: string, approved: boolean, notes?: string): Promise<unknown> {
+  return request(`/projects/${projectId}/gates/code`, {
+    method: "POST",
+    body: JSON.stringify({ approved, notes }),
+  });
+}
