@@ -84,6 +84,13 @@ import {
   verifyDevFlowLlmProvider,
 } from "@/shared/api/devflow-api";
 import { useDevFlowOrchestrationProviderStatus, useDevFlowOrchestrationStatus, useDevFlowProjectOutputs } from "@/shared/hooks/use-devflow-projects";
+import {
+  ProjectLifecycleIndicator,
+  LifecycleOverviewBanner,
+  mapProjectStatusToLifecycleStage,
+  getStageIndex,
+  LIFECYCLE_STAGES,
+} from "@/shared/components/project-lifecycle/project-lifecycle-indicator";
 
 export function PMProjectDetailView({ projectId }: { projectId: string }) {
   const router = useRouter();
@@ -197,6 +204,11 @@ function BackendProjectDetail({ project, onBack }) {
     progress: 0,
     signals: {},
   };
+  const lifecycleStageId = mapProjectStatusToLifecycleStage(detail.status, detail.kickoff?.status);
+  const lifecycleStageIndex = getStageIndex(lifecycleStageId);
+  const completedStagesFromProject = new Set(
+    ["draft", "kickoff", "build", "review", "delivered"].slice(0, lifecycleStageIndex) as any,
+  );
   const budgetPct = detail.runBudget
     ? Math.min(100, Math.round((detail.runBudget.tokensConsumed / detail.runBudget.tokenBudget) * 100))
     : 0;
@@ -499,11 +511,29 @@ function BackendProjectDetail({ project, onBack }) {
         actions={
           <div className="row gap-2">
             <Button variant="secondary" size="sm" icon={<IconArrowLeft size={14} />} onClick={onBack}>All projects</Button>
+            <Button variant="secondary" size="sm" icon={<IconWorkflow size={13} />} onClick={() => router.push(`/pm/orchestrate/${detail.id}/brief`)}>
+              Guided wizard
+            </Button>
             <Button variant="primary" size="sm" icon={<IconPlay size={13} />} onClick={startRun} disabled={!canStartOrchestration}>
               {detail.runId ? "Run started" : starting ? "Starting..." : canStartOrchestration ? "Start orchestration" : "Not ready"}
             </Button>
           </div>
         }
+      />
+
+      {/* Lifecycle indicator */}
+      <div className="project-detail-lifecycle">
+        <ProjectLifecycleIndicator
+          currentStage={lifecycleStageId}
+          maxReachedStage={lifecycleStageId}
+          completedStages={completedStagesFromProject}
+          onClickStage={(stage) => router.push(`/pm/orchestrate/${detail.id}/${stage === "draft" ? "brief" : stage === "kickoff" ? "kickoff" : stage === "build" ? "run" : stage === "review" ? "gate-2" : "delivery"}`)}
+        />
+      </div>
+
+      <LifecycleOverviewBanner
+        currentStage={lifecycleStageId}
+        projectId={detail.id}
       />
 
       {error && (

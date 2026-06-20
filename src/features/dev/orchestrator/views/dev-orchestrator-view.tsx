@@ -9,6 +9,8 @@ import { DevPageHeader } from "@/features/dev/shared/components/dev-page-header"
 import { BackendAwareRouteState } from "@/shared/components/backend-aware-route-state";
 import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestration/orchestration-provider-status-panel";
 import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
+import { OrchestrationCanvas } from "@/shared/components/orchestration/canvas/orchestration-canvas";
+import { useSocketSubscription } from "@/shared/hooks/use-socket-subscription";
 import { useDevFlowOrchestrationProviderStatus, useDevFlowOrchestrationStatus, useDevFlowProject, useDevFlowProjectOutputs, useDevFlowProjects } from "@/shared/hooks/use-devflow-projects";
 import { useSelectedDevFlowProject } from "@/shared/projects/selected-project-context";
 import { compactDevFlowError, devflowLifecycleView, formatDevFlowDate, lifecycleProgressColor } from "@/shared/utils/devflow-projects";
@@ -20,6 +22,18 @@ export function DevOrchestratorView() {
   const orchestration = useDevFlowOrchestrationStatus(selectedProjectId);
   const provider = useDevFlowOrchestrationProviderStatus(selectedProjectId);
   const lifecycle = devflowLifecycleView(selectedProject);
+
+  // Phase 4 — WebSocket-first: subscribe to the typed protocol channel for the
+  // selected project. The store drives the interactive canvas in real time;
+  // REST polling below remains the degraded-mode fallback.
+  const isLiveRun = Boolean(selectedProject?.runId) && !["DELIVERED", "FAILED"].includes(selectedProject?.status || "");
+  useSocketSubscription({
+    projectId: selectedProjectId,
+    initialStatus: orchestration.status?.status,
+    initialCurrentNode: orchestration.status?.currentNode,
+    initialRunId: selectedProject?.runId,
+  });
+
   const refresh = () => {
     refreshProjects();
     outputs.refresh();
@@ -111,6 +125,16 @@ export function DevOrchestratorView() {
           </div>
 
           <OrchestrationProviderStatusPanel status={provider.status} loading={provider.loading} error={provider.error ? compactDevFlowError(provider.error) : ""} />
+
+          <Card style={{ padding: 18 }}>
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Live pipeline</h3>
+                <p style={{ color: "var(--text-3)", fontSize: 12, marginTop: 4 }}>Interactive DAG — click a node to inspect telemetry, errors, and reasoning. Real-time via WebSocket.</p>
+              </div>
+            </div>
+            <OrchestrationCanvas projectId={selectedProject.id} live={isLiveRun} />
+          </Card>
 
           <OrchestrationLiveVisualizer
             project={selectedProject}

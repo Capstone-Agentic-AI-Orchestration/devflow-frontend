@@ -151,19 +151,344 @@ export function HowItWorksView() {
   );
 }
 
+function PricingFeatureItem({ checked, featured, children }) {
+  return (
+    <li style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14 }}>
+      <span style={{
+        width: 22, height: 22, borderRadius: "50%",
+        background: featured ? "rgba(47,107,255,0.15)" : "rgba(16,185,129,0.12)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0, color: featured ? "#93C5FD" : "#6EE7B7",
+      }}>
+        <IconCheck size={11} stroke={3} />
+      </span>
+      <span>{children}</span>
+    </li>
+  );
+}
+
+function PricingCTA({ children, primary, onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      display: "inline-flex", alignItems: "center", gap: 12,
+      padding: primary ? "0 18px 0 26px" : "0 16px 0 22px",
+      height: primary ? 52 : 48,
+      borderRadius: 999,
+      background: primary
+        ? "linear-gradient(135deg, #2F6BFF, #4F8BFF)"
+        : "rgba(255,255,255,0.06)",
+      border: primary ? "none" : "1px solid rgba(255,255,255,0.10)",
+      color: "white",
+      fontWeight: primary ? 600 : 500,
+      fontSize: 14.5,
+      cursor: "pointer",
+      boxShadow: primary ? "0 8px 28px rgba(47,107,255,0.35)" : undefined,
+      transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
+    }} className="pricing-cta-btn">
+      {children}
+      <span style={{
+        width: primary ? 32 : 28,
+        height: primary ? 32 : 28,
+        borderRadius: "50%",
+        background: primary ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.08)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "transform 0.7s cubic-bezier(0.32,0.72,0,1)",
+      }} className="pricing-cta-icon">
+        <IconArrowUpRight size={primary ? 14 : 13} />
+      </span>
+    </button>
+  );
+}
+
+function PricingCardOuter({ featured, children }) {
+  return (
+    <div style={{
+      padding: 8,
+      borderRadius: 32,
+      background: featured
+        ? "linear-gradient(135deg, rgba(47,107,255,0.15), rgba(139,92,246,0.10))"
+        : "rgba(255,255,255,0.03)",
+      border: featured
+        ? "1px solid rgba(79,139,255,0.35)"
+        : "1px solid rgba(255,255,255,0.06)",
+      position: "relative",
+      height: "100%",
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function PricingCardInner({ children, featured, ...rest }) {
+  return (
+    <div style={{
+      borderRadius: 24,
+      background: "rgba(8,14,32,0.85)",
+      backdropFilter: "blur(24px) saturate(140%)",
+      WebkitBackdropFilter: "blur(24px) saturate(140%)",
+      border: "1px solid rgba(255,255,255,0.06)",
+      boxShadow: "inset 0 1px 1px rgba(255,255,255,0.08)",
+      padding: featured ? 36 : 32,
+      height: "100%",
+      ...rest.style,
+    }} {...rest}>
+      {children}
+    </div>
+  );
+}
+
+function MostPopularBadge() {
+  return (
+    <div style={{
+      position: "absolute", top: -16, left: "50%",
+      transform: "translateX(-50%)",
+      padding: "6px 20px", borderRadius: 999,
+      background: "linear-gradient(135deg, #2F6BFF, #8B5CF6)",
+      fontSize: 11, fontWeight: 700,
+      letterSpacing: "0.15em", textTransform: "uppercase",
+      color: "white", whiteSpace: "nowrap", zIndex: 2,
+      boxShadow: "0 4px 20px rgba(47,107,255,0.4)",
+    }}>
+      Most Popular
+    </div>
+  );
+}
+
+function PricingTierCard({ tier, index }) {
+  const inner = (
+    <>
+      {tier.featured && <MostPopularBadge />}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 15, color: tier.featured ? "#BAD1FF" : "var(--text-2)", letterSpacing: "0.02em" }}>
+            {tier.name}
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 12 }}>
+            <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: "-0.03em" }}>
+              {tier.price}
+            </span>
+            <span style={{ color: "var(--text-3)", fontSize: 13 }}>
+              {tier.per}
+            </span>
+          </div>
+          <p style={{ color: "var(--text-2)", fontSize: 14.5, marginTop: 8, lineHeight: 1.6 }}>
+            {tier.tagline}
+          </p>
+        </div>
+        <PricingCTA primary={tier.featured}>
+          {tier.cta}
+        </PricingCTA>
+      </div>
+      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "28px 0" }} />
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-3)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 16 }}>
+          What's included
+        </div>
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
+          {tier.features.map((item) => (
+            <PricingFeatureItem key={item} featured={tier.featured}>
+              {item}
+            </PricingFeatureItem>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
+
+  return (
+    <PricingCardOuter featured={tier.featured}>
+      <PricingCardInner featured={tier.featured}>
+        {inner}
+      </PricingCardInner>
+    </PricingCardOuter>
+  );
+}
+
+function PricingEnterpriseCard({ tier }) {
+  return (
+    <PricingCardOuter>
+      <PricingCardInner style={{ display: "flex", flexDirection: "column" }}>
+        <div className="pricing-enterprise-inner">
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15, color: "var(--text-2)", letterSpacing: "0.02em" }}>
+              {tier.name}
+            </div>
+            <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: "-0.03em", marginTop: 12 }}>
+              {tier.price}
+              <span style={{ fontSize: 14, fontWeight: 400, color: "var(--text-3)", letterSpacing: 0, marginLeft: 8 }}>
+                {tier.per}
+              </span>
+            </div>
+            <p style={{ color: "var(--text-2)", fontSize: 14.5, marginTop: 12, lineHeight: 1.6, maxWidth: 380 }}>
+              {tier.tagline}
+            </p>
+            <PricingCTA style={{ marginTop: 24 }}>
+              {tier.cta}
+            </PricingCTA>
+          </div>
+          <div>
+            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 14 }}>
+              {tier.features.map((item) => (
+                <PricingFeatureItem key={item} featured={false}>
+                  {item}
+                </PricingFeatureItem>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </PricingCardInner>
+    </PricingCardOuter>
+  );
+}
+
+function FaqItem({ q, a, index }) {
+  return (
+    <details data-reveal className="reveal-premium pricing-faq" style={{
+      "--reveal-delay": `${index * 80}ms`,
+      borderRadius: 24,
+      overflow: "hidden",
+      border: "1px solid rgba(255,255,255,0.06)",
+      background: "rgba(8,14,32,0.5)",
+      transition: "border-color 0.4s cubic-bezier(0.32,0.72,0,1)",
+    }}>
+      <summary style={{
+        padding: "20px 24px",
+        fontSize: 15,
+        fontWeight: 600,
+        color: "white",
+        cursor: "pointer",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        listStyle: "none",
+        userSelect: "none",
+      }}>
+        {q}
+        <span className="pricing-faq-toggle" style={{
+          width: 24, height: 24, borderRadius: "50%",
+          background: "rgba(255,255,255,0.05)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0, fontSize: 16, fontWeight: 300,
+          transition: "transform 0.4s cubic-bezier(0.32,0.72,0,1)",
+        }}>
+          +
+        </span>
+      </summary>
+      <div style={{
+        padding: "0 24px 20px",
+        fontSize: 14.5,
+        color: "var(--text-2)",
+        lineHeight: 1.7,
+      }}>
+        {a}
+      </div>
+    </details>
+  );
+}
+
 export function PricingView() {
   useReveal();
   const tiers = [
-    { name: "Starter", price: "PHP 180k", per: "per project", tagline: "For MSMEs validating one idea fast.", cta: "Start a project", features: ["1 application build", "Web or mobile", "GitHub repo + CI/CD setup", "1 month post-launch support"] },
-    { name: "Growth", featured: true, price: "PHP 520k", per: "per project", tagline: "For teams scaling a real product.", cta: "Talk to sales", features: ["Up to 3 application builds", "Web + mobile delivery", "Preview environments", "Dedicated PM", "Custom integrations"] },
-    { name: "Enterprise", price: "Custom", per: "annual contract", tagline: "For complex orgs and compliance-heavy work.", cta: "Contact us", features: ["Unlimited application builds", "VPC deployment", "DPA and audit logs", "Dedicated delivery team"] },
+    {
+      name: "Starter", price: "PHP 180k", per: "per project",
+      tagline: "For MSMEs validating one idea fast.",
+      cta: "Start a project", span: 4,
+      features: ["1 application build", "Web or mobile", "GitHub repo + CI/CD setup", "1 month post-launch support"],
+      featured: false,
+    },
+    {
+      name: "Growth", price: "PHP 520k", per: "per project",
+      tagline: "For teams scaling a real product.",
+      cta: "Talk to sales", span: 8,
+      features: ["Up to 3 application builds", "Web + mobile delivery", "Preview environments", "Dedicated PM", "Custom integrations"],
+      featured: true,
+    },
+    {
+      name: "Enterprise", price: "Custom", per: "annual contract",
+      tagline: "For complex orgs and compliance-heavy work.",
+      cta: "Contact us", span: 12, enterprise: true,
+      features: ["Unlimited application builds", "VPC deployment", "DPA and audit logs", "Dedicated delivery team"],
+    },
   ];
+
+  const faqs = [
+    { q: "What happens after I submit an inquiry?", a: "Your dedicated PM reviews the brief within 1-2 business days, schedules a discovery call, and provides a detailed proposal including timeline, milestones, and cost breakdown." },
+    { q: "Can I switch tiers mid-project?", a: "Yes. If scope expands beyond the original engagement, we adjust the tier, timeline, and budget transparently. No lock-in contracts." },
+    { q: "Do you offer ongoing support after launch?", a: "All plans include post-launch support. Starter includes 1 month, Growth includes 2 months, and Enterprise includes custom SLAs with 24/7 coverage options." },
+    { q: "What stacks do you build with?", a: "We primarily build on Next.js, NestJS, Supabase, and React Native. For enterprise clients, we can work with any stack including AWS, GCP, Azure, Go, Python, and more." },
+  ];
+
   return (
     <MarketingShell route="pricing">
       <div data-screen-label="04 Pricing">
         <PageHero eyebrow="Pricing" title="Pay for what you ship." gradientWord="ship." subtitle="Predictable per-project pricing for MSMEs. Custom annual contracts for enterprises. No hidden fees, no surprise bills." />
-        <section className="container" style={{ paddingBottom: 32 }}><div data-reveal style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18 }}>{tiers.map((tier) => <Card key={tier.name} hover style={{ padding: 32, border: tier.featured ? "1px solid rgba(79,139,255,.55)" : "1px solid var(--border)", background: tier.featured ? "linear-gradient(180deg, rgba(47,107,255,.10), rgba(139,92,246,.06))" : undefined, position: "relative" }}>{tier.featured && <div style={{ position: "absolute", top: -12, left: 28, padding: "4px 12px", borderRadius: 999, background: "linear-gradient(135deg, #2F6BFF, #8B5CF6)", fontSize: 11, fontWeight: 700, letterSpacing: ".1em", textTransform: "uppercase" }}>Most popular</div>}<div style={{ fontWeight: 600, fontSize: 16, color: tier.featured ? "#BAD1FF" : "var(--text-2)" }}>{tier.name}</div><div className="row" style={{ alignItems: "baseline", gap: 8, marginTop: 12 }}><div style={{ fontSize: 44, fontWeight: 800, letterSpacing: "-0.03em" }}>{tier.price}</div><div style={{ color: "var(--text-3)", fontSize: 13 }}>{tier.per}</div></div><p style={{ color: "var(--text-2)", fontSize: 14, marginTop: 8 }}>{tier.tagline}</p><Button variant={tier.featured ? "primary" : "secondary"} style={{ width: "100%", marginTop: 24 }} iconRight={<IconArrowRight />}>{tier.cta}</Button><div style={{ height: 1, background: "var(--border)", margin: "24px 0" }} /><ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 12 }}>{tier.features.map((item) => <li key={item} className="row gap-3" style={{ fontSize: 14, alignItems: "flex-start" }}><IconCheck size={15} style={{ color: tier.featured ? "#93C5FD" : "#6EE7B7", flexShrink: 0, marginTop: 2 }} /><span>{item}</span></li>)}</ul></Card>)}</div></section>
-        <section className="section"><div className="container"><Card data-reveal style={{ padding: 32 }}><div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}><div><h3 className="h-3">Need help choosing?</h3><p className="text-2 mt-2" style={{ fontSize: 14 }}>Book a 30-min scoping call. We will recommend a tier and ballpark a timeline.</p></div><Button variant="primary" iconRight={<IconArrowRight />}>Book a scoping call</Button></div></Card></div></section>
+
+        <section style={{ padding: "96px 0 48px" }}>
+          <div className="container">
+            <div className="pricing-grid">
+              {tiers.map((tier, i) => (
+                <div key={tier.name} data-reveal className="reveal-premium" style={{ gridColumn: `span ${tier.span}`, "--reveal-delay": `${i * 120}ms` }}>
+                  {tier.enterprise ? (
+                    <PricingEnterpriseCard tier={tier} />
+                  ) : (
+                    <PricingTierCard tier={tier} index={i} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section style={{ padding: "48px 0" }}>
+          <div className="container">
+            <div data-reveal className="reveal-premium" style={{"--reveal-delay": "360ms"}}>
+              <div style={{
+                padding: 8, borderRadius: 32,
+                background: "linear-gradient(135deg, rgba(47,107,255,0.08), rgba(139,92,246,0.06))",
+                border: "1px solid rgba(79,139,255,0.20)",
+              }}>
+                <div style={{
+                  borderRadius: 24, padding: "36px 40px",
+                  background: "rgba(8,14,32,0.80)",
+                  backdropFilter: "blur(20px) saturate(140%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(140%)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  boxShadow: "inset 0 1px 1px rgba(255,255,255,0.08)",
+                  display: "flex", justifyContent: "space-between",
+                  alignItems: "center", flexWrap: "wrap", gap: 20,
+                }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#93C5FD", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 8 }}>
+                      Not sure which plan fits?
+                    </div>
+                    <h3 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", margin: 0 }}>
+                      Book a free 30-minute scoping call.
+                    </h3>
+                    <p style={{ color: "var(--text-2)", fontSize: 14.5, marginTop: 8, maxWidth: 440, lineHeight: 1.6 }}>
+                      We will recommend a tier, ballpark a timeline, and answer every question. No commitment.
+                    </p>
+                  </div>
+                  <PricingCTA primary>Book a scoping call</PricingCTA>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section style={{ padding: "48px 0 96px" }}>
+          <div className="container" style={{ maxWidth: 800 }}>
+            <div className="text-center" data-reveal style={{ marginBottom: 48 }}>
+              <span className="eyebrow"><span className="dot" /> FAQs</span>
+              <h2 className="h-2 mt-4">Everything you need to know.</h2>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {faqs.map((faq, i) => (
+                <FaqItem key={faq.q} q={faq.q} a={faq.a} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
         <SecondaryContactCloser />
       </div>
     </MarketingShell>

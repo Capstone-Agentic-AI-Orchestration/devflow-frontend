@@ -35,8 +35,19 @@ function Logo({ size = 28 }) {
 
 /* ---------------- Button ---------------- */
 function Button({
-  variant = "primary", size = "md", icon, iconRight, children, onClick,
-  type = "button", style, className = "", disabled,
+  variant = "primary", size = "md", icon, iconRight, children,
+  onClick, type = "button", style, className = "", disabled,
+}: {
+  variant?: string;
+  size?: string;
+  icon?: React.ReactNode;
+  iconRight?: React.ReactNode;
+  children?: React.ReactNode;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  style?: React.CSSProperties;
+  className?: string;
+  disabled?: boolean;
 }) {
   const cls = ["btn", `btn-${variant}`, size !== "md" && `btn-${size}`, className].filter(Boolean).join(" ");
   return (

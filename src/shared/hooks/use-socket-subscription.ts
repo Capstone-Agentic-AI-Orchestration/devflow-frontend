@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { io, type Socket } from 'socket.io-client';
-import { useOrchestrationStore, type StreamChunk, type ActivityLogEntry } from '@/shared/store/orchestration-store';
+import { useOrchestrationStore } from '@/shared/store/orchestration-store';
+import {
+  ORCHESTRATION_EVENT_CHANNEL,
+  type OrchestrationEvent,
+} from '@/shared/api/orchestration-events';
 
 const SOCKET_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
 const POLL_INTERVAL_MS = 30_000;
@@ -34,17 +38,22 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
 
   const setConnectionStatus = useOrchestrationStore((s) => s.setConnectionStatus);
   const setOrchestrationState = useOrchestrationStore((s) => s.setOrchestrationState);
-  const appendAgentChunk = useOrchestrationStore((s) => s.appendAgentChunk);
-  const appendActivityLog = useOrchestrationStore((s) => s.appendActivityLog);
+  const applyEvent = useOrchestrationStore((s) => s.applyEvent);
   const reset = useOrchestrationStore((s) => s.reset);
 
+  // Stable refs to avoid infinite re-render loops when callbacks change
+  const fallbackPollRef = useRef(fallbackPollFn);
+  fallbackPollRef.current = fallbackPollFn;
+  const onStateChangeRef = useRef(onStateChange);
+  onStateChangeRef.current = onStateChange;
+
   const startPolling = useCallback(() => {
-    if (!fallbackPollFn || isPollingRef.current) return;
+    if (!fallbackPollRef.current || isPollingRef.current) return;
     isPollingRef.current = true;
 
     const poll = async () => {
       try {
-        const result = await fallbackPollFn();
+        const result = await fallbackPollRef.current!();
         if (result) {
           setOrchestrationState({
             status: result.status,
@@ -53,7 +62,7 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
             runId: result.runId ?? '',
             error: null,
           });
-          onStateChange?.(result);
+          onStateChangeRef.current?.(result);
         }
       } catch {
         // polling error — will retry on next interval
@@ -62,7 +71,7 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
 
     poll();
     pollTimerRef.current = setInterval(poll, POLL_INTERVAL_MS);
-  }, [fallbackPollFn, setOrchestrationState, onStateChange]);
+  }, [setOrchestrationState]);
 
   const stopPolling = useCallback(() => {
     if (pollTimerRef.current) {
@@ -105,43 +114,14 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
       socket.emit('subscribe', { projectId });
     });
 
-    socket.on('orchestration:state', (data: { projectId: string; status: string; currentNode: string; nodeStatus: 'entering' | 'exiting' | 'running'; runId: string; error: string | null }) => {
-      setOrchestrationState({
-        status: data.status,
-        currentNode: data.currentNode,
-        nodeStatus: data.nodeStatus,
-        runId: data.runId,
-        error: data.error,
-      });
-
-      onStateChange?.({ status: data.status, currentNode: data.currentNode });
-
-      const description = data.nodeStatus === 'entering'
-        ? `Entering stage: ${data.currentNode}`
-        : data.nodeStatus === 'exiting'
-          ? `Completed stage: ${data.currentNode}`
-          : `Running: ${data.currentNode}`;
-
-      appendActivityLog({
-        timestamp: Date.now(),
-        source: 'System',
-        description,
-        type: 'system',
-      });
-    });
-
-    socket.on('agent:stream', (data: { projectId: string; nodeId: string; chunks: StreamChunk[] }) => {
-      appendAgentChunk(data.projectId, data.nodeId, data.chunks);
-
-      for (const chunk of data.chunks) {
-        if (chunk.type === 'tool-call' || chunk.type === 'decision') {
-          appendActivityLog({
-            timestamp: chunk.timestamp ?? Date.now(),
-            source: formatNodeName(data.nodeId),
-            description: chunk.chunk,
-            type: 'agent',
-          });
-        }
+    // Phase 4 — WebSocket-first cutover: the typed `orchestration:event` channel
+    // is the single source of truth. The store reducer (applyEvent) fans each
+    // event into run status, per-node runtime, agent streams, and the activity
+    // log. Legacy `orchestration:state` / `agent:stream` events are ignored.
+    socket.on(ORCHESTRATION_EVENT_CHANNEL, (event: OrchestrationEvent) => {
+      applyEvent(event);
+      if (event.type === 'run.status') {
+        onStateChangeRef.current?.({ status: event.status, currentNode: event.currentNode });
       }
     });
 
@@ -170,7 +150,7 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
       }
       stopPolling();
     };
-  }, [projectId, initialStatus, initialCurrentNode, initialRunId, setConnectionStatus, setOrchestrationState, appendAgentChunk, appendActivityLog, reset, stopPolling, startPolling, onStateChange]);
+  }, [projectId, initialStatus, initialCurrentNode, initialRunId, setConnectionStatus, setOrchestrationState, applyEvent, reset, stopPolling, startPolling]);
 
   const resync = useCallback(() => {
     const socket = socketRef.current;
@@ -186,18 +166,4 @@ export function useSocketSubscription(options: UseSocketSubscriptionOptions) {
   }, [projectId]);
 
   return { resync };
-}
-
-function formatNodeName(nodeId: string): string {
-  const labels: Record<string, string> = {
-    requirements_parser: 'Requirements',
-    contract_negotiator: 'Contract',
-    frontend_agent: 'Frontend',
-    backend_agent: 'Backend',
-    database_agent: 'Database',
-    architecture_agent: 'Architecture',
-    validator: 'Validator',
-    github_commit: 'GitHub',
-  };
-  return labels[nodeId] ?? nodeId.replace(/_/g, ' ');
 }

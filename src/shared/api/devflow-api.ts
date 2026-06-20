@@ -83,7 +83,7 @@ export type DevFlowWorkOrderStatus = "DRAFT" | "READY" | "DISPATCHED" | "COMPLET
 
 export type DevFlowWorkOrderPriority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
 
-export type DevFlowAgentProviderMode = "mock" | "llm";
+export type DevFlowAgentProviderMode = "mock" | "llm" | "simulation";
 
 export type DevFlowProjectTaskActivityType =
   | "TASK_CREATED"
@@ -1768,6 +1768,30 @@ export function createDevFlowProject(input: CreateDevFlowProjectInput): Promise<
   });
 }
 
+export type DevFlowAutoAnalyzeResult = {
+  enhancedBrief: string;
+  suggestedFeatures: string[];
+  suggestedTechStack: {
+    frontend: string;
+    backend: string;
+    database: string;
+    styling: string;
+  };
+  complexity: "simple" | "medium" | "complex";
+  estimatedFiles: number;
+};
+
+export function autoAnalyzeDevFlowBrief(input: {
+  companyName: string;
+  brief: string;
+  stackKey: string;
+}): Promise<DevFlowAutoAnalyzeResult> {
+  return request<DevFlowAutoAnalyzeResult>("/projects/auto-analyze", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
 export function updateDevFlowProject(
   projectId: string,
   input: UpdateDevFlowProjectInput,
@@ -1806,6 +1830,32 @@ export function startDevFlowOrchestration(projectId: string): Promise<StartDevFl
 export function rerunReadyDevFlowWorkOrders(projectId: string): Promise<StartDevFlowOrchestrationResult> {
   return request<StartDevFlowOrchestrationResult>(`/projects/${projectId}/orchestration/rerun-ready`, {
     method: "POST",
+  });
+}
+
+export type DevFlowOrchestrationControlAction =
+  | "pause"
+  | "resume"
+  | "cancel"
+  | "retry_node"
+  | "skip_node"
+  | "modify_params";
+
+export interface DevFlowOrchestrationControlResult {
+  accepted: boolean;
+  action: DevFlowOrchestrationControlAction;
+  status: string;
+}
+
+/** Mid-run control (Phase 2): pause/resume/cancel/retry_node/skip_node/modify_params. */
+export function controlDevFlowOrchestration(
+  projectId: string,
+  action: DevFlowOrchestrationControlAction,
+  options?: { nodeId?: string; params?: Record<string, unknown> },
+): Promise<DevFlowOrchestrationControlResult> {
+  return request<DevFlowOrchestrationControlResult>(`/projects/${projectId}/orchestration/control`, {
+    method: "POST",
+    body: JSON.stringify({ action, ...options }),
   });
 }
 
