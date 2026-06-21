@@ -10,18 +10,18 @@ interface AgentLiveStripProps {
   scoped?: boolean;
 }
 
-const AGENT_CONFIG: Array<{
+export const AGENT_CONFIG: Array<{
   nodeId: string;
   label: string;
   color: string;
 }> = [
-  { nodeId: "requirements_parser", label: "Requirements", color: "#4F8BFF" },
-  { nodeId: "contract_negotiator", label: "Contract", color: "#A78BFA" },
+  { nodeId: "parse_requirements", label: "Requirements", color: "#4F8BFF" },
+  { nodeId: "negotiate_contract", label: "Contract", color: "#A78BFA" },
   { nodeId: "frontend_agent", label: "Frontend", color: "#F97316" },
   { nodeId: "backend_agent", label: "Backend", color: "#10B981" },
   { nodeId: "database_agent", label: "Database", color: "#14B8A6" },
   { nodeId: "architecture_agent", label: "Architecture", color: "#A78BFA" },
-  { nodeId: "validator", label: "Validator", color: "#FBBF24" },
+  { nodeId: "validate_outputs", label: "Validator", color: "#FBBF24" },
 ];
 
 function agentStatus(nodeId: string, stream: { chunks: Array<{ type: string }>; buffer: string } | undefined, orchestrationState: { currentNode: string; status: string } | null): { label: string; tone: "green" | "blue" | "amber" | "red" | "gray" } {

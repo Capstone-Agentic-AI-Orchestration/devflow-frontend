@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AgentLiveStrip } from "@/features/pm/shared/components/pm-agent-live-strip";
 import { ActivityConsole } from "@/shared/components/orchestration/activity-console";
+import { RunStatusBanner } from "@/shared/components/orchestration/run-status-banner";
 import { useSocketSubscription } from "@/shared/hooks/use-socket-subscription";
 import { PMPageHeader } from "@/features/pm/shared/components/pm-page-header";
 import { Badge, Button, Card, Field, Input, Modal, Select, Tabs, Textarea } from "@/shared/components/ui";
@@ -823,10 +824,10 @@ function BackendProjectDetail({ project, onBack }) {
                     Approving will start parallel code generation across all agent modules.
                     Rejecting will abort the run — you can provide notes to improve the contract.
                   </div>
-                  {(workOrders.length > 0 || artifacts.length > 0) && (
+                  {(outputs.workOrders.length > 0 || outputs.artifacts.length > 0) && (
                     <div style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(79,139,255,.08)", borderRadius: 8 }}>
                       {detail._count.artifacts > 0 && <div>Generated artifacts: {detail._count.artifacts}</div>}
-                      <div>Expected work orders: {workOrders.length}</div>
+                      <div>Expected work orders: {outputs.workOrders.length}</div>
                       <div>Acceptance criteria: {detail.brief ? `${detail.brief.slice(0, 80)}...` : 'Defined in contract'}</div>
                     </div>
                   )}
@@ -850,15 +851,15 @@ function BackendProjectDetail({ project, onBack }) {
                     Approving will commit all approved artifacts to the project GitHub repository.
                     Rejecting will allow the agents to retry with your feedback.
                   </div>
-                  {artifacts.length > 0 && (
+                  {outputs.artifacts.length > 0 && (
                     <div style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 12, padding: "8px 12px", background: "rgba(16,185,129,.08)", borderRadius: 8 }}>
                       <div style={{ fontWeight: 600, color: "var(--text-2)", marginBottom: 4 }}>Generated artifacts by agent:</div>
-                      {groupArtifactsByAgent(artifacts).map(([agent, items]) => (
+                      {groupArtifactsByAgent(outputs.artifacts).map(([agent, items]) => (
                         <div key={agent} style={{ margin: "2px 0" }}>
                           {agent}: {items.length} files
                         </div>
                       ))}
-                      <div style={{ marginTop: 4, color: "var(--text-3)" }}>Total: {artifacts.length} artifacts across {groupArtifactsByAgent(artifacts).length} agents</div>
+                      <div style={{ marginTop: 4, color: "var(--text-3)" }}>Total: {outputs.artifacts.length} artifacts across {groupArtifactsByAgent(outputs.artifacts).length} agents</div>
                     </div>
                   )}
                   <div className="row gap-2" style={{ marginTop: 12 }}>
@@ -1031,6 +1032,10 @@ function BackendOrchestrationPanel({ detail, status, statusLoading, statusError,
       </div>
 
       <div style={{ marginTop: 16 }}>
+        <RunStatusBanner />
+      </div>
+
+      <div style={{ marginTop: 16 }}>
         <OrchestrationLiveVisualizer
           project={detail}
           status={status}
@@ -1043,6 +1048,11 @@ function BackendOrchestrationPanel({ detail, status, statusLoading, statusError,
           onSelectArtifact={handleSelectArtifact}
           useWebSocket
         />
+      </div>
+
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 10 }}>Live agent output</div>
+        <AgentLiveStrip scoped />
       </div>
 
       <div style={{ marginTop: 14 }}>

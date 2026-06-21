@@ -10,7 +10,10 @@ import { BackendAwareRouteState } from "@/shared/components/backend-aware-route-
 import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestration/orchestration-provider-status-panel";
 import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
 import { OrchestrationCanvas } from "@/shared/components/orchestration/canvas/orchestration-canvas";
+import { AgentLiveStrip } from "@/features/pm/shared/components/pm-agent-live-strip";
+import { RunStatusBanner } from "@/shared/components/orchestration/run-status-banner";
 import { useSocketSubscription } from "@/shared/hooks/use-socket-subscription";
+import { useOrchestrationStore } from "@/shared/store/orchestration-store";
 import { useDevFlowOrchestrationProviderStatus, useDevFlowOrchestrationStatus, useDevFlowProject, useDevFlowProjectOutputs, useDevFlowProjects } from "@/shared/hooks/use-devflow-projects";
 import { useSelectedDevFlowProject } from "@/shared/projects/selected-project-context";
 import { compactDevFlowError, devflowLifecycleView, formatDevFlowDate, lifecycleProgressColor } from "@/shared/utils/devflow-projects";
@@ -27,6 +30,7 @@ export function DevOrchestratorView() {
   // selected project. The store drives the interactive canvas in real time;
   // REST polling below remains the degraded-mode fallback.
   const isLiveRun = Boolean(selectedProject?.runId) && !["DELIVERED", "FAILED"].includes(selectedProject?.status || "");
+  const connectionStatus = useOrchestrationStore((s) => s.connectionStatus);
   useSocketSubscription({
     projectId: selectedProjectId,
     initialStatus: orchestration.status?.status,
@@ -65,12 +69,17 @@ export function DevOrchestratorView() {
       }
     };
 
-    const timer = window.setInterval(refreshLiveSnapshot, 4000);
+    // Socket-first: while the typed protocol channel is connected it drives run
+    // status, node lifecycle, and progress live, so REST only needs to backfill
+    // artifact/work-order records (which aren't on the protocol) at a relaxed
+    // cadence. When the socket is down, REST is the sole source — poll tighter.
+    const intervalMs = connectionStatus === "connected" ? 10000 : 4000;
+    const timer = window.setInterval(refreshLiveSnapshot, intervalMs);
     return () => {
       mounted = false;
       window.clearInterval(timer);
     };
-  }, [selectedProjectId, selectedProject?.runId, selectedProject?.status, orchestration.status?.status, outputs.workOrders.length]);
+  }, [selectedProjectId, selectedProject?.runId, selectedProject?.status, orchestration.status?.status, outputs.workOrders.length, connectionStatus]);
 
   return (
     <div data-screen-label="Dev Orchestrator" style={{ display: "grid", gap: 20 }}>
@@ -126,6 +135,8 @@ export function DevOrchestratorView() {
 
           <OrchestrationProviderStatusPanel status={provider.status} loading={provider.loading} error={provider.error ? compactDevFlowError(provider.error) : ""} />
 
+          <RunStatusBanner />
+
           <Card style={{ padding: 18 }}>
             <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
               <div>
@@ -136,6 +147,14 @@ export function DevOrchestratorView() {
             <OrchestrationCanvas projectId={selectedProject.id} live={isLiveRun} />
           </Card>
 
+          <Card style={{ padding: 18 }}>
+            <div style={{ marginBottom: 14 }}>
+              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Live agent output</h3>
+              <p style={{ color: "var(--text-3)", fontSize: 12, marginTop: 4 }}>Token-by-token reasoning streamed from each agent as it generates — no node selection required.</p>
+            </div>
+            <AgentLiveStrip scoped />
+          </Card>
+
           <OrchestrationLiveVisualizer
             project={selectedProject}
             status={orchestration.status}
@@ -144,6 +163,7 @@ export function DevOrchestratorView() {
             artifacts={outputs.artifacts}
             events={outputs.events}
             loading={outputs.loading || orchestration.loading || provider.loading}
+            useWebSocket
           />
 
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 360px", gap: 18 }}>
