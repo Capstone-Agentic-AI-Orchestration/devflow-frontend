@@ -99,6 +99,14 @@ interface OrchestratorStepperProps {
 
 const STEP_ORDER = ORCHESTRATOR_STEPS.map((s) => s.id);
 
+/** Four readable phases so the eight steps don't read as one long list. */
+const PHASES: Array<{ id: string; label: string; steps: OrchestratorStepId[] }> = [
+  { id: "setup", label: "Setup", steps: ["brief", "kickoff", "team", "readiness"] },
+  { id: "build", label: "Build", steps: ["run"] },
+  { id: "review", label: "Review", steps: ["gate-1", "gate-2"] },
+  { id: "deliver", label: "Deliver", steps: ["delivery"] },
+];
+
 export function OrchestratorStepper({
   projectId,
   currentStep,
@@ -106,65 +114,53 @@ export function OrchestratorStepper({
   completedSteps,
 }: OrchestratorStepperProps) {
   const router = useRouter();
-  const currentIndex = STEP_ORDER.indexOf(currentStep);
   const maxReachedIndex = STEP_ORDER.indexOf(maxReachedStep);
 
   return (
-    <nav className="orchestrator-stepper" aria-label="Orchestration progress">
-      <div className="orchestrator-stepper-track">
-        {ORCHESTRATOR_STEPS.map((step, index) => {
-          const isCurrent = step.id === currentStep;
-          const isCompleted = completedSteps.has(step.id);
-          const isReachable = index <= maxReachedIndex;
-          const isPast = index < currentIndex;
-          const Icon = step.icon;
+    <nav className="orch-stepper2" aria-label="Orchestration progress">
+      {PHASES.map((phase, phaseIndex) => {
+        const phaseSteps = phase.steps.map((id) => ORCHESTRATOR_STEPS.find((s) => s.id === id)!);
+        const phaseStepIdxs = phase.steps.map((id) => STEP_ORDER.indexOf(id));
+        const phaseDone = phaseStepIdxs.every((i) => completedSteps.has(STEP_ORDER[i]));
+        const phaseActive = phase.steps.includes(currentStep);
+        const phaseState = phaseActive ? "active" : phaseDone ? "done" : phaseStepIdxs[0] <= maxReachedIndex ? "reachable" : "locked";
 
-          const stateClass = isCurrent
-            ? "orch-step-current"
-            : isCompleted
-              ? "orch-step-done"
-              : isReachable
-                ? "orch-step-reachable"
-                : "orch-step-locked";
+        return (
+          <div key={phase.id} className={`orch-phase state-${phaseState}`}>
+            <div className="orch-phase-head">
+              <span className="orch-phase-name">{phase.label}</span>
+              <span className="orch-phase-marker" aria-hidden="true">{phaseIndex + 1}</span>
+            </div>
+            <div className="orch-phase-steps">
+              {phaseSteps.map((step) => {
+                const index = STEP_ORDER.indexOf(step.id);
+                const isCurrent = step.id === currentStep;
+                const isCompleted = completedSteps.has(step.id);
+                const isReachable = index <= maxReachedIndex;
+                const Icon = step.icon;
+                const stateClass = isCurrent ? "is-current" : isCompleted ? "is-done" : isReachable ? "is-reachable" : "is-locked";
 
-          return (
-            <button
-              key={step.id}
-              type="button"
-              className={`orchestrator-step ${stateClass}`}
-              disabled={!isReachable}
-              onClick={() =>
-                isReachable &&
-                router.push(`/pm/orchestrate/${projectId}/${step.id}`)
-              }
-              aria-current={isCurrent ? "step" : undefined}
-              title={step.description}
-            >
-              <span className="orch-step-connector" aria-hidden="true">
-                {index > 0 && (
-                  <span
-                    className={`orch-step-line ${isPast ? "orch-line-filled" : ""}`}
-                  />
-                )}
-              </span>
-              <span className="orch-step-marker">
-                {isCompleted ? (
-                  <IconCheck size={16} className="orch-step-check" />
-                ) : (
-                  <Icon size={16} className="orch-step-icon" />
-                )}
-                <span className="orch-step-number">{index + 1}</span>
-              </span>
-              <span className="orch-step-label">
-                <span className="orch-step-label-text">{step.shortLabel}</span>
-                {isCurrent && (
-                  <span className="orch-step-label-sub">{step.description}</span>
-                )}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    className={`orch-step2 ${stateClass}`}
+                    disabled={!isReachable}
+                    onClick={() => isReachable && router.push(`/pm/orchestrate/${projectId}/${step.id}`)}
+                    aria-current={isCurrent ? "step" : undefined}
+                    title={step.description}
+                  >
+                    <span className="orch-step2-dot">
+                      {isCompleted ? <IconCheck size={13} /> : <Icon size={13} />}
+                    </span>
+                    <span className="orch-step2-label">{step.shortLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </nav>
   );
 }

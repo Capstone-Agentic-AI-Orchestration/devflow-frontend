@@ -10,7 +10,7 @@ import {
   getStepIndex,
 } from "./orchestrator-stepper";
 import { getDevFlowProject, getDevFlowOrchestrationStatus } from "@/shared/api/devflow-api";
-import { IconArrowLeft, IconAlertTriangle } from "@/shared/components/icons";
+import { IconArrowLeft, IconArrowRight, IconCompass, IconCheck, IconAlertTriangle } from "@/shared/components/icons";
 import { Button } from "@/shared/components/ui";
 
 export interface OrchestratorWizardContextValue {
@@ -141,6 +141,10 @@ export function OrchestratorWizardLayout({
   const maxReachedStep = ORCHESTRATOR_STEPS[Math.min(maxReachedIndex, ORCHESTRATOR_STEPS.length - 1)].id;
 
   const projectName = project?.companyName ?? "Loading…";
+  const currentMeta = ORCHESTRATOR_STEPS.find((s) => s.id === currentStep);
+  const currentNum = ORCHESTRATOR_STEPS.findIndex((s) => s.id === currentStep) + 1;
+  const recommendedMeta = ORCHESTRATOR_STEPS.find((s) => s.id === recommendedStep);
+  const onTrack = currentStep === recommendedStep;
 
   return (
     <div className="orchestrator-wizard">
@@ -157,21 +161,28 @@ export function OrchestratorWizardLayout({
           <div className="orchestrator-wizard-title">
             <h2>{projectName}</h2>
             <span className="orchestrator-wizard-subtitle">
-              Orchestration Wizard
+              Step {currentNum} of {ORCHESTRATOR_STEPS.length} · {currentMeta?.label ?? "Orchestration"}
             </span>
           </div>
         </div>
-        {currentStep !== recommendedStep && !loading && (
-          <button
-            type="button"
-            className="orchestrator-wizard-recommend"
-            onClick={() =>
-              router.push(`/pm/orchestrate/${projectId}/${recommendedStep}`)
-            }
-          >
-            <IconAlertTriangle size={14} />
-            Jump to recommended step: {recommendedStep.replace("-", " ")}
-          </button>
+        {!loading && (
+          onTrack ? (
+            <div className="orch-next-pill is-ontrack" title="This is the recommended step for the project's current state">
+              <IconCheck size={13} />
+              You&apos;re on the right step
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="orch-next-pill"
+              onClick={() => router.push(`/pm/orchestrate/${projectId}/${recommendedStep}`)}
+            >
+              <IconCompass size={13} />
+              <span className="orch-next-pill-label">Do this next</span>
+              <strong>{recommendedMeta?.shortLabel ?? recommendedStep}</strong>
+              <IconArrowRight size={13} />
+            </button>
+          )
         )}
       </header>
 

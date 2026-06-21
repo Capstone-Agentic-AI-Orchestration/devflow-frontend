@@ -9,9 +9,12 @@ import {
   IconArrowUpRight,
   IconBell,
   IconClipboard,
+  IconCode,
   IconFolder,
   IconLayers,
   IconRefresh,
+  IconRocket,
+  IconShield,
 } from "@/shared/components/icons";
 import { PMPageHeader } from "@/features/pm/shared/components/pm-page-header";
 import { useDevFlowProjects } from "@/shared/hooks/use-devflow-projects";
@@ -27,6 +30,64 @@ import type { DevFlowProjectSummary } from "@/shared/api/devflow-api";
 
 const INACTIVE_STATUSES = new Set(["DELIVERED", "FAILED"]);
 const GATE_STATUSES = new Set(["AWAITING_GATE_1", "AWAITING_GATE_2"]);
+
+/* ---------- Next-best-action picker ---------- */
+function actionPriority(status: string): number {
+  switch (status) {
+    case "AWAITING_GATE_1":
+    case "AWAITING_GATE_2": return 0;
+    case "FAILED": return 1;
+    case "GENERATING_CODE":
+    case "PARSING_REQUIREMENTS":
+    case "NEGOTIATING_CONTRACT":
+    case "COMMITTING": return 2;
+    case "PENDING": return 3;
+    default: return 4;
+  }
+}
+
+function actionView(project: DevFlowProjectSummary) {
+  const id = project.id;
+  switch (project.status) {
+    case "AWAITING_GATE_1":
+      return { reason: "Gate 1 — approve the architecture contract", cta: "Review Gate 1", route: `/pm/orchestrate/${id}/gate-1`, icon: <IconShield size={18} />, color: "#FBBF24" };
+    case "AWAITING_GATE_2":
+      return { reason: "Gate 2 — review the generated code", cta: "Review Gate 2", route: `/pm/orchestrate/${id}/gate-2`, icon: <IconCode size={18} />, color: "#A78BFA" };
+    case "FAILED":
+      return { reason: "The orchestration run hit an error", cta: "Resume run", route: `/pm/orchestrate/${id}/run`, icon: <IconAlertTriangle size={18} />, color: "#FCA5A5" };
+    case "GENERATING_CODE":
+    case "PARSING_REQUIREMENTS":
+    case "NEGOTIATING_CONTRACT":
+    case "COMMITTING":
+      return { reason: "Agents are building — watch them live", cta: "Open live cockpit", route: `/pm/orchestrate/${id}/run`, icon: <IconRocket size={18} />, color: "#60A5FA" };
+    default:
+      return { reason: "Continue project setup", cta: "Continue setup", route: `/pm/orchestrate/${id}`, icon: <IconClipboard size={18} />, color: "#60A5FA" };
+  }
+}
+
+function pickNextBest(projects: DevFlowProjectSummary[]): DevFlowProjectSummary | null {
+  const actionable = projects.filter((p) => p.status !== "DELIVERED");
+  if (actionable.length === 0) return null;
+  return [...actionable].sort(
+    (a, b) => actionPriority(a.status) - actionPriority(b.status) ||
+      Date.parse(b.updatedAt || b.createdAt) - Date.parse(a.updatedAt || a.createdAt),
+  )[0];
+}
+
+function NextBestAction({ project, onGo }: { project: DevFlowProjectSummary; onGo: (route: string) => void }) {
+  const view = actionView(project);
+  return (
+    <button className="pmd-next reveal magnetic" style={{ ["--accent" as string]: view.color } as CSSProperties} onClick={() => onGo(view.route)}>
+      <span className="pmd-next-icon" style={{ background: `${view.color}1f`, color: view.color }}>{view.icon}</span>
+      <span className="pmd-next-body">
+        <span className="pmd-next-eyebrow">Pick up where you left off</span>
+        <span className="pmd-next-title">{project.companyName}</span>
+        <span className="pmd-next-sub">{view.reason}</span>
+      </span>
+      <span className="pmd-next-cta">{view.cta}<IconArrowRight size={15} /></span>
+    </button>
+  );
+}
 
 /* ---------- Stat strip cell ---------- */
 function Stat({
@@ -162,6 +223,8 @@ export function PMDashboardView() {
     notifications.refresh();
   };
 
+  const nextBest = pickNextBest(projects);
+
   return (
     <div data-screen-label="PM - Dashboard">
       <PMPageHeader
@@ -218,13 +281,19 @@ export function PMDashboardView() {
           <span className="pmd-empty-icon">
             <IconFolder size={22} />
           </span>
-          <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px" }}>No projects yet</h3>
-          <p style={{ color: "var(--text-2)", fontSize: 13.5, maxWidth: 360, margin: 0, lineHeight: 1.55 }}>
-            Projects appear here once they are assigned to your PM account. Use Refresh above to check again.
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px" }}>Start your first project</h3>
+          <p style={{ color: "var(--text-2)", fontSize: 13.5, maxWidth: 380, margin: "0 0 16px", lineHeight: 1.55 }}>
+            Head to the Projects hub to spin one up — the guided wizard takes it from brief to a
+            delivered GitHub repo, agents and all.
           </p>
+          <Button variant="primary" size="sm" iconRight={<IconArrowRight size={14} />} onClick={() => router.push("/pm/projects")}>
+            Go to Projects
+          </Button>
         </div>
       ) : (
-        <div className="pmd-grid">
+        <>
+          {nextBest && <NextBestAction project={nextBest} onGo={(r) => router.push(r)} />}
+          <div className="pmd-grid">
           <div className="pmd-stats pmd-anim" style={{ "--i": 0 } as CSSProperties}>
             <Stat
               icon={<IconFolder size={14} />}
@@ -296,6 +365,7 @@ export function PMDashboardView() {
             />
           </div>
         </div>
+        </>
       )}
     </div>
   );
