@@ -12,11 +12,21 @@
 
 import { useState, useEffect, type ReactNode } from "react";
 import { SmoothScroll } from "@/shared/components/layout/SmoothScroll";
+import { ScrollIndicator } from "@/shared/components/layout/ScrollIndicator";
 import { LoadingScreen } from "@/features/marketing/loading/LoadingScreen";
 import { ScrollTrigger } from "@/lib/gsap";
 
 export function MarketingFrame({ children }: { children: ReactNode }) {
   const [coverDone, setCoverDone] = useState(false);
+
+  useEffect(() => {
+    // Apply the marketing scrollbar style (hidden native bar + custom indicator)
+    // only while a marketing route is mounted.
+    document.documentElement.classList.add("marketing-scrollbar");
+    return () => {
+      document.documentElement.classList.remove("marketing-scrollbar");
+    };
+  }, []);
 
   useEffect(() => {
     if (coverDone) {
@@ -48,7 +58,10 @@ export function MarketingFrame({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <SmoothScroll>{children}</SmoothScroll>
+      <SmoothScroll>
+        {children}
+        <ScrollIndicator />
+      </SmoothScroll>
       {!coverDone && <LoadingScreen onComplete={() => setCoverDone(true)} />}
     </>
   );

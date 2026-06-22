@@ -3,11 +3,10 @@
 /**
  * AnatomyOfRun — scroll-pinned terminal walkthrough of one orchestration run.
  *
- * The section locks to the viewport. A single terminal card is centered,
- * zooms in, and then scroll drives the reveal of each log line. When the
- * current terminal finishes, it slides out to the left while the next
- * terminal slides in from the right. The progress rail and stepper dots
- * at the top show where the run is.
+ * The section pins when it reaches the top of the viewport; scrolling drives
+ * the animation. A single terminal card is centered, zooms in, reveals each
+ * log line as the user scrolls, and hands off to the next terminal with a
+ * slide transition. The progress rail and stepper dots show where the run is.
  *
  * Driven by GSAP ScrollTrigger pin + scrub.
  */
@@ -120,7 +119,6 @@ export function AnatomyOfRun() {
   const progressRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -135,11 +133,13 @@ export function AnatomyOfRun() {
 
     if (!root || !stage || cards.length === 0) return;
 
-    const SEGMENT = 1;
-    const INTRO = 0.2;
-    const REVEAL_START = 0.2;
-    const TRANSITION_START = 0.8;
-    const total = CARDS.length * SEGMENT + 0.35;
+    // Scroll-scrubbed sequence. Each card gets 0.6 units of scroll distance
+    // so the animation feels responsive without requiring an enormous scroll.
+    const SEGMENT = 0.6;
+    const INTRO = 0.12;
+    const REVEAL_START = 0.12;
+    const TRANSITION_START = 0.48;
+    const total = CARDS.length * SEGMENT + 0.25;
 
     const tl = gsap.timeline({
       defaults: { ease: "power2.inOut" },
@@ -148,14 +148,13 @@ export function AnatomyOfRun() {
         start: "top top",
         end: `+=${total * 100}%`,
         pin: stage,
-        scrub: 0.65,
+        pinSpacing: true,
+        scrub: 0.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         refreshPriority: 1,
       },
     });
-
-    timelineRef.current = tl;
 
     cards.forEach((card, i) => {
       const at = i * SEGMENT;
@@ -184,8 +183,8 @@ export function AnatomyOfRun() {
         );
       }
 
-      const lineDuration = 0.1;
-      const lineStagger = 0.08;
+      const lineDuration = 0.06;
+      const lineStagger = 0.06;
       lines.forEach((line, li) => {
         tl.fromTo(
           line,
@@ -246,7 +245,6 @@ export function AnatomyOfRun() {
       window.removeEventListener("resize", onResize);
       tl.kill();
       if (tl.scrollTrigger) tl.scrollTrigger.kill();
-      timelineRef.current = null;
     };
   }, []);
 
