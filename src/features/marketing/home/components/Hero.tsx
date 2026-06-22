@@ -9,9 +9,13 @@
 
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
+import dynamic from "next/dynamic";
 import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import { MagneticButton } from "./MagneticButton";
 import "./Hero.css";
+
+// WebGL scene is client-only — no SSR.
+const HeroScene = dynamic(() => import("./HeroScene").then((m) => m.HeroScene), { ssr: false });
 
 export function Hero() {
   const rootRef = useRef<HTMLElement>(null);
@@ -67,6 +71,7 @@ export function Hero() {
 
   return (
     <section ref={rootRef} className="hero">
+      <HeroScene />
       <div className="hero-inner">
         <h1 ref={headlineRef} className="hero-headline">
           <span>One prompt,</span>

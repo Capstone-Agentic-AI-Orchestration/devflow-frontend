@@ -1,188 +1,314 @@
 "use client";
 
 /**
- * AnatomyOfRun — A schematic showing one real orchestration run.
- * Pure SVG, monochrome, 1.5px stroke.
- * GSAP timeline on enter: each node appears in sequence.
- * Respects prefers-reduced-motion.
+ * AnatomyOfRun — scroll-pinned terminal walkthrough of one orchestration run.
+ *
+ * The section locks to the viewport. A single terminal card is centered,
+ * zooms in, and then scroll drives the reveal of each log line. When the
+ * current terminal finishes, it slides out to the left while the next
+ * terminal slides in from the right. The progress rail and stepper dots
+ * at the top show where the run is.
+ *
+ * Driven by GSAP ScrollTrigger pin + scrub.
  */
 
-import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
-import { gsap, registerGsapPlugins } from "@/lib/gsap";
+import { useLayoutEffect, useRef } from "react";
+import { gsap, ScrollTrigger, registerGsapPlugins } from "@/lib/gsap";
 import "./AnatomyOfRun.css";
 
-interface RunNode {
-  id: string;
-  type: "input" | "process" | "decision" | "output";
-  label: string;
-  detail?: string;
-  status?: "ok" | "pending" | "active";
-  duration?: string;
-  y: number;
+interface RunCard {
+  key: string;
+  agent: string;
+  index: string;
+  lines: string[];
+  meta: string;
+  duration: string;
+  final?: boolean;
 }
 
-const NODES: RunNode[] = [
-  { id: "brief", type: "input", label: "brief", detail: '"Build a B2B dashboard for Bayan Cargo"', y: 0 },
-  { id: "contract", type: "process", label: "contract", detail: "18 files · 12 tests · 8 acceptance criteria", status: "ok", duration: "1m 42s", y: 110 },
-  { id: "agents", type: "process", label: "agents run in parallel", status: "ok", duration: "3m 08s", y: 230 },
-  { id: "gate1", type: "decision", label: "gate 1 — contract review", status: "ok", duration: "2m 11s", y: 380 },
-  { id: "artifacts", type: "process", label: "18 artifacts generated", status: "ok", duration: "1m 22s", y: 500 },
-  { id: "gate2", type: "decision", label: "gate 2 — code review", status: "ok", duration: "4m 30s", y: 610 },
-  { id: "deploy", type: "output", label: "github.com/alphaexplora/bayan-cargo-dashboard", status: "ok", y: 720 },
+const CARDS: RunCard[] = [
+  {
+    key: "contract",
+    agent: "contract_agent",
+    index: "01 / 06",
+    lines: [
+      "> reading brief...",
+      "> parsing scope → 18 files · 12 tests · 8 acceptance criteria",
+      "> negotiating agent contracts",
+      "> contract signed",
+      "> manifest ready",
+    ],
+    meta: "contract negotiated",
+    duration: "1m 42s",
+  },
+  {
+    key: "frontend",
+    agent: "frontend_agent",
+    index: "02 / 06",
+    lines: [
+      "> scaffolding app/(dashboard)/page.tsx",
+      "> wiring data hooks → /api/orders",
+      "> running component type-check",
+      "> generating 851 tokens · 14 KB",
+      "> UI scaffolded",
+    ],
+    meta: "ui scaffolded",
+    duration: "2m 04s",
+  },
+  {
+    key: "backend",
+    agent: "backend_agent",
+    index: "03 / 06",
+    lines: [
+      "> building /api/orders route",
+      "> writing zod schema + handler + tests",
+      "> wiring service layer + auth guard",
+      "> generating 847 tokens · 12 KB",
+      "> API implemented",
+    ],
+    meta: "api implemented",
+    duration: "2m 18s",
+  },
+  {
+    key: "database",
+    agent: "database_agent",
+    index: "04 / 06",
+    lines: [
+      "> designing schema: orders, customers, line_items",
+      "> generating Prisma migration",
+      "> applying migration to staging DB",
+      "> generating 312 tokens · 4 KB",
+      "> schema migrated",
+    ],
+    meta: "schema migrated",
+    duration: "1m 06s",
+  },
+  {
+    key: "architecture",
+    agent: "architecture_agent",
+    index: "05 / 06",
+    lines: [
+      "> mapping service boundaries + queues",
+      "> validating deploy topology",
+      "> checking cost + concurrency limits",
+      "> generating 508 tokens · 7 KB",
+      "> architecture sealed",
+    ],
+    meta: "architecture sealed",
+    duration: "1m 31s",
+  },
+  {
+    key: "deploy",
+    agent: "github",
+    index: "06 / 06",
+    lines: [
+      "> git add . && git commit -m \"feat: orders flow\"",
+      "> git push origin main",
+      "> 18 files changed · 0 errors",
+      "> gate 2 approved",
+      "> deployed to GitHub",
+    ],
+    meta: "shipped to github",
+    duration: "8m 12s total",
+    final: true,
+  },
 ];
 
 export function AnatomyOfRun() {
   const rootRef = useRef<HTMLElement>(null);
-  const nodesRef = useRef<SVGGElement>(null);
-  const connectorsRef = useRef<SVGGElement>(null);
-  const totalRef = useRef<SVGGElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  useGSAP(
-    () => {
-      registerGsapPlugins();
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
 
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const nodes = nodesRef.current?.querySelectorAll(".run-node") ?? [];
-      const connectors = connectorsRef.current?.querySelectorAll(".run-connector") ?? [];
-      const total = totalRef.current;
+    registerGsapPlugins();
 
-      if (reduced) {
-        gsap.set([nodes, connectors, total], { opacity: 1 });
-        return;
+    const root = rootRef.current;
+    const stage = stageRef.current;
+    const progress = progressRef.current;
+    const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+    const dots = dotRefs.current.filter(Boolean) as HTMLSpanElement[];
+
+    if (!root || !stage || cards.length === 0) return;
+
+    const SEGMENT = 1;
+    const INTRO = 0.2;
+    const REVEAL_START = 0.2;
+    const TRANSITION_START = 0.8;
+    const total = CARDS.length * SEGMENT + 0.35;
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power2.inOut" },
+      scrollTrigger: {
+        trigger: root,
+        start: "top top",
+        end: `+=${total * 100}%`,
+        pin: stage,
+        scrub: 0.65,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        refreshPriority: 1,
+      },
+    });
+
+    timelineRef.current = tl;
+
+    cards.forEach((card, i) => {
+      const at = i * SEGMENT;
+      const lines = card.querySelectorAll<HTMLElement>(".run-line");
+      const fill = card.querySelector<HTMLElement>(".run-meter-fill");
+      const dot = dots[i];
+
+      if (i === 0) {
+        tl.fromTo(
+          card,
+          { scale: 0.82, opacity: 0, xPercent: 0 },
+          { scale: 1, opacity: 1, duration: INTRO },
+          at,
+        );
+      } else {
+        tl.fromTo(
+          card,
+          { xPercent: 100, opacity: 0, scale: 0.95 },
+          { xPercent: 0, opacity: 1, scale: 1, duration: INTRO },
+          at,
+        );
+        tl.to(
+          cards[i - 1],
+          { xPercent: -100, opacity: 0, duration: INTRO },
+          at,
+        );
       }
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: rootRef.current,
-          start: "top 75%",
-          toggleActions: "play none none none",
-        },
+      const lineDuration = 0.1;
+      const lineStagger = 0.08;
+      lines.forEach((line, li) => {
+        tl.fromTo(
+          line,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: lineDuration },
+          at + REVEAL_START + li * lineStagger,
+        );
       });
 
-      tl.from(connectors, {
-        opacity: 0,
-        duration: 0.3,
-        stagger: 0.12,
-        ease: "power1.in",
-      }).from(
-        nodes,
-        {
-          opacity: 0,
-          y: 12,
-          duration: 0.5,
-          stagger: 0.15,
-          ease: "power2.out",
-        },
-        "-=0.2",
-      ).from(
-        total,
-        {
-          opacity: 0,
-          duration: 0.4,
-          ease: "power1.out",
-        },
-        "-=0.2",
-      );
-    },
-    { scope: rootRef },
-  );
+      if (fill) {
+        tl.fromTo(
+          fill,
+          { scaleX: 0 },
+          { scaleX: 1, duration: TRANSITION_START - REVEAL_START, ease: "none" },
+          at + REVEAL_START,
+        );
+      }
+
+      if (dot) {
+        tl.fromTo(
+          dot,
+          { opacity: 0.25, scale: 1 },
+          { opacity: 1, scale: 1.25, duration: 0.08 },
+          at,
+        );
+        if (i < cards.length - 1) {
+          tl.to(
+            dot,
+            { opacity: 0.25, scale: 1, duration: 0.08 },
+            at + TRANSITION_START,
+          );
+        }
+      }
+
+      if (progress) {
+        tl.to(
+          progress,
+          { scaleX: (i + 1) / cards.length, duration: SEGMENT, ease: "none" },
+          at,
+        );
+      }
+    });
+
+    const last = cards[cards.length - 1];
+    tl.to(last, { opacity: 0, scale: 0.96, duration: 0.35 }, CARDS.length * SEGMENT);
+
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    const t1 = setTimeout(() => ScrollTrigger.refresh(), 150);
+    const t2 = setTimeout(() => ScrollTrigger.refresh(), 600);
+
+    const onResize = () => ScrollTrigger.refresh();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener("resize", onResize);
+      tl.kill();
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      timelineRef.current = null;
+    };
+  }, []);
 
   return (
     <section ref={rootRef} className="anatomy">
-      <div className="anatomy-inner">
+      <div ref={stageRef} className="anatomy-stage">
         <div className="anatomy-head">
           <p className="anatomy-eyebrow">A real run</p>
-          <h2 className="anatomy-title">One brief. Five agents. Eight minutes.</h2>
-          <p className="anatomy-sub">
-            A single prompt orchestrates four specialised agents in parallel,
-            delivers contract-scoped artifacts, and ships to GitHub after two
-            PM-approved gates.
-          </p>
+          <h2 className="anatomy-title">One brief. Six agents. Eight minutes.</h2>
+          <div className="anatomy-stepper" aria-hidden="true">
+            {CARDS.map((card, i) => (
+              <span
+                key={card.key}
+                ref={(el) => { dotRefs.current[i] = el; }}
+                className="anatomy-step"
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="anatomy-schematic">
-          <svg
-            viewBox="0 0 700 800"
-            xmlns="http://www.w3.org/2000/svg"
-            className="anatomy-svg"
-            role="img"
-            aria-label="Schematic of a single orchestration run from brief to GitHub deploy"
-          >
-            <g ref={connectorsRef} className="run-connectors">
-              {NODES.slice(0, -1).map((n, i) => (
-                <line
-                  key={`conn-${i}`}
-                  className="run-connector"
-                  x1="350"
-                  y1={n.y + 56}
-                  x2="350"
-                  y2={NODES[i + 1].y - 8}
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 4"
-                />
-              ))}
-            </g>
+        <div className="anatomy-viewport">
+          {CARDS.map((card, i) => (
+            <div
+              key={card.key}
+              ref={(el) => { cardRefs.current[i] = el; }}
+              className="run-card-wrap"
+            >
+              <article className={`run-card${card.final ? " run-card--final" : ""}`}>
+                <header className="run-card-bar">
+                  <span className="run-card-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                  <span className="run-card-agent">{card.agent}</span>
+                  <span className="run-card-index">{card.index}</span>
+                </header>
+                <div className="run-card-body">
+                  {card.lines.map((line, li) => (
+                    <p key={li} className="run-line">
+                      <span className="run-line-prompt">{line.startsWith(">") ? ">" : " "}</span>
+                      {line.replace(/^>\s?/, "")}
+                    </p>
+                  ))}
+                </div>
+                <footer className="run-card-foot">
+                  <span className="run-card-status">
+                    <span className="run-card-dot" />
+                    {card.meta}
+                  </span>
+                  <span className="run-card-dur">{card.duration}</span>
+                </footer>
+                <div className="run-meter" aria-hidden="true">
+                  <div className="run-meter-fill" />
+                </div>
+              </article>
+            </div>
+          ))}
+        </div>
 
-            <g ref={nodesRef} className="run-nodes">
-              {NODES.map((node) => (
-                <g key={node.id} className={`run-node run-node--${node.type}`} transform={`translate(0, ${node.y})`}>
-                  {node.type === "input" && (
-                    <g>
-                      <rect x="120" y="0" width="460" height="56" rx="2" className="run-box" />
-                      <text x="140" y="22" className="run-label">{node.label}</text>
-                      {node.detail && (
-                        <text x="140" y="44" className="run-detail">{node.detail}</text>
-                      )}
-                    </g>
-                  )}
-
-                  {node.type === "process" && (
-                    <g>
-                      <rect x="120" y="0" width="460" height="56" rx="2" className="run-box" />
-                      <text x="140" y="22" className="run-label">{node.label}</text>
-                      {(node.detail || node.duration) && (
-                        <g>
-                          {node.detail && (
-                            <text x="140" y="44" className="run-detail">{node.detail}</text>
-                          )}
-                          {node.duration && (
-                            <text x="560" y="22" className="run-duration">{node.duration}</text>
-                          )}
-                        </g>
-                      )}
-                    </g>
-                  )}
-
-                  {node.type === "decision" && (
-                    <g>
-                      <rect x="120" y="0" width="460" height="56" rx="2" className="run-box run-box--decision" />
-                      <text x="140" y="22" className="run-label">{node.label}</text>
-                      {node.duration && (
-                        <text x="560" y="22" className="run-duration">{node.duration}</text>
-                      )}
-                      <text x="560" y="44" className="run-check">✓ approved</text>
-                    </g>
-                  )}
-
-                  {node.type === "output" && (
-                    <g>
-                      <rect x="120" y="0" width="460" height="56" rx="2" className="run-box run-box--output" />
-                      <text x="140" y="22" className="run-label">{node.label}</text>
-                      <text x="140" y="44" className="run-detail">8m 12s · 5 agents · 18 files · 0 errors</text>
-                    </g>
-                  )}
-                </g>
-              ))}
-
-              <g ref={totalRef} className="run-total" transform="translate(0, 790)">
-                <text x="350" y="0" textAnchor="middle" className="run-total-text">
-                  end-to-end: 8m 12s
-                </text>
-              </g>
-            </g>
-          </svg>
+        <div className="anatomy-progress" aria-hidden="true">
+          <div ref={progressRef} className="anatomy-progress-fill" />
         </div>
       </div>
     </section>

@@ -13,6 +13,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { SmoothScroll } from "@/shared/components/layout/SmoothScroll";
 import { LoadingScreen } from "@/features/marketing/loading/LoadingScreen";
+import { ScrollTrigger } from "@/lib/gsap";
 
 export function MarketingFrame({ children }: { children: ReactNode }) {
   const [coverDone, setCoverDone] = useState(false);
@@ -21,7 +22,19 @@ export function MarketingFrame({ children }: { children: ReactNode }) {
     if (coverDone) {
       document.documentElement.style.overflow = "";
       document.body.style.overflow = "";
-      return;
+      // ScrollTriggers (pins, scrubs) were created while the page was
+      // scroll-locked under the cover, so their start/end were measured
+      // against a zero-scroll document. Recompute now that the real page
+      // height is live. A few passes cover Lenis/layout settling.
+      const refresh = () => ScrollTrigger.refresh();
+      const r1 = requestAnimationFrame(refresh);
+      const t1 = setTimeout(refresh, 120);
+      const t2 = setTimeout(refresh, 360);
+      return () => {
+        cancelAnimationFrame(r1);
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
     const prevHtml = document.documentElement.style.overflow;
     const prevBody = document.body.style.overflow;
