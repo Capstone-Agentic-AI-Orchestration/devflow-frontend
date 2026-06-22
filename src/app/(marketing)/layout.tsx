@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Marketing layout — wraps all marketing pages with SmoothScroll.
- * Provides smooth scrolling and GSAP integration for the landing page.
+ * Marketing layout — wraps all marketing pages with the marketing frame
+ * (loading screen + scroll lock + smooth scroll).
  */
 
 import type { ReactNode } from "react";
-import { SmoothScroll } from "@/shared/components/layout/SmoothScroll";
+import { MarketingFrame } from "@/features/marketing/loading/MarketingFrame";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
-  return <SmoothScroll>{children}</SmoothScroll>;
+  return <MarketingFrame>{children}</MarketingFrame>;
 }

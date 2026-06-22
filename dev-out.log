@@ -1,0 +1,11 @@
+
+> devflow-frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.103:3001
+- Environments: .env
+✓ Ready in 598ms
+
+ GET / 200 in 2.1s (next.js: 1808ms, application-code: 289ms)

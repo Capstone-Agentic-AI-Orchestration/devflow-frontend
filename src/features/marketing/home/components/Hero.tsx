@@ -33,7 +33,11 @@ export function Hero() {
         return;
       }
 
-      const tl = gsap.timeline({ defaults: { ease: "power4.inOut" } });
+      // Delay so the hero reveals as the loading cover zooms into
+      // the page. Cover zoom starts at 800ms and ends at 2000ms.
+      // Starting the wipe at 800ms creates a layered reveal: cover
+      // scales away + hero wipes in underneath.
+      const tl = gsap.timeline({ defaults: { ease: "power4.inOut" }, delay: 0.8 });
 
       tl.fromTo(
         headlineRef.current,

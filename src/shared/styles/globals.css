@@ -7,9 +7,9 @@
    inherit the new system.
    =========================================================== */
 
-@import "../design/reset.css";
-
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+
+@import "../design/reset.css";
 
 :root {
   /* surfaces */
