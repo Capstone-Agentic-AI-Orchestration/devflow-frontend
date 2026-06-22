@@ -11,7 +11,6 @@ import {
   IconCheck,
   IconChevronDown,
   IconChevronRight,
-  IconCode,
   IconCpu,
   IconDownload,
   IconExternalLink,
@@ -132,7 +131,7 @@ export function DevProjectDetailView({ projectId }) {
   const { project: backendProject, loading: backendLoading, error: backendError } = useDevFlowProject(projectId);
 
   if (backendProject) {
-    return <BackendDevProjectDetail project={backendProject} onBack={() => router.push("/dev/projects")} onOpenOrchestrator={() => router.push("/dev/orchestrator")} onOpenIDE={() => router.push("/dev/ide")} />;
+    return <BackendDevProjectDetail project={backendProject} onBack={() => router.push("/dev/projects")} onOpenOrchestrator={() => router.push("/dev/orchestrator")} />;
   }
 
   if (backendLoading) {
@@ -159,7 +158,7 @@ export function DevProjectDetailView({ projectId }) {
   );
 }
 
-function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator, onOpenIDE }) {
+function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator }) {
   const status = devflowStatusView(project.status);
   const lifecycle = devflowLifecycleView(project);
   const initials = projectInitials(project.companyName);
@@ -186,7 +185,6 @@ function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator, onOpenID
           </div>
         </div>
         <div className="row gap-2">
-          <Button variant="secondary" size="sm" icon={<IconCode size={13} />} onClick={onOpenIDE}>Open in IDE</Button>
           <Button variant="primary" size="sm" icon={<IconCpu size={13} />} onClick={onOpenOrchestrator}>Open orchestrator</Button>
         </div>
       </div>

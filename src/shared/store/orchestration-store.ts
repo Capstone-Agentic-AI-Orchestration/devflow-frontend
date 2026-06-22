@@ -34,6 +34,7 @@ export interface OrchestrationState {
   nodeStatus: 'entering' | 'exiting' | 'running' | null;
   runId: string;
   error: string | null;
+  retryCount?: number;
 }
 
 // ─── Per-node runtime (reduced from the typed event union) ──────────────────────

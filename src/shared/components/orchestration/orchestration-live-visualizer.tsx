@@ -71,6 +71,7 @@ const STAGE_NODE_GROUPS = {
     "database",
     "architecture",
   ],
+  SELF_CRITIQUE: ["self_critique"],
   VALIDATION: ["validate_outputs"],
   GATE_2: ["gate_2_check"],
   GITHUB: ["commit_to_github", "mark_delivered", "finalize_mock_orchestration"],
@@ -139,7 +140,7 @@ export function OrchestrationLiveVisualizer({
   }, currentNode, runStatus);
   const progress = resolveProgress(activeIndex, stages.length, isDelivered, isFailed);
   const activityFeed = buildActivityFeed({ events, artifacts, workOrders, latestRun });
-  const latestActivity = activityFeed[0];
+  const latestActivity = activityFeed[0]?.items[0];
 
   return (
     <Card style={{ padding: compact ? 16 : 20, overflow: "hidden" }}>
@@ -248,16 +249,23 @@ export function OrchestrationLiveVisualizer({
             <IconActivity size={14} />
             Live coding feed
           </div>
-          {activityFeed.length === 0 ? (
+          {activityFeed.reduce((sum, g) => sum + g.items.length, 0) === 0 ? (
             <div style={{ color: "var(--text-3)", fontSize: 12.5 }}>No coding activity recorded yet.</div>
           ) : (
-            <div style={{ display: "grid", gap: 8 }}>
-              {activityFeed.slice(0, compact ? 4 : 6).map((item) => (
-                <div key={item.id} style={{ display: "grid", gridTemplateColumns: "20px minmax(0, 1fr)", gap: 8, alignItems: "flex-start" }}>
-                  <span style={{ color: item.color, marginTop: 1 }}>{item.icon}</span>
-                  <div style={{ minWidth: 0 }}>
-                    <div className="mono" style={{ color: "white", fontSize: 11.5, fontWeight: 800, overflowWrap: "anywhere" }}>{item.label}</div>
-                    <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 2, lineHeight: 1.45 }}>{item.summary}</div>
+            <div style={{ display: "grid", gap: 12 }}>
+              {activityFeed.slice(0, compact ? 2 : 3).map((group) => (
+                <div key={group.label}>
+                  <div style={{ color: "var(--text-3)", fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{group.label}</div>
+                  <div style={{ display: "grid", gap: 6 }}>
+                    {group.items.slice(0, compact ? 2 : 4).map((item) => (
+                      <div key={item.id} style={{ display: "grid", gridTemplateColumns: "18px minmax(0, 1fr)", gap: 8, alignItems: "flex-start" }}>
+                        <span style={{ color: item.color, marginTop: 1 }}>{item.icon}</span>
+                        <div style={{ minWidth: 0 }}>
+                          <div className="mono" style={{ color: "white", fontSize: 11, fontWeight: 700, overflowWrap: "anywhere" }}>{item.label}</div>
+                          <div style={{ color: "var(--text-3)", fontSize: 11, marginTop: 1, lineHeight: 1.4 }}>{item.summary}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -510,6 +518,16 @@ function buildStages(input: {
       metric: `${input.completedCount} done`,
     },
     {
+      id: "self-critique",
+      label: "Self-review",
+      subtitle: "Automated quality review before formal validation.",
+      context: buildStageContext("self-critique", currentNode, runStatus),
+      nodes: STAGE_NODE_GROUPS.SELF_CRITIQUE,
+      statuses: [],
+      icon: <IconActivity size={15} />,
+      metric: "reviewing",
+    },
+    {
       id: "validation",
       label: "Validation",
       subtitle: "Output contracts, file checks, and artifact health.",
@@ -562,6 +580,7 @@ function buildActivityFeed({
       at: workOrder.lastEventAt || workOrder.executionStartedAt || workOrder.updatedAt,
       color: "#93C5FD",
       icon: <IconCode size={14} />,
+      kind: "work_order" as const,
     }));
 
   const eventItems = events.map((event) => ({
@@ -571,6 +590,7 @@ function buildActivityFeed({
     at: event.occurredAt,
     color: event.eventType === "FAILED" ? "#FCA5A5" : event.eventType === "COMPLETED" ? "#6EE7B7" : "#C4B5FD",
     icon: event.eventType === "FAILED" ? <IconAlertTriangle size={14} /> : <IconActivity size={14} />,
+    kind: "event" as const,
   }));
 
   const artifactItems = artifacts.map((artifact) => ({
@@ -580,6 +600,7 @@ function buildActivityFeed({
     at: artifact.createdAt,
     color: "#6EE7B7",
     icon: <IconFileText size={14} />,
+    kind: "artifact" as const,
   }));
 
   const executionItems = (latestRun?.executions || []).map((execution) => ({
@@ -589,11 +610,39 @@ function buildActivityFeed({
     at: execution.completedAt || execution.updatedAt || execution.startedAt,
     color: execution.status === "FAILED" ? "#FCA5A5" : execution.status === "SUCCEEDED" ? "#6EE7B7" : "#93C5FD",
     icon: <IconRocket size={14} />,
+    kind: "execution" as const,
   }));
 
-  return [...activeWorkOrders, ...eventItems, ...executionItems, ...artifactItems]
+  const allItems = [...activeWorkOrders, ...eventItems, ...executionItems, ...artifactItems]
     .filter((item) => Boolean(item.at))
     .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+
+  return groupByTimePeriod(allItems);
+}
+
+function groupByTimePeriod(items: Array<{ id: string; label: string; summary: string; at: string; color: string; icon: React.ReactNode; kind: string }>) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+
+  const groups: Array<{ label: string; items: typeof items }> = [
+    { label: "Today", items: [] },
+    { label: "Yesterday", items: [] },
+    { label: "Earlier", items: [] },
+  ];
+
+  for (const item of items) {
+    const date = new Date(item.at);
+    if (date >= today) {
+      groups[0].items.push(item);
+    } else if (date >= yesterday) {
+      groups[1].items.push(item);
+    } else {
+      groups[2].items.push(item);
+    }
+  }
+
+  return groups.filter((g) => g.items.length > 0);
 }
 
 function resolveActiveStageIndex(currentNode: string, currentStatus: string | null | undefined, delivered: boolean): number {

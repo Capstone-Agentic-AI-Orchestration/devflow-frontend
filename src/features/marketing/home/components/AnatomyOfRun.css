@@ -1,0 +1,122 @@
+/* AnatomyOfRun — SVG schematic */
+
+.anatomy {
+  padding: 120px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.anatomy-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.anatomy-head {
+  max-width: 720px;
+  margin-bottom: 80px;
+}
+
+.anatomy-eyebrow {
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 16px;
+}
+
+.anatomy-title {
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 0 0 20px;
+}
+
+.anatomy-sub {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.anatomy-schematic {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.anatomy-svg {
+  width: 100%;
+  height: auto;
+  color: var(--text);
+}
+
+.anatomy-svg .run-box {
+  fill: var(--bg-1);
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.anatomy-svg .run-box--decision {
+  stroke: var(--border-strong);
+  fill: var(--bg-2);
+}
+
+.anatomy-svg .run-box--output {
+  stroke: var(--text);
+  fill: var(--bg-2);
+}
+
+.anatomy-svg .run-connector {
+  stroke: var(--text-4);
+  opacity: 0.4;
+}
+
+.anatomy-svg .run-label {
+  fill: var(--text);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.anatomy-svg .run-detail {
+  fill: var(--text-2);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+}
+
+.anatomy-svg .run-duration {
+  fill: var(--text-3);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  text-anchor: end;
+}
+
+.anatomy-svg .run-check {
+  fill: var(--green);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  text-anchor: end;
+}
+
+.anatomy-svg .run-total-text {
+  fill: var(--text-3);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .anatomy {
+    padding: 80px 0;
+  }
+  .anatomy-head {
+    margin-bottom: 48px;
+  }
+  .anatomy-inner {
+    padding: 0 20px;
+  }
+}

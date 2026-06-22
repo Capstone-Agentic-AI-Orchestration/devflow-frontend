@@ -32,6 +32,15 @@ interface AgentDef {
   icon: ReactNode;
 }
 
+interface AgentPanelProps {
+  agent: AgentDef;
+  runtime: NodeRuntime | undefined;
+  stream: AgentStreamState | undefined;
+  currentNode: string;
+  index: number;
+  retryCount?: number;
+}
+
 const AGENTS: AgentDef[] = [
   { nodeId: "parse_requirements", label: "Requirements", role: "Parser", color: "#4F8BFF", icon: <IconFileText size={15} /> },
   { nodeId: "negotiate_contract", label: "Contract", role: "Architect", color: "#A78BFA", icon: <IconShield size={15} /> },
@@ -39,6 +48,7 @@ const AGENTS: AgentDef[] = [
   { nodeId: "frontend_agent", label: "Frontend", role: "UI engineer", color: "#F97316", icon: <IconCode size={15} /> },
   { nodeId: "backend_agent", label: "Backend", role: "API engineer", color: "#10B981", icon: <IconCpu size={15} /> },
   { nodeId: "database_agent", label: "Database", role: "Schema engineer", color: "#14B8A6", icon: <IconDatabase size={15} /> },
+  { nodeId: "self_critique", label: "Self-Review", role: "Quality check", color: "#E879F9", icon: <IconCheckCircle size={15} /> },
   { nodeId: "validate_outputs", label: "Validation", role: "Reviewer", color: "#FBBF24", icon: <IconCheckCircle size={15} /> },
   { nodeId: "commit_to_github", label: "GitHub", role: "Delivery", color: "#34D399", icon: <IconGitBranch size={15} /> },
 ];
@@ -65,6 +75,7 @@ export function AgentStreamGrid() {
   const nodeStates = useOrchestrationStore((s) => s.nodeStates);
   const orchestrationState = useOrchestrationStore((s) => s.orchestrationState);
   const currentNode = orchestrationState?.currentNode ?? "";
+  const retryCount = orchestrationState?.retryCount ?? 0;
 
   return (
     <div className="cockpit-grid">
@@ -76,6 +87,7 @@ export function AgentStreamGrid() {
           stream={agentStreams[agent.nodeId]}
           currentNode={currentNode}
           index={i}
+          retryCount={retryCount}
         />
       ))}
     </div>
@@ -88,13 +100,8 @@ function AgentPanel({
   stream,
   currentNode,
   index,
-}: {
-  agent: AgentDef;
-  runtime: NodeRuntime | undefined;
-  stream: AgentStreamState | undefined;
-  currentNode: string;
-  index: number;
-}) {
+  retryCount = 0,
+}: AgentPanelProps) {
   const state = resolveState(runtime, stream, currentNode);
   const meta = STATE_META[state];
   const t = runtime?.telemetry;
@@ -118,7 +125,14 @@ function AgentPanel({
           {agent.icon}
         </span>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="agent-panel-name">{agent.label}</div>
+          <div className="agent-panel-name">
+            {agent.label}
+            {retryCount > 0 && state === "running" && (
+              <span className="agent-retry-badge" title={`Retry attempt ${retryCount}`}>
+                {retryCount}
+              </span>
+            )}
+          </div>
           <div className="agent-panel-role">{agent.role}</div>
         </div>
         <span className="agent-panel-status" style={{ color: meta.tone }}>

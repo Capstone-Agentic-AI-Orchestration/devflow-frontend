@@ -5,8 +5,8 @@ describe('homePathForRole', () => {
     expect(homePathForRole('CLIENT')).toBe('/client/dashboard');
   });
 
-  it('maps PM to /pm/dashboard', () => {
-    expect(homePathForRole('PM')).toBe('/pm/dashboard');
+  it('maps PM to /pm/projects', () => {
+    expect(homePathForRole('PM')).toBe('/pm/projects');
   });
 
   it('maps DEV to /dev/dashboard', () => {

@@ -12,7 +12,6 @@ import {
   IconList,
   IconPlus,
   IconSearch,
-  IconRocket,
   IconClipboard,
   IconCode,
   IconShield,
@@ -463,13 +462,6 @@ function PMOnboarding({ onNewProject }: { onNewProject: () => void }) {
           <div className="pm-onboarding-card-body">
             <h4>Create a new project</h4>
             <p>Start with a company name, tech stack, and a rough brief — expand it with AI.</p>
-          </div>
-        </button>
-        <button type="button" className="pm-onboarding-card magnetic" onClick={() => router.push("/pm/inbox")}>
-          <div className="pm-onboarding-card-icon" style={{ background: "rgba(251,191,36,.12)", color: "#FBBF24" }}><IconRocket size={18} /></div>
-          <div className="pm-onboarding-card-body">
-            <h4>Approve an inquiry</h4>
-            <p>Check your inbox for client inquiries and approve them to create projects.</p>
           </div>
         </button>
       </div>

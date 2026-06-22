@@ -1,14 +1,41 @@
-// @ts-nocheck
 "use client";
 
-import { useEffect, useState } from "react";
-import { Badge, Button, Card, Field, Modal, Textarea } from "@/shared/components/ui";
+import { useEffect, useState, type ReactNode } from "react";
+import { Badge, Button, Card, Field, Modal, Row, Stack, Textarea } from "@/shared/components/ui";
 import { ClientPageHeader } from "@/features/client/shared/components/client-page-header";
-import { IconAlertTriangle, IconCalendar, IconCheck, IconCheckCircle, IconCircle, IconCode, IconDatabase, IconDownload, IconExternalLink, IconGitBranch, IconMessageCircle, IconMonitor, IconRefresh, IconShield, IconSmartphone, IconTablet } from "@/shared/components/icons";
-import { acceptDevFlowProjectDelivery, getDevFlowDeliveryReadiness, requestDevFlowProjectDeliveryRevision, reviewDevFlowArtifact } from "@/shared/api/devflow-api";
+import {
+  IconAlertTriangle,
+  IconCalendar,
+  IconCheck,
+  IconCheckCircle,
+  IconCircle,
+  IconCode,
+  IconDatabase,
+  IconExternalLink,
+  IconGitBranch,
+  IconMessageCircle,
+  IconMonitor,
+  IconRefresh,
+  IconShield,
+  IconSmartphone,
+} from "@/shared/components/icons";
+import {
+  acceptDevFlowProjectDelivery,
+  getDevFlowDeliveryReadiness,
+  requestDevFlowProjectDeliveryRevision,
+  reviewDevFlowArtifact,
+} from "@/shared/api/devflow-api";
 import { useDevFlowProjectOutputs } from "@/shared/hooks/use-devflow-projects";
 import { useSelectedDevFlowProject } from "@/shared/projects/selected-project-context";
-import { compactDevFlowError, devflowLifecycleView, formatDevFlowDate, lifecycleProgressColor } from "@/shared/utils/devflow-projects";
+import { compactDevFlowError, devflowLifecycleView, formatDevFlowDate } from "@/shared/utils/devflow-projects";
+
+/* Feature-level views work against loosely-typed backend payloads. */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type Artifact = any;
+type ProjectEvent = any;
+type Project = any;
+type Readiness = any;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function ClientProductView() {
   const [tab, setTab] = useState("web");
@@ -17,20 +44,23 @@ export function ClientProductView() {
   const [deliveryNote, setDeliveryNote] = useState("");
   const [deliveryError, setDeliveryError] = useState("");
   const [deliverySaving, setDeliverySaving] = useState(false);
-  const [deliveryReadiness, setDeliveryReadiness] = useState(null);
+  const [deliveryReadiness, setDeliveryReadiness] = useState<Readiness>(null);
   const [deliveryReadinessLoading, setDeliveryReadinessLoading] = useState(false);
   const [deliveryReadinessError, setDeliveryReadinessError] = useState("");
-  const { selectedProject, selectedProjectLoading, selectedProjectError, refreshProjects, refreshSelectedProject } = useSelectedDevFlowProject();
+  const { selectedProject, selectedProjectLoading, selectedProjectError, refreshProjects, refreshSelectedProject } =
+    useSelectedDevFlowProject();
   const outputs = useDevFlowProjectOutputs(selectedProject?.id, { includeDocuments: true, includeEvents: true });
   const lifecycle = devflowLifecycleView(selectedProject);
   const productName = selectedProject?.companyName || "No selected product";
   const progress = selectedProject ? lifecycle.progress : 0;
-  const sharedArtifacts = outputs.artifacts.filter((artifact) => artifact.clientVisible);
-  const sharedDocuments = outputs.documents.filter((document) => document.clientVisible);
+  const sharedArtifacts = outputs.artifacts.filter((artifact: Artifact) => artifact.clientVisible);
+  const sharedDocuments = outputs.documents.filter((document: Artifact) => document.clientVisible);
   const deliveryReview = selectedProject?.deliveryReview;
   const deliveryBlockers = selectedProject
     ? deliveryReadiness
-      ? deliveryReadiness.blockers.filter((blocker) => blocker.severity === "BLOCKER").map((blocker) => blocker.message)
+      ? deliveryReadiness.blockers
+          .filter((blocker: Artifact) => blocker.severity === "BLOCKER")
+          .map((blocker: Artifact) => blocker.message)
       : deliveryReadinessError
         ? [`Delivery readiness could not be verified: ${compactDevFlowError(deliveryReadinessError)}`]
         : clientDeliveryBlockers(selectedProject, sharedArtifacts, sharedDocuments)
@@ -41,7 +71,6 @@ export function ClientProductView() {
       setDeliveryReadiness(null);
       return;
     }
-
     setDeliveryReadinessLoading(true);
     setDeliveryReadinessError("");
     try {
@@ -56,7 +85,6 @@ export function ClientProductView() {
 
   useEffect(() => {
     let active = true;
-
     if (!selectedProject?.id) {
       setDeliveryReadiness(null);
       setDeliveryReadinessError("");
@@ -65,7 +93,6 @@ export function ClientProductView() {
         active = false;
       };
     }
-
     setDeliveryReadinessLoading(true);
     setDeliveryReadinessError("");
     getDevFlowDeliveryReadiness(selectedProject.id)
@@ -82,7 +109,6 @@ export function ClientProductView() {
         if (!active) return;
         setDeliveryReadinessLoading(false);
       });
-
     return () => {
       active = false;
     };
@@ -97,11 +123,10 @@ export function ClientProductView() {
       setDeliveryError(deliveryBlockers[0]);
       return;
     }
-
     setDeliverySaving(true);
     setDeliveryError("");
     try {
-      await acceptDevFlowProjectDelivery(selectedProject.id, { note: deliveryNote.trim() || undefined });
+      await acceptDevFlowProjectDelivery(selectedProject!.id, { note: deliveryNote.trim() || undefined });
       setApproveOpen(false);
       setDeliveryNote("");
       await refresh();
@@ -116,7 +141,7 @@ export function ClientProductView() {
     setDeliverySaving(true);
     setDeliveryError("");
     try {
-      await requestDevFlowProjectDeliveryRevision(selectedProject.id, { note: deliveryNote.trim() });
+      await requestDevFlowProjectDeliveryRevision(selectedProject!.id, { note: deliveryNote.trim() });
       setRevisionOpen(false);
       setDeliveryNote("");
       await refresh();
@@ -142,49 +167,82 @@ export function ClientProductView() {
 
       <ClientProductBackendNotice loading={selectedProjectLoading} error={selectedProjectError} project={selectedProject} />
 
-      <Card style={{ padding: 28, marginBottom: 24, background: "linear-gradient(135deg, rgba(47,107,255,.10), rgba(139,92,246,.06))", border: "1px solid rgba(79,139,255,.30)", position: "relative", overflow: "hidden" }}>
-        <div className="row" style={{ alignItems: "flex-start", gap: 24, flexWrap: "wrap" }}>
+      {/* Hero — single status, one progress line, primary action */}
+      <Card style={{ padding: 28, marginBottom: 24 }}>
+        <Row align="flex-start" gap={6} wrap style={{ justifyContent: "space-between" }}>
           <div style={{ flex: 1, minWidth: 280 }}>
             <Badge tone={lifecycle.tone}>{lifecycle.label}</Badge>
-            <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: 0, margin: "12px 0 8px" }}>{productName}</h2>
-            <p style={{ color: "var(--text-2)", fontSize: 14.5, lineHeight: 1.6, maxWidth: 560 }}>{selectedProject.brief}</p>
-            <div style={{ marginTop: 22, maxWidth: 460 }}>
-              <div className="row" style={{ justifyContent: "space-between", marginBottom: 8 }}><span style={{ fontSize: 12.5, color: "var(--text-2)", fontWeight: 500 }}>Overall completion</span><span className="mono" style={{ fontSize: 12.5, color: "white", fontWeight: 600 }}>{progress}%</span></div>
-              <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.7)", overflow: "hidden" }}><div style={{ width: `${progress}%`, height: "100%", background: lifecycleProgressColor(lifecycle.tone), boxShadow: "0 0 12px rgba(79,139,255,.35)" }} /></div>
-              <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 8 }}>{lifecycle.nextAction} - updated {formatDevFlowDate(selectedProject.updatedAt)}.</div>
+            <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", margin: "14px 0 10px" }}>{productName}</h2>
+            <p style={{ color: "var(--text-2)", fontSize: 14, lineHeight: 1.6, maxWidth: 560 }}>{selectedProject.brief}</p>
+            <div style={{ marginTop: 24, maxWidth: 460 }}>
+              <Row style={{ justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 12.5, color: "var(--text-2)" }}>Overall completion</span>
+                <span className="mono" style={{ fontSize: 12.5, color: "var(--text)", fontWeight: 600 }}>{progress}%</span>
+              </Row>
+              <div style={{ height: 4, borderRadius: 999, background: "var(--bg-sunken)", overflow: "hidden" }}>
+                <div style={{ width: `${progress}%`, height: "100%", background: "var(--text)" }} />
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-3)", marginTop: 10 }}>
+                {lifecycle.nextAction} · updated {formatDevFlowDate(selectedProject.updatedAt)}
+              </div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><Button variant="secondary" icon={<IconExternalLink size={15} />} disabled>Preview unavailable</Button><Button variant="primary" icon={<IconRefresh size={15} />} onClick={refresh}>Refresh build</Button></div>
-        </div>
+          <Row gap={2} wrap>
+            <Button variant="secondary" icon={<IconExternalLink size={15} />} disabled>
+              Preview unavailable
+            </Button>
+            <Button variant="primary" icon={<IconRefresh size={15} />} onClick={refresh}>
+              Refresh build
+            </Button>
+          </Row>
+        </Row>
       </Card>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: 20 }}>
         <div style={{ minWidth: 0 }}>
           <div className="tabs" style={{ marginBottom: 20 }}>
-            {[["web", "Web Preview"], ["mobile", "Mobile Preview"], ["backend", "Backend & Architecture"]].map(([key, label]) => <button key={key} className={"tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{label}</button>)}
+            {[
+              ["web", "Web Preview"],
+              ["mobile", "Mobile Preview"],
+              ["backend", "Backend & Architecture"],
+            ].map(([key, label]) => (
+              <button key={key} className={"tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>
+                {label}
+              </button>
+            ))}
           </div>
           {tab === "web" && <WebPreviewPane artifacts={sharedArtifacts} />}
           {tab === "mobile" && <MobilePreviewPane artifacts={sharedArtifacts} />}
-          {tab === "backend" && <BackendPreviewPane artifacts={sharedArtifacts} events={outputs.events} project={selectedProject} onReviewed={outputs.refresh} />}
+          {tab === "backend" && (
+            <BackendPreviewPane artifacts={sharedArtifacts} events={outputs.events} project={selectedProject} onReviewed={outputs.refresh} />
+          )}
 
           <Card style={{ padding: 26, marginTop: 20 }}>
-            <div className="row" style={{ justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
-              <div style={{ fontWeight: 600, fontSize: 16 }}>Approval Section</div>
+            <Row style={{ justifyContent: "space-between", marginBottom: 8 }} gap={3} wrap>
+              <div style={{ fontWeight: 600, fontSize: 16 }}>Approval</div>
               <DeliveryReviewBadge review={deliveryReview} />
-            </div>
-            <p style={{ color: "var(--text-2)", fontSize: 13.5, lineHeight: 1.55, marginBottom: 18, maxWidth: 580 }}>Once you&apos;re happy with the build, accept delivery to trigger final production deploy and start your support window.</p>
-            {deliveryReview?.revisionNote && <div style={{ padding: 12, border: "1px solid rgba(245,158,11,.28)", background: "rgba(245,158,11,.08)", borderRadius: 10, color: "var(--text-2)", fontSize: 13, lineHeight: 1.5, marginBottom: 14 }}>{deliveryReview.revisionNote}</div>}
-            {deliveryReview?.resolutionNote && <div style={{ padding: 12, border: "1px solid rgba(16,185,129,.24)", background: "rgba(16,185,129,.07)", borderRadius: 10, color: "var(--text-2)", fontSize: 13, lineHeight: 1.5, marginBottom: 14 }}>{deliveryReview.resolutionNote}</div>}
-            <div className="row" style={{ justifyContent: "space-between", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-              <Badge tone={deliveryReadiness?.ready ? "green" : deliveryReadinessLoading ? "blue" : "amber"}>
+            </Row>
+            <p style={{ color: "var(--text-2)", fontSize: 13.5, lineHeight: 1.55, marginBottom: 18, maxWidth: 580 }}>
+              Once you&apos;re happy with the build, accept delivery to trigger final production deploy and start your support window.
+            </p>
+            {deliveryReview?.revisionNote && <NoteBlock tone="attention">{deliveryReview.revisionNote}</NoteBlock>}
+            {deliveryReview?.resolutionNote && <NoteBlock tone="success">{deliveryReview.resolutionNote}</NoteBlock>}
+            <Row style={{ justifyContent: "space-between", marginBottom: 14 }} gap={2} wrap>
+              <Badge tone={deliveryReadiness?.ready ? "green" : deliveryReadinessLoading ? "neutral" : "amber"}>
                 {deliveryReadiness?.ready ? "Ready for acceptance" : deliveryReadinessLoading ? "Checking readiness" : "Acceptance blocked"}
               </Badge>
-              <Button variant="secondary" size="sm" icon={<IconRefresh size={14} />} onClick={refreshDeliveryReadiness} disabled={deliveryReadinessLoading}>
-                {deliveryReadinessLoading ? "Checking..." : "Check readiness"}
+              <Button
+                variant="secondary"
+                size="sm"
+                icon={<IconRefresh size={14} />}
+                onClick={refreshDeliveryReadiness}
+                disabled={deliveryReadinessLoading}
+              >
+                {deliveryReadinessLoading ? "Checking…" : "Check readiness"}
               </Button>
-            </div>
+            </Row>
             {deliveryReadiness && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))", gap: 10, marginBottom: 14 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))", gap: 1, marginBottom: 14, border: "1px solid var(--border-soft)", borderRadius: "var(--r-md)", overflow: "hidden", background: "var(--border-soft)" }}>
                 <DeliveryMetric label="Artifacts" value={deliveryReadiness.counts.publishedArtifacts} />
                 <DeliveryMetric label="Work orders" value={deliveryReadiness.counts.activeWorkOrders} />
                 <DeliveryMetric label="Documents" value={deliveryReadiness.counts.openDocuments} />
@@ -192,53 +250,165 @@ export function ClientProductView() {
               </div>
             )}
             {deliveryBlockers.length > 0 && (
-              <div style={{ padding: 12, border: "1px solid rgba(245,158,11,.28)", background: "rgba(245,158,11,.08)", borderRadius: 10, color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.55, marginBottom: 14 }}>
-                <strong style={{ color: "white" }}>Delivery acceptance is blocked.</strong>
+              <NoteBlock tone="attention">
+                <strong style={{ color: "var(--text)" }}>Delivery acceptance is blocked.</strong>
                 <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
-                  {deliveryBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+                  {deliveryBlockers.map((blocker: string) => (
+                    <li key={blocker}>{blocker}</li>
+                  ))}
                 </ul>
-              </div>
+              </NoteBlock>
             )}
             {deliveryError && <div style={{ color: "#FCA5A5", fontSize: 12.5, marginBottom: 12 }}>{compactDevFlowError(deliveryError)}</div>}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 12 }}>
-              <ApprovalButton tint="#10B981" icon={<IconCheckCircle size={18} />} title="Approve & Accept Delivery" sub={deliveryBlockers.length ? "Resolve open reviews first" : "Marks the engagement as delivered"} onClick={() => { setDeliveryError(""); setDeliveryNote(deliveryReview?.acceptanceNote || ""); setApproveOpen(true); }} primary disabled={deliveryBlockers.length > 0} />
-              <ApprovalButton tint="#F59E0B" icon={<IconMessageCircle size={18} />} title="Request Revisions" sub="Send a project-level delivery request" onClick={() => { setDeliveryError(""); setDeliveryNote(deliveryReview?.revisionNote || ""); setRevisionOpen(true); }} />
-              <ApprovalButton tint="#4F8BFF" icon={<IconCalendar size={18} />} title="Schedule Walkthrough Call" sub="Scheduling integration is not connected yet" disabled />
+              <ApprovalButton
+                icon={<IconCheckCircle size={18} />}
+                title="Approve & accept delivery"
+                sub={deliveryBlockers.length ? "Resolve open reviews first" : "Marks the engagement as delivered"}
+                onClick={() => {
+                  setDeliveryError("");
+                  setDeliveryNote(deliveryReview?.acceptanceNote || "");
+                  setApproveOpen(true);
+                }}
+                primary
+                disabled={deliveryBlockers.length > 0}
+              />
+              <ApprovalButton
+                icon={<IconMessageCircle size={18} />}
+                title="Request revisions"
+                sub="Send a project-level delivery request"
+                onClick={() => {
+                  setDeliveryError("");
+                  setDeliveryNote(deliveryReview?.revisionNote || "");
+                  setRevisionOpen(true);
+                }}
+              />
+              <ApprovalButton icon={<IconCalendar size={18} />} title="Schedule walkthrough" sub="Scheduling is not connected yet" disabled />
             </div>
           </Card>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <Stack gap={4}>
           <Card style={{ padding: 22 }}>
             <h4 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>Deliverable checklist</h4>
             <p style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 14 }}>What you&apos;ll receive on handover</p>
             <ClientDeliverableChecklist artifacts={sharedArtifacts} hasBackendProject={Boolean(selectedProject)} />
           </Card>
-          <Card style={{ padding: 22 }}><h4 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>Build info</h4><KV label="Build" value={selectedProject.runId || "Not started"} /><KV label="Branch" value={selectedProject.repoUrl ? "linked repo" : "Not linked"} /><KV label="Last update" value={formatDevFlowDate(selectedProject.updatedAt)} /><KV label="Environment" value={selectedProject.stackKey} /></Card>
-          <Card style={{ padding: 18, background: "rgba(245,158,11,.08)", border: "1px solid rgba(245,158,11,.25)" }}><div className="row gap-2" style={{ alignItems: "flex-start" }}><IconAlertTriangle size={16} style={{ color: "#FBBF24", flexShrink: 0, marginTop: 2 }} /><div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.55 }}><strong style={{ color: "white" }}>Note:</strong> Previews are sandboxed and refresh as the team commits updates.</div></div></Card>
-        </div>
+          <Card style={{ padding: 22 }}>
+            <h4 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 12px" }}>Build info</h4>
+            <KV label="Build" value={selectedProject.runId || "Not started"} />
+            <KV label="Branch" value={selectedProject.repoUrl ? "linked repo" : "Not linked"} />
+            <KV label="Last update" value={formatDevFlowDate(selectedProject.updatedAt)} />
+            <KV label="Environment" value={selectedProject.stackKey} />
+          </Card>
+          <Card style={{ padding: 18 }}>
+            <Row gap={2} align="flex-start">
+              <IconAlertTriangle size={16} style={{ color: "var(--attention)", flexShrink: 0, marginTop: 2 }} />
+              <div style={{ fontSize: 12.5, color: "var(--text-2)", lineHeight: 1.55 }}>
+                <strong style={{ color: "var(--text)" }}>Note:</strong> Previews are sandboxed and refresh as the team commits updates.
+              </div>
+            </Row>
+          </Card>
+        </Stack>
       </div>
 
-      <Modal open={approveOpen} onClose={() => !deliverySaving && setApproveOpen(false)} title="Accept final delivery" width={520} footer={<><Button variant="ghost" onClick={() => setApproveOpen(false)} disabled={deliverySaving}>Cancel</Button><Button variant="primary" icon={<IconCheck size={15} />} onClick={acceptDelivery} disabled={deliverySaving || deliveryBlockers.length > 0}>{deliverySaving ? "Confirming..." : "Confirm acceptance"}</Button></>}>
-        <div style={{ padding: 18, background: "rgba(16,185,129,.08)", border: "1px solid rgba(16,185,129,.25)", borderRadius: 12, marginBottom: 16 }}><div className="row gap-3"><IconCheckCircle size={22} style={{ color: "#6EE7B7", flexShrink: 0 }} /><div style={{ fontSize: 13.5, lineHeight: 1.55 }}>By confirming, you agree that the delivered application meets the approved requirements.</div></div></div>
+      <Modal
+        open={approveOpen}
+        onClose={() => !deliverySaving && setApproveOpen(false)}
+        title="Accept final delivery"
+        width={520}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setApproveOpen(false)} disabled={deliverySaving}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              icon={<IconCheck size={15} />}
+              onClick={acceptDelivery}
+              disabled={deliverySaving || deliveryBlockers.length > 0}
+            >
+              {deliverySaving ? "Confirming…" : "Confirm acceptance"}
+            </Button>
+          </>
+        }
+      >
+        <NoteBlock tone="success">
+          By confirming, you agree that the delivered application meets the approved requirements.
+        </NoteBlock>
         {deliveryBlockers.length > 0 && <div style={{ color: "#FBBF24", fontSize: 12.5, marginBottom: 12 }}>{deliveryBlockers.join(" ")}</div>}
         {deliveryError && <div style={{ color: "#FCA5A5", fontSize: 12.5, marginBottom: 12 }}>{compactDevFlowError(deliveryError)}</div>}
-        <Field label="Acceptance comments"><Textarea rows={4} value={deliveryNote} onChange={(event) => setDeliveryNote(event.target.value)} placeholder="Anything you'd like to flag for the team." /></Field>
+        <Field label="Acceptance comments">
+          <Textarea
+            rows={4}
+            value={deliveryNote}
+            onChange={(event) => setDeliveryNote(event.target.value)}
+            placeholder="Anything you'd like to flag for the team."
+          />
+        </Field>
       </Modal>
 
-      <Modal open={revisionOpen} onClose={() => !deliverySaving && setRevisionOpen(false)} title="Request delivery revisions" width={520} footer={<><Button variant="ghost" onClick={() => setRevisionOpen(false)} disabled={deliverySaving}>Cancel</Button><Button variant="primary" icon={<IconMessageCircle size={15} />} onClick={requestRevision} disabled={deliverySaving || !deliveryNote.trim()}>{deliverySaving ? "Submitting..." : "Submit request"}</Button></>}>
-        <Field label="Revision request"><Textarea rows={5} value={deliveryNote} onChange={(event) => setDeliveryNote(event.target.value)} placeholder="Describe what needs to change before final acceptance." /></Field>
+      <Modal
+        open={revisionOpen}
+        onClose={() => !deliverySaving && setRevisionOpen(false)}
+        title="Request delivery revisions"
+        width={520}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setRevisionOpen(false)} disabled={deliverySaving}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              icon={<IconMessageCircle size={15} />}
+              onClick={requestRevision}
+              disabled={deliverySaving || !deliveryNote.trim()}
+            >
+              {deliverySaving ? "Submitting…" : "Submit request"}
+            </Button>
+          </>
+        }
+      >
+        <Field label="Revision request">
+          <Textarea
+            rows={5}
+            value={deliveryNote}
+            onChange={(event) => setDeliveryNote(event.target.value)}
+            placeholder="Describe what needs to change before final acceptance."
+          />
+        </Field>
         {deliveryError && <div style={{ color: "#FCA5A5", fontSize: 12.5, marginTop: 12 }}>{compactDevFlowError(deliveryError)}</div>}
       </Modal>
     </div>
   );
 }
 
-function ClientProductBackendNotice({ loading, error, project }) {
-  if (loading) {
-    return <Card style={{ padding: 16, marginBottom: 18, color: "var(--text-2)" }}>Loading assigned product...</Card>;
-  }
+/* Small hairline note block — neutral, success, or attention. */
+function NoteBlock({ tone = "neutral", children }: { tone?: "neutral" | "success" | "attention"; children: ReactNode }) {
+  const borderColor =
+    tone === "success" ? "rgba(16,185,129,.30)" : tone === "attention" ? "rgba(255,107,53,.32)" : "var(--border-soft)";
+  return (
+    <div
+      style={{
+        padding: 12,
+        border: `1px solid ${borderColor}`,
+        background: "var(--bg-sunken)",
+        borderRadius: "var(--r-md)",
+        color: "var(--text-2)",
+        fontSize: 13,
+        lineHeight: 1.55,
+        marginBottom: 14,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
+function ClientProductBackendNotice({ loading, error, project }: { loading: boolean; error: unknown; project: Project }) {
+  if (loading) {
+    return <Card style={{ padding: 16, marginBottom: 18, color: "var(--text-2)" }}>Loading assigned product…</Card>;
+  }
   if (error) {
     return (
       <Card style={{ padding: 16, marginBottom: 18, border: "1px solid rgba(239,68,68,.30)" }}>
@@ -247,62 +417,84 @@ function ClientProductBackendNotice({ loading, error, project }) {
       </Card>
     );
   }
-
   if (!project) {
     return (
       <Card style={{ padding: 16, marginBottom: 18 }}>
         <div style={{ fontWeight: 600 }}>No backend product assigned</div>
-        <div style={{ color: "var(--text-3)", fontSize: 12.5, marginTop: 4 }}>Product previews appear after you select a backend project from the top bar.</div>
+        <div style={{ color: "var(--text-3)", fontSize: 12.5, marginTop: 4 }}>
+          Product previews appear after you select a backend project from the top bar.
+        </div>
       </Card>
     );
   }
-
   return null;
 }
 
-function WebPreviewPane({ artifacts }) {
+function PreviewPane({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
+  return (
+    <Card style={{ padding: 24 }}>
+      <Row gap={3} align="flex-start">
+        <span style={{ color: "var(--text-2)", flexShrink: 0 }}>{icon}</span>
+        <div>
+          <div style={{ fontWeight: 600 }}>{title}</div>
+          <div style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>{body}</div>
+        </div>
+      </Row>
+    </Card>
+  );
+}
+
+function WebPreviewPane({ artifacts }: { artifacts: Artifact[] }) {
   const frontendArtifacts = artifacts.filter((artifact) => artifactAgentIs(artifact, "frontend"));
   return (
-    <Card style={{ padding: 24 }}>
-      <div className="row gap-3" style={{ alignItems: "flex-start" }}>
-        <IconMonitor size={20} style={{ color: "#93C5FD", flexShrink: 0 }} />
-        <div>
-          <div style={{ fontWeight: 600 }}>Web preview artifact</div>
-          <div style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
-            {frontendArtifacts.length ? `${frontendArtifacts.length} frontend artifact${frontendArtifacts.length === 1 ? "" : "s"} available in the backend deliverable list.` : "No client-visible frontend artifact has been shared yet."}
-          </div>
-        </div>
-      </div>
-    </Card>
+    <PreviewPane
+      icon={<IconMonitor size={20} />}
+      title="Web preview artifact"
+      body={
+        frontendArtifacts.length
+          ? `${frontendArtifacts.length} frontend artifact${frontendArtifacts.length === 1 ? "" : "s"} available in the backend deliverable list.`
+          : "No client-visible frontend artifact has been shared yet."
+      }
+    />
   );
 }
 
-function MobilePreviewPane({ artifacts }) {
-  const mobileArtifacts = artifacts.filter((artifact) => artifactAgentIs(artifact, "mobile") || artifact.filePath.toLowerCase().includes("mobile"));
+function MobilePreviewPane({ artifacts }: { artifacts: Artifact[] }) {
+  const mobileArtifacts = artifacts.filter(
+    (artifact) => artifactAgentIs(artifact, "mobile") || artifact.filePath.toLowerCase().includes("mobile"),
+  );
   return (
-    <Card style={{ padding: 24 }}>
-      <div className="row gap-3" style={{ alignItems: "flex-start" }}>
-        <IconSmartphone size={20} style={{ color: "#93C5FD", flexShrink: 0 }} />
-        <div>
-          <div style={{ fontWeight: 600 }}>Mobile preview artifact</div>
-          <div style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
-            {mobileArtifacts.length ? `${mobileArtifacts.length} mobile artifact${mobileArtifacts.length === 1 ? "" : "s"} available in the backend deliverable list.` : "No client-visible mobile artifact has been shared yet."}
-          </div>
-        </div>
-      </div>
-    </Card>
+    <PreviewPane
+      icon={<IconSmartphone size={20} />}
+      title="Mobile preview artifact"
+      body={
+        mobileArtifacts.length
+          ? `${mobileArtifacts.length} mobile artifact${mobileArtifacts.length === 1 ? "" : "s"} available in the backend deliverable list.`
+          : "No client-visible mobile artifact has been shared yet."
+      }
+    />
   );
 }
 
-function BackendPreviewPane({ artifacts = [], events = [], project, onReviewed }) {
+function BackendPreviewPane({
+  artifacts = [],
+  events = [],
+  project,
+  onReviewed,
+}: {
+  artifacts?: Artifact[];
+  events?: ProjectEvent[];
+  project: Project;
+  onReviewed?: () => void | Promise<void>;
+}) {
   const artifactCount = artifacts.length;
   const latestEvent = events[0];
   const [reviewing, setReviewing] = useState(false);
   const [reviewError, setReviewError] = useState("");
-  const [revisionArtifact, setRevisionArtifact] = useState(null);
+  const [revisionArtifact, setRevisionArtifact] = useState<Artifact>(null);
   const [revisionNote, setRevisionNote] = useState("");
 
-  const reviewArtifact = async (artifact, reviewStatus, reviewNote = "") => {
+  const reviewArtifact = async (artifact: Artifact, reviewStatus: "APPROVED" | "REVISION_REQUESTED", reviewNote = "") => {
     setReviewing(true);
     setReviewError("");
     try {
@@ -321,36 +513,90 @@ function BackendPreviewPane({ artifacts = [], events = [], project, onReviewed }
   };
 
   const items = [
-    { icon: <IconCode size={18} />, tint: "#8B5CF6", title: "Generated Artifacts", sub: `${artifactCount} files recorded`, cta: "Read-only" },
-    { icon: <IconGitBranch size={18} />, tint: "#10B981", title: "Source Repository", sub: project.repoUrl || "Repository not linked yet", cta: "Status" },
-    { icon: <IconDatabase size={18} />, tint: "#14B8A6", title: "Latest Build Event", sub: latestEvent ? `${latestEvent.nodeName} ${latestEvent.eventType}` : "No event logs yet", cta: "View" },
+    { icon: <IconCode size={18} />, title: "Generated artifacts", sub: `${artifactCount} files recorded`, cta: "Read-only" },
+    { icon: <IconGitBranch size={18} />, title: "Source repository", sub: project.repoUrl || "Repository not linked yet", cta: "Status" },
+    {
+      icon: <IconDatabase size={18} />,
+      title: "Latest build event",
+      sub: latestEvent ? `${latestEvent.nodeName} ${latestEvent.eventType}` : "No event logs yet",
+      cta: "View",
+    },
   ];
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <Card style={{ padding: 18, background: "linear-gradient(135deg, rgba(47,107,255,.10), rgba(139,92,246,.04))" }}>
-        <div className="row gap-3"><IconShield size={16} style={{ color: "#93C5FD" }} /><div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}><strong style={{ color: "white" }}>You&apos;ll own everything on handover.</strong> All code, infrastructure, and documentation transfer to your team.</div></div>
+    <Stack gap={3}>
+      <Card style={{ padding: 18 }}>
+        <Row gap={3}>
+          <IconShield size={16} style={{ color: "var(--text-2)", flexShrink: 0 }} />
+          <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}>
+            <strong style={{ color: "var(--text)" }}>You&apos;ll own everything on handover.</strong> All code, infrastructure, and
+            documentation transfer to your team.
+          </div>
+        </Row>
       </Card>
-      {items.map((item) => <Card key={item.title} hover style={{ padding: 22 }}><div className="row gap-4"><div style={{ width: 44, height: 44, borderRadius: 12, background: `${item.tint}22`, color: item.tint, border: `1px solid ${item.tint}44`, display: "grid", placeItems: "center", flexShrink: 0 }}>{item.icon}</div><div style={{ flex: 1 }}><div style={{ fontWeight: 600, fontSize: 15 }}>{item.title}</div><div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 4 }}>{item.sub}</div></div><Button variant="secondary" size="sm">{item.cta}</Button></div></Card>)}
+      {items.map((item) => (
+        <Card key={item.title} hover style={{ padding: 22 }}>
+          <Row gap={4}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "var(--r-md)",
+                background: "var(--bg-3)",
+                color: "var(--text-2)",
+                border: "1px solid var(--border-soft)",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              {item.icon}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600, fontSize: 15 }}>{item.title}</div>
+              <div style={{ color: "var(--text-2)", fontSize: 13, marginTop: 4 }}>{item.sub}</div>
+            </div>
+            <Button variant="secondary" size="sm">
+              {item.cta}
+            </Button>
+          </Row>
+        </Card>
+      ))}
       {project && artifacts.length > 0 && (
         <Card style={{ padding: 18 }}>
           <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>Deliverable summary</h4>
           <p style={{ color: "var(--text-3)", fontSize: 12, marginTop: 4 }}>Source preview is available to the delivery team only.</p>
           {reviewError && <div style={{ color: "#FCA5A5", fontSize: 12.5, marginTop: 10 }}>{compactDevFlowError(reviewError)}</div>}
           {artifacts.slice(0, 5).map((artifact) => (
-            <div key={artifact.id} style={{ padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
-              <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
-                <span className="mono" style={{ fontSize: 11.5, color: "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis" }}>{artifact.displayName || artifact.filePath}</span>
-                <div className="row gap-2" style={{ flexShrink: 0 }}>
-                  {artifact.publishedAt && <Badge tone="blue">Published</Badge>}
+            <div key={artifact.id} style={{ padding: "12px 0", borderBottom: "1px solid var(--border-soft)" }}>
+              <Row style={{ justifyContent: "space-between" }} gap={3}>
+                <span className="mono" style={{ fontSize: 11.5, color: "var(--text-2)", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {artifact.displayName || artifact.filePath}
+                </span>
+                <Row gap={2} style={{ flexShrink: 0 }}>
+                  {artifact.publishedAt && <Badge tone="neutral">Published</Badge>}
                   <ReviewBadge status={artifact.reviewStatus} />
-                </div>
-              </div>
+                </Row>
+              </Row>
               {artifact.reviewNote && <div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 5 }}>{artifact.reviewNote}</div>}
-              <div className="row gap-2" style={{ marginTop: 8, flexWrap: "wrap" }}>
-                <Button variant="secondary" size="sm" icon={<IconCheck size={12} />} onClick={() => reviewArtifact(artifact, "APPROVED")} disabled={reviewing}>Approve</Button>
-                <Button variant="secondary" size="sm" icon={<IconMessageCircle size={12} />} onClick={() => { setRevisionArtifact(artifact); setRevisionNote(artifact.reviewNote || ""); }} disabled={reviewing}>Request revision</Button>
-                <Badge tone="gray">{artifact.agentType}</Badge>
-              </div>
+              <Row gap={2} style={{ marginTop: 8 }} wrap>
+                <Button variant="secondary" size="sm" icon={<IconCheck size={12} />} onClick={() => reviewArtifact(artifact, "APPROVED")} disabled={reviewing}>
+                  Approve
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<IconMessageCircle size={12} />}
+                  onClick={() => {
+                    setRevisionArtifact(artifact);
+                    setRevisionNote(artifact.reviewNote || "");
+                  }}
+                  disabled={reviewing}
+                >
+                  Request revision
+                </Button>
+                <Badge tone="neutral">{artifact.agentType}</Badge>
+              </Row>
             </div>
           ))}
         </Card>
@@ -360,52 +606,146 @@ function BackendPreviewPane({ artifacts = [], events = [], project, onReviewed }
         onClose={() => !reviewing && setRevisionArtifact(null)}
         title="Request revision"
         width={520}
-        footer={<><Button variant="ghost" onClick={() => setRevisionArtifact(null)} disabled={reviewing}>Cancel</Button><Button variant="primary" onClick={() => reviewArtifact(revisionArtifact, "REVISION_REQUESTED", revisionNote)} disabled={reviewing || !revisionNote.trim()}>Submit request</Button></>}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setRevisionArtifact(null)} disabled={reviewing}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => reviewArtifact(revisionArtifact, "REVISION_REQUESTED", revisionNote)}
+              disabled={reviewing || !revisionNote.trim()}
+            >
+              Submit request
+            </Button>
+          </>
+        }
       >
         <Field label="Revision note">
-          <Textarea rows={4} value={revisionNote} onChange={(event) => setRevisionNote(event.target.value)} placeholder="Describe what should change before approval." />
+          <Textarea
+            rows={4}
+            value={revisionNote}
+            onChange={(event) => setRevisionNote(event.target.value)}
+            placeholder="Describe what should change before approval."
+          />
         </Field>
       </Modal>
-    </div>
+    </Stack>
   );
 }
 
-function ReviewBadge({ status }) {
-  const map = {
+function ReviewBadge({ status }: { status?: string }) {
+  const map: Record<string, { tone: "green" | "amber" | "neutral"; label: string }> = {
     APPROVED: { tone: "green", label: "Approved" },
     REVISION_REQUESTED: { tone: "amber", label: "Revision requested" },
-    PENDING: { tone: "gray", label: "Pending review" },
+    PENDING: { tone: "neutral", label: "Pending review" },
   };
   const next = map[status || "PENDING"] || map.PENDING;
   return <Badge tone={next.tone}>{next.label}</Badge>;
 }
 
-function DeliveryReviewBadge({ review }) {
-  const map = {
+function DeliveryReviewBadge({ review }: { review?: { status?: string } | null }) {
+  const map: Record<string, { tone: "green" | "amber" | "neutral"; label: string }> = {
     ACCEPTED: { tone: "green", label: "Delivery accepted" },
     REVISION_REQUESTED: { tone: "amber", label: "Delivery revision" },
-    REVISION_RESOLVED: { tone: "blue", label: "Ready for acceptance" },
-    PENDING: { tone: "gray", label: "Awaiting acceptance" },
+    REVISION_RESOLVED: { tone: "neutral", label: "Ready for acceptance" },
+    PENDING: { tone: "neutral", label: "Awaiting acceptance" },
   };
   const next = map[review?.status || "PENDING"] || map.PENDING;
   return <Badge tone={next.tone}>{next.label}</Badge>;
 }
 
-function ApprovalButton({ tint, icon, title, sub, onClick, primary, disabled }) {
-  return <button onClick={onClick} disabled={disabled} style={{ padding: "16px 18px", textAlign: "left", background: primary ? `linear-gradient(135deg, ${tint}26, ${tint}10)` : "rgba(8,14,32,.5)", border: `1px solid ${primary ? `${tint}55` : "var(--border)"}`, borderRadius: 14, cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? .62 : 1, color: "white", fontFamily: "inherit", display: "flex", alignItems: "flex-start", gap: 14 }}><div style={{ width: 36, height: 36, borderRadius: 10, background: `${tint}22`, color: tint, display: "grid", placeItems: "center", flexShrink: 0 }}>{icon}</div><div><div style={{ fontWeight: 600, fontSize: 14 }}>{title}</div><div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 4, lineHeight: 1.45 }}>{sub}</div></div></button>;
+function ApprovalButton({
+  icon,
+  title,
+  sub,
+  onClick,
+  primary,
+  disabled,
+}: {
+  icon: ReactNode;
+  title: string;
+  sub: string;
+  onClick?: () => void;
+  primary?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        padding: "16px 18px",
+        textAlign: "left",
+        background: "transparent",
+        border: `1px solid ${primary ? "var(--border-strong)" : "var(--border-soft)"}`,
+        borderRadius: "var(--r-md)",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.5 : 1,
+        color: "var(--text)",
+        fontFamily: "inherit",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 14,
+        transition: "border-color var(--motion-fast), background var(--motion-fast)",
+      }}
+    >
+      <span style={{ color: "var(--text-2)", flexShrink: 0, marginTop: 1 }}>{icon}</span>
+      <span>
+        <span style={{ display: "block", fontWeight: 600, fontSize: 14 }}>{title}</span>
+        <span style={{ display: "block", color: "var(--text-3)", fontSize: 12, marginTop: 4, lineHeight: 1.45 }}>{sub}</span>
+      </span>
+    </button>
+  );
 }
 
-function DeliveryMetric({ label, value }) {
-  const done = Number(value || 0) === 0 && label !== "Artifacts";
-  return <div style={{ padding: "10px 12px", border: "1px solid var(--border)", borderRadius: 10, background: "rgba(8,14,32,.45)" }}><div style={{ color: "var(--text-3)", fontSize: 11.5 }}>{label}</div><div className="mono" style={{ color: done ? "#6EE7B7" : "white", fontWeight: 700, marginTop: 3 }}>{value}</div></div>;
+function DeliveryMetric({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div style={{ padding: "12px 14px", background: "var(--bg-2)" }}>
+      <div style={{ color: "var(--text-3)", fontSize: 11.5 }}>{label}</div>
+      <div className="mono" style={{ color: "var(--text)", fontWeight: 600, marginTop: 4 }}>
+        {value}
+      </div>
+    </div>
+  );
 }
 
-function DeliverableCheck({ label, done, inProgress, last }) {
-  const color = done ? "#10B981" : inProgress ? "#F59E0B" : "#64748B";
-  return <div className="row" style={{ padding: "10px 0", borderBottom: last ? 0 : "1px solid var(--border)", gap: 12 }}><div style={{ width: 22, height: 22, borderRadius: "50%", background: done ? `${color}22` : "rgba(15,23,42,.85)", border: `1px solid ${color}66`, color, display: "grid", placeItems: "center", flexShrink: 0 }}>{done ? <IconCheck size={12} /> : inProgress ? "..." : <IconCircle size={10} />}</div><div style={{ flex: 1, fontSize: 13, color: done || inProgress ? "white" : "var(--text-3)" }}>{label}</div><div style={{ fontSize: 11, color, fontWeight: 500 }}>{done ? "Complete" : inProgress ? "In progress" : "Pending"}</div></div>;
+function DeliverableCheck({
+  label,
+  done,
+  inProgress,
+  last,
+}: {
+  label: string;
+  done?: boolean;
+  inProgress?: boolean;
+  last?: boolean;
+}) {
+  const tone = done ? "var(--green)" : inProgress ? "var(--amber)" : "var(--text-3)";
+  return (
+    <Row style={{ padding: "10px 0", borderBottom: last ? 0 : "1px solid var(--border-soft)" }} gap={3}>
+      <div
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          background: "transparent",
+          border: `1px solid ${done ? "rgba(16,185,129,.5)" : inProgress ? "rgba(245,158,11,.5)" : "var(--border)"}`,
+          color: tone,
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
+        }}
+      >
+        {done ? <IconCheck size={11} /> : inProgress ? <IconCircle size={8} /> : <IconCircle size={8} />}
+      </div>
+      <div style={{ flex: 1, fontSize: 13, color: done || inProgress ? "var(--text)" : "var(--text-3)" }}>{label}</div>
+      <div style={{ fontSize: 11, color: tone }}>{done ? "Complete" : inProgress ? "In progress" : "Pending"}</div>
+    </Row>
+  );
 }
 
-function ClientDeliverableChecklist({ artifacts, hasBackendProject }) {
+function ClientDeliverableChecklist({ artifacts, hasBackendProject }: { artifacts: Artifact[]; hasBackendProject: boolean }) {
   if (!hasBackendProject) {
     return (
       <>
@@ -413,33 +753,32 @@ function ClientDeliverableChecklist({ artifacts, hasBackendProject }) {
         <DeliverableCheck label="Backend API" />
         <DeliverableCheck label="Database schema" />
         <DeliverableCheck label="Documentation" />
-        <DeliverableCheck label="Production deployment" pending last />
+        <DeliverableCheck label="Production deployment" last />
       </>
     );
   }
-
   const frontend = artifacts.some((artifact) => artifactAgentIs(artifact, "frontend"));
   const backend = artifacts.some((artifact) => artifactAgentIs(artifact, "backend"));
   const database = artifacts.some((artifact) => artifactAgentIs(artifact, "database"));
-  const docs = artifacts.some((artifact) => artifact.filePath.toLowerCase().includes("readme") || artifact.filePath.toLowerCase().includes("doc"));
-
+  const docs = artifacts.some(
+    (artifact) => artifact.filePath.toLowerCase().includes("readme") || artifact.filePath.toLowerCase().includes("doc"),
+  );
   return (
     <>
       <DeliverableCheck label="Frontend application" done={frontend} inProgress={!frontend} />
       <DeliverableCheck label="Backend API" done={backend} inProgress={!backend} />
       <DeliverableCheck label="Database schema" done={database} inProgress={!database} />
       <DeliverableCheck label="Documentation" done={docs} inProgress={!docs} />
-      <DeliverableCheck label="Production deployment" pending last />
+      <DeliverableCheck label="Production deployment" last />
     </>
   );
 }
 
-function clientDeliveryBlockers(project, artifacts, documents) {
-  const blockers = [];
-  const acceptedInvite = project.clientInvites?.some((invite) => invite.status === "ACCEPTED");
+function clientDeliveryBlockers(project: Project, artifacts: Artifact[], documents: Artifact[]) {
+  const blockers: string[] = [];
+  const acceptedInvite = project.clientInvites?.some((invite: Artifact) => invite.status === "ACCEPTED");
   const openArtifacts = artifacts.filter((artifact) => artifact.reviewStatus !== "APPROVED");
   const openDocuments = documents.filter((document) => !["APPROVED", "ARCHIVED"].includes(document.status));
-
   if (!acceptedInvite) {
     blockers.push("Accept the project invite before accepting final delivery.");
   }
@@ -449,14 +788,20 @@ function clientDeliveryBlockers(project, artifacts, documents) {
   if (openDocuments.length > 0) {
     blockers.push(`${openDocuments.length} client-visible document${openDocuments.length === 1 ? "" : "s"} still need approval or archival.`);
   }
-
   return blockers;
 }
 
-function artifactAgentIs(artifact, agentType) {
+function artifactAgentIs(artifact: Artifact, agentType: string) {
   return String(artifact.agentType || "").toLowerCase() === agentType;
 }
 
-function KV({ label, value }) {
-  return <div className="row" style={{ justifyContent: "space-between", padding: "6px 0", fontSize: 13 }}><span style={{ color: "var(--text-3)" }}>{label}</span><span className="mono" style={{ color: "white" }}>{value}</span></div>;
+function KV({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <Row style={{ justifyContent: "space-between", padding: "6px 0", fontSize: 13 }}>
+      <span style={{ color: "var(--text-3)" }}>{label}</span>
+      <span className="mono" style={{ color: "var(--text)" }}>
+        {value}
+      </span>
+    </Row>
+  );
 }
