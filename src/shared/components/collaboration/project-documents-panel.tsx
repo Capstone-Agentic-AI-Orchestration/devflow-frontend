@@ -8,10 +8,10 @@ import { useDevFlowCollaborationDocuments } from "@/shared/hooks/use-devflow-col
 import { compactDevFlowError, formatDevFlowDate } from "@/shared/utils/devflow-projects";
 
 const KIND_COLORS = {
-  GENERAL: "#93C5FD",
+  GENERAL: "#FAFAFA",
   REQUIREMENT: "#6EE7B7",
   CONTRACT: "#FBBF24",
-  DELIVERABLE: "#C4B5FD",
+  DELIVERABLE: "#D4D4D4",
 };
 
 function statusTone(status) {
@@ -34,7 +34,7 @@ function DocEmptyState({ loading }) {
   if (loading) return <DocSkeleton />;
   return (
     <div style={{ textAlign: "center", padding: "48px 24px" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(47,107,255,0.08)", border: "1px solid rgba(79,139,255,0.20)", display: "grid", placeItems: "center", margin: "0 auto 16px", color: "#93C5FD" }}>
+      <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.20)", display: "grid", placeItems: "center", margin: "0 auto 16px", color: "#FAFAFA" }}>
         <IconFileText size={22} />
       </div>
       <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px" }}>No documents yet</h3>
@@ -47,7 +47,7 @@ function DocEmptyState({ loading }) {
 
 /* ---------- Document Card ---------- */
 function DocumentCard({ document, allowReview, busy, onReview }) {
-  const kindColor = KIND_COLORS[document.kind] || "#93C5FD";
+  const kindColor = KIND_COLORS[document.kind] || "#FAFAFA";
   return (
     <div className="doc-card">
       <div className="doc-card-inner">
@@ -151,9 +151,9 @@ function DocumentCard({ document, allowReview, busy, onReview }) {
 function statusToneColor(status) {
   if (status === "APPROVED") return "#6EE7B7";
   if (status === "REVISION_REQUESTED") return "#FBBF24";
-  if (status === "APPROVAL_REQUESTED") return "#93C5FD";
+  if (status === "APPROVAL_REQUESTED") return "#FAFAFA";
   if (status === "ARCHIVED") return "#94A3B8";
-  return "#C4B5FD";
+  return "#D4D4D4";
 }
 
 /* ================================================================
@@ -210,7 +210,7 @@ export function ProjectDocumentsPanel({
 
   if (!projectId) {
     return (
-      <div style={{ padding: 24, borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,18,40,0.5)", color: "var(--text-3)", fontSize: 13.5, textAlign: "center" }}>
+      <div style={{ padding: 24, borderRadius: 16, border: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,10,10,0.5)", color: "var(--text-3)", fontSize: 13.5, textAlign: "center" }}>
         No backend project is selected.
       </div>
     );
@@ -218,7 +218,7 @@ export function ProjectDocumentsPanel({
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: allowCreate ? "minmax(0, 1fr) 340px" : "1fr", gap: 16 }} className="doc-panel-inner">
-      <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,18,40,0.82)", backdropFilter: "blur(18px) saturate(140%)", WebkitBackdropFilter: "blur(18px) saturate(140%)", boxShadow: "inset 0 1px 1px rgba(255,255,255,0.07)" }}>
+      <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,10,10,0.82)", backdropFilter: "blur(18px) saturate(140%)", WebkitBackdropFilter: "blur(18px) saturate(140%)", boxShadow: "inset 0 1px 1px rgba(255,255,255,0.07)" }}>
         <div className="doc-panel-header">
           <div className="row">
             <div>
@@ -283,12 +283,12 @@ export function ProjectDocumentsPanel({
                 display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
                 width: "100%", height: 44,
                 borderRadius: 999,
-                background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
+                background: "#FAFAFA",
                 border: "none",
-                color: "white", fontWeight: 600, fontSize: 14,
+                color: "#0A0A0A", fontWeight: 600, fontSize: 14,
                 cursor: busy || !form.title.trim() ? "not-allowed" : "pointer",
                 opacity: busy || !form.title.trim() ? 0.5 : 1,
-                boxShadow: "0 6px 20px rgba(47,107,255,0.25)",
+                boxShadow: "0 6px 20px rgba(255,255,255,0.10)",
                 transition: "all 0.3s cubic-bezier(0.16,1,0.3,1)",
               }}
             >

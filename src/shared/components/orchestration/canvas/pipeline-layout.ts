@@ -27,7 +27,7 @@ export interface PipelineEdgeDef {
 
 const COL = 230;
 const ROW = 96;
-const NEUTRAL = '#4F8BFF';
+const NEUTRAL = '#FAFAFA';
 
 // Column indices for the left-to-right flow.
 const C = {
@@ -47,10 +47,10 @@ export const PIPELINE_NODES: PipelineNodeDef[] = [
   { id: 'parse_requirements', label: 'Requirements', kind: 'stage', color: NEUTRAL, x: C.PARSE * COL, y: 0 },
   { id: 'negotiate_contract', label: 'Contract', kind: 'stage', color: NEUTRAL, x: C.CONTRACT * COL, y: 0 },
   { id: 'gate_1_check', label: 'Gate 1', kind: 'gate', color: '#F59E0B', x: C.GATE1 * COL, y: 0 },
-  { id: 'frontend_agent', label: 'Frontend', kind: 'agent', color: '#F97316', x: C.AGENTS * COL, y: AGENT_BASE_Y + 0 * ROW },
+  { id: 'frontend_agent', label: 'Frontend', kind: 'agent', color: '#FF6B35', x: C.AGENTS * COL, y: AGENT_BASE_Y + 0 * ROW },
   { id: 'backend_agent', label: 'Backend', kind: 'agent', color: '#10B981', x: C.AGENTS * COL, y: AGENT_BASE_Y + 1 * ROW },
   { id: 'database_agent', label: 'Database', kind: 'agent', color: '#14B8A6', x: C.AGENTS * COL, y: AGENT_BASE_Y + 2 * ROW },
-  { id: 'architecture_agent', label: 'Architecture', kind: 'agent', color: '#6366F1', x: C.AGENTS * COL, y: AGENT_BASE_Y + 3 * ROW },
+  { id: 'architecture_agent', label: 'Architecture', kind: 'agent', color: '#C4C4C4', x: C.AGENTS * COL, y: AGENT_BASE_Y + 3 * ROW },
   { id: 'validate_outputs', label: 'Validation', kind: 'stage', color: NEUTRAL, x: C.VALIDATE * COL, y: 0 },
   { id: 'gate_2_check', label: 'Gate 2', kind: 'gate', color: '#F59E0B', x: C.GATE2 * COL, y: 0 },
   { id: 'commit_to_github', label: 'GitHub', kind: 'stage', color: NEUTRAL, x: C.COMMIT * COL, y: 0 },

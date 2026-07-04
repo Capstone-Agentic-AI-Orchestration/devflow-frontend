@@ -10,7 +10,7 @@ import { compactDevFlowError } from "@/shared/utils/devflow-projects";
 export function ProfileSettingsPanel({
   title = "Profile",
   subtitle = "Your profile is persisted on the backend.",
-  accent = "linear-gradient(135deg,#4F8BFF,#8B5CF6)",
+  accent = "#1F1F1F",
 }) {
   const [profile, setProfile] = useState(null);
   const [fullName, setFullName] = useState("");

@@ -71,7 +71,7 @@ export function RunStatusBanner() {
         ? Math.round(((stepIndex + 0.4) / STEPS.length) * 100)
         : 0;
 
-  const accent = isFailed ? "#EF4444" : isDone ? "#10B981" : "#2F6BFF";
+  const accent = isFailed ? "#EF4444" : isDone ? "#10B981" : "#FAFAFA";
   const headline = isFailed
     ? "Run blocked"
     : isDone
@@ -105,7 +105,7 @@ export function RunStatusBanner() {
         </div>
       </div>
 
-      <div style={{ marginTop: 12, height: 6, borderRadius: 999, background: "rgba(8,14,32,.8)", overflow: "hidden" }}>
+      <div style={{ marginTop: 12, height: 6, borderRadius: 999, background: "rgba(10,10,10,.8)", overflow: "hidden" }}>
         <div style={{ width: `${pct}%`, height: "100%", background: accent, transition: "width .35s ease" }} />
       </div>
     </Card>

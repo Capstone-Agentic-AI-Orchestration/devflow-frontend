@@ -17,7 +17,7 @@ function formatTime(timestamp: number): string {
 
 function ActivityIcon({ entry }: { entry: ActivityLogEntry }) {
   if (entry.type === "system") {
-    return <IconActivity size={12} style={{ color: "#4F8BFF", flexShrink: 0 }} />;
+    return <IconActivity size={12} style={{ color: "#FAFAFA", flexShrink: 0 }} />;
   }
   if (entry.description.toLowerCase().includes("fail") || entry.description.toLowerCase().includes("error")) {
     return <IconAlertTriangle size={12} style={{ color: "#EF4444", flexShrink: 0 }} />;
@@ -25,7 +25,7 @@ function ActivityIcon({ entry }: { entry: ActivityLogEntry }) {
   if (entry.description.toLowerCase().includes("complete") || entry.description.toLowerCase().includes("generated") || entry.description.toLowerCase().includes("passed")) {
     return <IconCheckCircle size={12} style={{ color: "#22C55E", flexShrink: 0 }} />;
   }
-  return <IconCpu size={12} style={{ color: "#A78BFA", flexShrink: 0 }} />;
+  return <IconCpu size={12} style={{ color: "#C4C4C4", flexShrink: 0 }} />;
 }
 
 interface ActivityConsoleProps {

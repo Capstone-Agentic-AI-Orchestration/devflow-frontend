@@ -4,17 +4,64 @@
  * MarketingFrame — Owns the loading screen + scroll lock + smooth scroll
  * for marketing routes. Renders children underneath the cover so the
  * hand-off is seamless (no flash).
- *
- * Scroll lock: while the cover is active, both `html` and `body` get
- * overflow:hidden. The body lock alone is enough — there's nothing to
- * scroll since the cover is on top.
  */
 
 import { useState, useEffect, type ReactNode } from "react";
+import { useLenis } from "lenis/react";
 import { SmoothScroll } from "@/shared/components/layout/SmoothScroll";
 import { ScrollIndicator } from "@/shared/components/layout/ScrollIndicator";
 import { LoadingScreen } from "@/features/marketing/loading/LoadingScreen";
 import { ScrollTrigger } from "@/lib/gsap";
+
+/**
+ * CoverScrollLock — locks scroll while the loading cover is up and owns the
+ * hand-off when it finishes. Must render inside <SmoothScroll> so useLenis()
+ * resolves.
+ *
+ * The explicit lenis.resize() on unlock is load-bearing: Lenis measures its
+ * scroll limit when it mounts, which happens while the cover holds html/body
+ * at overflow:hidden. The document then reports viewport height, the limit
+ * lands at 0, and every wheel scroll clamps back to the top ("page won't
+ * scroll"). Restoring overflow doesn't change any element's own size, so no
+ * ResizeObserver fires — the limit stays 0 until we re-measure here.
+ */
+function CoverScrollLock({ locked }: { locked: boolean }) {
+  const lenis = useLenis();
+
+  useEffect(() => {
+    if (locked) {
+      const prevHtml = document.documentElement.style.overflow;
+      const prevBody = document.body.style.overflow;
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      lenis?.stop();
+      return () => {
+        document.documentElement.style.overflow = prevHtml;
+        document.body.style.overflow = prevBody;
+      };
+    }
+
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    lenis?.start();
+    const settle = () => {
+      lenis?.resize();
+      ScrollTrigger.refresh();
+    };
+    settle();
+    // Layout/Lenis settle over a few frames — measure again to be safe.
+    const r1 = requestAnimationFrame(settle);
+    const t1 = setTimeout(settle, 120);
+    const t2 = setTimeout(settle, 360);
+    return () => {
+      cancelAnimationFrame(r1);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [locked, lenis]);
+
+  return null;
+}
 
 export function MarketingFrame({ children }: { children: ReactNode }) {
   const [coverDone, setCoverDone] = useState(false);
@@ -28,37 +75,18 @@ export function MarketingFrame({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Safety net: if the cover never calls onComplete, force the hand-off so
+  // the unlock/resize path still runs.
   useEffect(() => {
-    if (coverDone) {
-      document.documentElement.style.overflow = "";
-      document.body.style.overflow = "";
-      // ScrollTriggers (pins, scrubs) were created while the page was
-      // scroll-locked under the cover, so their start/end were measured
-      // against a zero-scroll document. Recompute now that the real page
-      // height is live. A few passes cover Lenis/layout settling.
-      const refresh = () => ScrollTrigger.refresh();
-      const r1 = requestAnimationFrame(refresh);
-      const t1 = setTimeout(refresh, 120);
-      const t2 = setTimeout(refresh, 360);
-      return () => {
-        cancelAnimationFrame(r1);
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBody = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overflow = prevBody;
-    };
+    if (coverDone) return;
+    const id = setTimeout(() => setCoverDone(true), 5000);
+    return () => clearTimeout(id);
   }, [coverDone]);
 
   return (
     <>
       <SmoothScroll>
+        <CoverScrollLock locked={!coverDone} />
         {children}
         <ScrollIndicator />
       </SmoothScroll>

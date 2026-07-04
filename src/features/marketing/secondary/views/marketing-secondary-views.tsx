@@ -77,10 +77,10 @@ function SecondaryContactCloser() {
 export function PlatformView() {
   useReveal();
   const services = [
-    { icon: <IconLayout size={22} />, color: "#93C5FD", tint: "rgba(47,107,255,.15)", title: "Custom Web Applications", desc: "B2B portals, customer dashboards, admin tools, and internal apps built on modern stacks like Next.js, FastAPI, and Postgres." },
+    { icon: <IconLayout size={22} />, color: "#FAFAFA", tint: "rgba(255,255,255,.15)", title: "Custom Web Applications", desc: "B2B portals, customer dashboards, admin tools, and internal apps built on modern stacks like Next.js, FastAPI, and Postgres." },
     { icon: <IconSmartphone size={22} />, color: "#F9C29A", tint: "rgba(249,115,22,.15)", title: "Mobile Applications", desc: "iOS and Android apps using Expo, React Native, or Flutter with crash reporting and analytics." },
     { icon: <IconDatabase size={22} />, color: "#5EEAD4", tint: "rgba(20,184,166,.15)", title: "Database & Migrations", desc: "Schema design, ER diagrams, migrations, and seed data for Postgres, MySQL, SQLite, or document stores." },
-    { icon: <IconGitBranch size={22} />, color: "#C4B5FD", tint: "rgba(139,92,246,.15)", title: "Repo & CI/CD Setup", desc: "GitHub org provisioning, branch protection, PR templates, GitHub Actions, and preview environments." },
+    { icon: <IconGitBranch size={22} />, color: "#D4D4D4", tint: "rgba(255,255,255,.15)", title: "Repo & CI/CD Setup", desc: "GitHub org provisioning, branch protection, PR templates, GitHub Actions, and preview environments." },
     { icon: <IconCloud size={22} />, color: "#6EE7B7", tint: "rgba(16,185,129,.15)", title: "Cloud Infrastructure", desc: "Deploy to AWS, GCP, or Azure with monitoring, alerting, and operational runbooks." },
     { icon: <IconShield size={22} />, color: "#FCA5A5", tint: "rgba(239,68,68,.15)", title: "Security & Compliance", desc: "Automated tests, contract testing, security scans, and Philippine Data Privacy Act alignment." },
   ];
@@ -120,23 +120,23 @@ export function PlatformView() {
 
 function DeliverablesGrid() {
   const items = [
-    { icon: <IconGitBranch size={18} />, label: "GitHub repository", sub: "Yours from day one", tint: "#4F8BFF" },
-    { icon: <IconCloud size={18} />, label: "Production deployment", sub: "AWS, GCP, or Azure", tint: "#8B5CF6" },
-    { icon: <IconActivity size={18} />, label: "CI/CD pipeline", sub: "Tests, previews, gates", tint: "#A78BFA" },
+    { icon: <IconGitBranch size={18} />, label: "GitHub repository", sub: "Yours from day one", tint: "#FAFAFA" },
+    { icon: <IconCloud size={18} />, label: "Production deployment", sub: "AWS, GCP, or Azure", tint: "#A1A1A1" },
+    { icon: <IconActivity size={18} />, label: "CI/CD pipeline", sub: "Tests, previews, gates", tint: "#C4C4C4" },
     { icon: <IconShield size={18} />, label: "Security review", sub: "DPA-aligned", tint: "#EF4444" },
     { icon: <IconFileText size={18} />, label: "Documentation", sub: "Runbooks + API docs", tint: "#10B981" },
     { icon: <IconHeadphones size={18} />, label: "Post-launch support", sub: "1-3 months included", tint: "#14B8A6" },
   ];
-  return <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>{items.map((item) => <div key={item.label} style={{ padding: 18, borderRadius: 14, background: "rgba(8,14,32,.6)", border: "1px solid var(--border)", display: "flex", alignItems: "flex-start", gap: 14 }}><div style={{ width: 38, height: 38, borderRadius: 10, background: `${item.tint}22`, color: item.tint, display: "grid", placeItems: "center", flexShrink: 0, border: `1px solid ${item.tint}44` }}>{item.icon}</div><div><div style={{ fontWeight: 600, fontSize: 14 }}>{item.label}</div><div style={{ color: "var(--text-3)", fontSize: 12.5, marginTop: 2 }}>{item.sub}</div></div></div>)}</div>;
+  return <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>{items.map((item) => <div key={item.label} style={{ padding: 18, borderRadius: 14, background: "rgba(10,10,10,.6)", border: "1px solid var(--border)", display: "flex", alignItems: "flex-start", gap: 14 }}><div style={{ width: 38, height: 38, borderRadius: 10, background: `${item.tint}22`, color: item.tint, display: "grid", placeItems: "center", flexShrink: 0, border: `1px solid ${item.tint}44` }}>{item.icon}</div><div><div style={{ fontWeight: 600, fontSize: 14 }}>{item.label}</div><div style={{ color: "var(--text-3)", fontSize: 12.5, marginTop: 2 }}>{item.sub}</div></div></div>)}</div>;
 }
 
 export function HowItWorksView() {
   useReveal();
   const steps = [
-    { n: "01", color: "#4F8BFF", title: "Submit Inquiry", lede: "Tell us your vision.", desc: "Share your idea through our guided onboarding form.", timeframe: "Day 1", icon: <IconClipboard size={22} />, deliverables: ["Submitted inquiry", "Confirmation email", "PM assignment"] },
-    { n: "02", color: "#8B5CF6", title: "Discovery & Approval", lede: "We listen, scope, and align.", desc: "Your PM schedules discovery, refines scope, and confirms outcomes.", timeframe: "Day 1-2", icon: <IconMessageCircle size={22} />, deliverables: ["Project brief", "Timeline", "Cost estimate"] },
-    { n: "03", color: "#A855F7", title: "Development", lede: "Our team builds in parallel.", desc: "Specialists design, implement, and test against the approved spec.", timeframe: "Days 3-10", icon: <IconCode size={22} />, deliverables: ["Working code", "Preview environment", "Daily updates"] },
-    { n: "04", color: "#3B82F6", title: "Reviews & Quality Gates", lede: "We validate every step.", desc: "Milestone reviews, scans, contract tests, and regression checks.", timeframe: "Day 11", icon: <IconCheckCircle size={22} />, deliverables: ["Security report", "QA sign-off"] },
+    { n: "01", color: "#FAFAFA", title: "Submit Inquiry", lede: "Tell us your vision.", desc: "Share your idea through our guided onboarding form.", timeframe: "Day 1", icon: <IconClipboard size={22} />, deliverables: ["Submitted inquiry", "Confirmation email", "PM assignment"] },
+    { n: "02", color: "#A1A1A1", title: "Discovery & Approval", lede: "We listen, scope, and align.", desc: "Your PM schedules discovery, refines scope, and confirms outcomes.", timeframe: "Day 1-2", icon: <IconMessageCircle size={22} />, deliverables: ["Project brief", "Timeline", "Cost estimate"] },
+    { n: "03", color: "#C4C4C4", title: "Development", lede: "Our team builds in parallel.", desc: "Specialists design, implement, and test against the approved spec.", timeframe: "Days 3-10", icon: <IconCode size={22} />, deliverables: ["Working code", "Preview environment", "Daily updates"] },
+    { n: "04", color: "#D4D4D4", title: "Reviews & Quality Gates", lede: "We validate every step.", desc: "Milestone reviews, scans, contract tests, and regression checks.", timeframe: "Day 11", icon: <IconCheckCircle size={22} />, deliverables: ["Security report", "QA sign-off"] },
     { n: "05", color: "#10B981", title: "Delivery & Support", lede: "Production-ready and owned by you.", desc: "We deploy to production, hand over docs, and support the launch.", timeframe: "Day 12+", icon: <IconRocket size={22} />, deliverables: ["Production deploy", "Runbooks", "Support"] },
   ];
   return (
@@ -144,7 +144,7 @@ export function HowItWorksView() {
       <div data-screen-label="03 How It Works">
         <PageHero eyebrow="How we work" title="From inquiry to production, in twelve days." gradientWord="twelve days." subtitle="A transparent, milestone-driven process. Every project follows the same five steps with you in the loop at every gate." />
         <section className="container" style={{ paddingBottom: 32 }}><Card data-reveal style={{ padding: 28 }}><div className="row" style={{ justifyContent: "space-between", marginBottom: 22 }}><div><Badge tone="blue">A typical engagement</Badge><h3 className="h-3 mt-2">12 business days, end-to-end</h3></div><span className="text-3" style={{ fontSize: 13 }}>Custom timelines available for enterprise</span></div><div style={{ display: "grid", gridTemplateColumns: `repeat(${steps.length}, 1fr)`, gap: 8 }}>{steps.map((step, index) => <div key={step.n} style={{ textAlign: "center" }}><div style={{ width: 54, height: 54, borderRadius: "50%", background: `linear-gradient(135deg, ${step.color}, ${step.color}aa)`, color: "white", display: "grid", placeItems: "center", margin: "0 auto", fontWeight: 700, fontSize: 18 }}>{index + 1}</div><div style={{ fontWeight: 600, fontSize: 14, marginTop: 12 }}>{step.title}</div><div className="mono" style={{ fontSize: 11, color: "var(--text-3)", marginTop: 2 }}>{step.timeframe}</div></div>)}</div></Card></section>
-        <section className="section-sm"><div className="container"><div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{steps.map((step) => <Card key={step.n} data-reveal style={{ padding: 32 }}><div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, alignItems: "flex-start" }}><div style={{ width: 96, height: 96, borderRadius: 20, background: `${step.color}22`, border: `1px solid ${step.color}55`, color: step.color, display: "grid", placeItems: "center" }}>{step.icon}</div><div><div className="row gap-3" style={{ alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}><h3 className="h-3">{step.title}</h3><Badge tone="blue">{step.timeframe}</Badge></div><p style={{ fontSize: 16, fontWeight: 500, color: "white", marginBottom: 8 }}>{step.lede}</p><p style={{ color: "var(--text-2)", fontSize: 14.5, lineHeight: 1.65 }}>{step.desc}</p><div style={{ marginTop: 22, paddingTop: 22, borderTop: "1px solid var(--border)" }}><div className="field-label" style={{ marginBottom: 10 }}>You receive</div><div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{step.deliverables.map((item) => <div key={item} className="row gap-2" style={{ padding: "6px 12px", borderRadius: 999, background: "rgba(8,14,32,.6)", border: "1px solid var(--border)", fontSize: 13 }}><IconCheck size={13} style={{ color: step.color }} />{item}</div>)}</div></div></div></div></Card>)}</div></div></section>
+        <section className="section-sm"><div className="container"><div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{steps.map((step) => <Card key={step.n} data-reveal style={{ padding: 32 }}><div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 28, alignItems: "flex-start" }}><div style={{ width: 96, height: 96, borderRadius: 20, background: `${step.color}22`, border: `1px solid ${step.color}55`, color: step.color, display: "grid", placeItems: "center" }}>{step.icon}</div><div><div className="row gap-3" style={{ alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}><h3 className="h-3">{step.title}</h3><Badge tone="blue">{step.timeframe}</Badge></div><p style={{ fontSize: 16, fontWeight: 500, color: "white", marginBottom: 8 }}>{step.lede}</p><p style={{ color: "var(--text-2)", fontSize: 14.5, lineHeight: 1.65 }}>{step.desc}</p><div style={{ marginTop: 22, paddingTop: 22, borderTop: "1px solid var(--border)" }}><div className="field-label" style={{ marginBottom: 10 }}>You receive</div><div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{step.deliverables.map((item) => <div key={item} className="row gap-2" style={{ padding: "6px 12px", borderRadius: 999, background: "rgba(10,10,10,.6)", border: "1px solid var(--border)", fontSize: 13 }}><IconCheck size={13} style={{ color: step.color }} />{item}</div>)}</div></div></div></div></Card>)}</div></div></section>
         <SecondaryContactCloser />
       </div>
     </MarketingShell>
@@ -156,9 +156,9 @@ function PricingFeatureItem({ checked, featured, children }) {
     <li style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14 }}>
       <span style={{
         width: 22, height: 22, borderRadius: "50%",
-        background: featured ? "rgba(47,107,255,0.15)" : "rgba(16,185,129,0.12)",
+        background: featured ? "rgba(255,255,255,0.15)" : "rgba(16,185,129,0.12)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        flexShrink: 0, color: featured ? "#93C5FD" : "#6EE7B7",
+        flexShrink: 0, color: featured ? "#FAFAFA" : "#6EE7B7",
       }}>
         <IconCheck size={11} stroke={3} />
       </span>
@@ -175,14 +175,14 @@ function PricingCTA({ children, primary, onClick }) {
       height: primary ? 52 : 48,
       borderRadius: 999,
       background: primary
-        ? "linear-gradient(135deg, #2F6BFF, #4F8BFF)"
+        ? "#FAFAFA"
         : "rgba(255,255,255,0.06)",
       border: primary ? "none" : "1px solid rgba(255,255,255,0.10)",
       color: "white",
       fontWeight: primary ? 600 : 500,
       fontSize: 14.5,
       cursor: "pointer",
-      boxShadow: primary ? "0 8px 28px rgba(47,107,255,0.35)" : undefined,
+      boxShadow: primary ? "0 8px 28px rgba(255,255,255,0.35)" : undefined,
       transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
     }} className="pricing-cta-btn">
       {children}
@@ -206,10 +206,10 @@ function PricingCardOuter({ featured, children }) {
       padding: 8,
       borderRadius: 32,
       background: featured
-        ? "linear-gradient(135deg, rgba(47,107,255,0.15), rgba(139,92,246,0.10))"
+        ? "linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.10))"
         : "rgba(255,255,255,0.03)",
       border: featured
-        ? "1px solid rgba(79,139,255,0.35)"
+        ? "1px solid rgba(255,255,255,0.35)"
         : "1px solid rgba(255,255,255,0.06)",
       position: "relative",
       height: "100%",
@@ -223,7 +223,7 @@ function PricingCardInner({ children, featured, ...rest }) {
   return (
     <div style={{
       borderRadius: 24,
-      background: "rgba(8,14,32,0.85)",
+      background: "rgba(10,10,10,0.85)",
       backdropFilter: "blur(24px) saturate(140%)",
       WebkitBackdropFilter: "blur(24px) saturate(140%)",
       border: "1px solid rgba(255,255,255,0.06)",
@@ -243,11 +243,11 @@ function MostPopularBadge() {
       position: "absolute", top: -16, left: "50%",
       transform: "translateX(-50%)",
       padding: "6px 20px", borderRadius: 999,
-      background: "linear-gradient(135deg, #2F6BFF, #8B5CF6)",
+      background: "#FAFAFA",
       fontSize: 11, fontWeight: 700,
       letterSpacing: "0.15em", textTransform: "uppercase",
-      color: "white", whiteSpace: "nowrap", zIndex: 2,
-      boxShadow: "0 4px 20px rgba(47,107,255,0.4)",
+      color: "#0A0A0A", whiteSpace: "nowrap", zIndex: 2,
+      boxShadow: "0 4px 20px rgba(255,255,255,0.15)",
     }}>
       Most Popular
     </div>
@@ -260,7 +260,7 @@ function PricingTierCard({ tier, index }) {
       {tier.featured && <MostPopularBadge />}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 15, color: tier.featured ? "#BAD1FF" : "var(--text-2)", letterSpacing: "0.02em" }}>
+          <div style={{ fontWeight: 600, fontSize: 15, color: tier.featured ? "#E5E5E5" : "var(--text-2)", letterSpacing: "0.02em" }}>
             {tier.name}
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 12 }}>
@@ -348,7 +348,7 @@ function FaqItem({ q, a, index }) {
       borderRadius: 24,
       overflow: "hidden",
       border: "1px solid rgba(255,255,255,0.06)",
-      background: "rgba(8,14,32,0.5)",
+      background: "rgba(10,10,10,0.5)",
       transition: "border-color 0.4s cubic-bezier(0.32,0.72,0,1)",
     }}>
       <summary style={{
@@ -444,12 +444,12 @@ export function PricingView() {
             <div data-reveal className="reveal-premium" style={{"--reveal-delay": "360ms"}}>
               <div style={{
                 padding: 8, borderRadius: 32,
-                background: "linear-gradient(135deg, rgba(47,107,255,0.08), rgba(139,92,246,0.06))",
-                border: "1px solid rgba(79,139,255,0.20)",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.06))",
+                border: "1px solid rgba(255,255,255,0.20)",
               }}>
                 <div style={{
                   borderRadius: 24, padding: "36px 40px",
-                  background: "rgba(8,14,32,0.80)",
+                  background: "rgba(10,10,10,0.80)",
                   backdropFilter: "blur(20px) saturate(140%)",
                   WebkitBackdropFilter: "blur(20px) saturate(140%)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -458,7 +458,7 @@ export function PricingView() {
                   alignItems: "center", flexWrap: "wrap", gap: 20,
                 }}>
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: "#93C5FD", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 8 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: "#FAFAFA", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 8 }}>
                       Not sure which plan fits?
                     </div>
                     <h3 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em", margin: 0 }}>
@@ -503,15 +503,15 @@ export function AboutView() {
     { title: "Built in the Philippines", desc: "Headquartered in Marikina and focused on MSME growth." },
   ];
   const team = [
-    ["RM", "Founder - CEO", "#4F8BFF"], ["AC", "Head of Delivery", "#10B981"], ["JT", "Lead Engineer", "#A855F7"], ["MV", "Head of Engineering", "#F97316"], ["DS", "Design Lead", "#3B82F6"], ["GP", "Head of Security", "#EF4444"],
+    ["RM", "Founder - CEO", "#FAFAFA"], ["AC", "Head of Delivery", "#10B981"], ["JT", "Lead Engineer", "#C4C4C4"], ["MV", "Head of Engineering", "#FF6B35"], ["DS", "Design Lead", "#D4D4D4"], ["GP", "Head of Security", "#EF4444"],
   ];
   return (
     <MarketingShell route="about">
       <div data-screen-label="05 About">
         <PageHero eyebrow="About Alphaexplora" title="A boutique IT consultancy on a mission to scale Filipino MSMEs." gradientWord="Filipino MSMEs." subtitle="We are a Marikina-based enterprise IT services firm helping Philippine businesses ship production software fast, transparently, and on their terms." />
-        <section className="container" style={{ paddingBottom: 64 }}><Card data-reveal style={{ padding: 40, background: "linear-gradient(135deg, rgba(47,107,255,.10), rgba(139,92,246,.06))", border: "1px solid rgba(79,139,255,.30)" }}><div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 32, alignItems: "center" }}><div><Badge tone="purple">Our mission</Badge><h2 className="h-2 mt-4">Make enterprise-grade engineering accessible to every Philippine MSME.</h2></div><p style={{ color: "var(--text-2)", fontSize: 16, lineHeight: 1.7 }}>The companies that drive Philippine business deserve the same engineering output as larger enterprises. We pair senior PH engineers with intelligent automation so delivery is fast and stewarded.</p></div></Card></section>
-        <section className="section-sm"><div className="container"><div className="text-center mb-8" data-reveal><h3 className="h-2">What we believe</h3></div><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>{values.map((value) => <Card key={value.title} data-reveal style={{ padding: 28 }}><div style={{ width: 8, height: 28, borderRadius: 4, background: "linear-gradient(180deg, #2F6BFF, #8B5CF6)", marginBottom: 16 }} /><h4 className="h-3" style={{ marginBottom: 8 }}>{value.title}</h4><p style={{ color: "var(--text-2)", fontSize: 14, lineHeight: 1.6 }}>{value.desc}</p></Card>)}</div></div></section>
-        <section className="section"><div className="container"><div className="text-center mb-8" data-reveal><span className="eyebrow"><span className="dot" /> The team</span><h3 className="h-2 mt-4">A 12-person delivery team and growing.</h3></div><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>{team.map(([initials, role, tint]) => <Card key={initials} hover data-reveal style={{ padding: 22 }}><div className="row gap-4"><div style={{ width: 56, height: 56, borderRadius: 14, background: `linear-gradient(135deg, ${tint}, ${tint}99)`, display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 18, flexShrink: 0 }}>{initials}</div><div><div style={{ fontWeight: 600 }}>{role}</div><p style={{ color: "var(--text-2)", fontSize: 13.5, lineHeight: 1.55, marginTop: 4 }}>Senior delivery specialist focused on transparent production software.</p></div></div></Card>)}</div></div></section>
+        <section className="container" style={{ paddingBottom: 64 }}><Card data-reveal style={{ padding: 40, background: "linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.06))", border: "1px solid rgba(255,255,255,.30)" }}><div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 32, alignItems: "center" }}><div><Badge tone="purple">Our mission</Badge><h2 className="h-2 mt-4">Make enterprise-grade engineering accessible to every Philippine MSME.</h2></div><p style={{ color: "var(--text-2)", fontSize: 16, lineHeight: 1.7 }}>The companies that drive Philippine business deserve the same engineering output as larger enterprises. We pair senior PH engineers with intelligent automation so delivery is fast and stewarded.</p></div></Card></section>
+        <section className="section-sm"><div className="container"><div className="text-center mb-8" data-reveal><h3 className="h-2">What we believe</h3></div><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 18 }}>{values.map((value) => <Card key={value.title} data-reveal style={{ padding: 28 }}><div style={{ width: 8, height: 28, borderRadius: 4, background: "linear-gradient(180deg, #FAFAFA, #A1A1A1)", marginBottom: 16 }} /><h4 className="h-3" style={{ marginBottom: 8 }}>{value.title}</h4><p style={{ color: "var(--text-2)", fontSize: 14, lineHeight: 1.6 }}>{value.desc}</p></Card>)}</div></div></section>
+        <section className="section"><div className="container"><div className="text-center mb-8" data-reveal><span className="eyebrow"><span className="dot" /> The team</span><h3 className="h-2 mt-4">A 12-person delivery team and growing.</h3></div><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>{team.map(([initials, role, tint]) => <Card key={initials} hover data-reveal style={{ padding: 22 }}><div className="row gap-4"><div style={{ width: 56, height: 56, borderRadius: 14, background: "#1F1F1F", display: "grid", placeItems: "center", color: tint, fontWeight: 700, fontSize: 18, flexShrink: 0 }}>{initials}</div><div><div style={{ fontWeight: 600 }}>{role}</div><p style={{ color: "var(--text-2)", fontSize: 13.5, lineHeight: 1.55, marginTop: 4 }}>Senior delivery specialist focused on transparent production software.</p></div></div></Card>)}</div></div></section>
         <SecondaryContactCloser />
       </div>
     </MarketingShell>
@@ -696,13 +696,13 @@ export function SubmittedView() {
     <MarketingShell route="submitted">
       <div data-screen-label="06 Submitted" style={{ paddingTop: 80, paddingBottom: 80, minHeight: "calc(100vh - 200px)" }}>
         <div className="container" style={{ maxWidth: 720 }}>
-          <Card style={{ padding: 48, textAlign: "center", background: "linear-gradient(180deg, rgba(15,23,42,.95), rgba(10,18,40,.98))", position: "relative", overflow: "hidden" }}>
+          <Card style={{ padding: 48, textAlign: "center", background: "linear-gradient(180deg, rgba(17,17,17,.95), rgba(10,10,10,.98))", position: "relative", overflow: "hidden" }}>
             <div style={{ width: 88, height: 88, borderRadius: "50%", background: "linear-gradient(135deg, #10B981, #14B8A6)", display: "grid", placeItems: "center", boxShadow: "0 12px 40px rgba(16,185,129,.4)", margin: "0 auto 24px" }}><IconCheck size={42} stroke={3} style={{ color: "white" }} /></div>
             <h1 className="h-1" style={{ fontSize: "clamp(32px, 4vw, 44px)", marginBottom: 14 }}>Your inquiry has been received.</h1>
             <p className="lead" style={{ margin: "0 auto", maxWidth: 560 }}>Our Project Manager will review your request and reach out within <strong style={{ color: "white" }}>1-2 business days</strong>. Once approved, you will receive account credentials and access to your client dashboard.</p>
-            <div style={{ marginTop: 40, padding: 24, background: "rgba(8,14,32,.5)", border: "1px solid var(--border)", borderRadius: 14 }}>
+            <div style={{ marginTop: 40, padding: 24, background: "rgba(10,10,10,.5)", border: "1px solid var(--border)", borderRadius: 14 }}>
               <div className="field-label" style={{ marginBottom: 16, textAlign: "left" }}>What happens next</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>{["Review", "Approval Email", "Sign In"].map((step, index) => <div key={step} style={{ textAlign: "center" }}><div style={{ width: 36, height: 36, borderRadius: "50%", background: index === 0 ? "linear-gradient(135deg, #4F8BFF, #4F8BFFcc)" : "rgba(15,23,42,.95)", border: "1px solid #4F8BFF66", color: "white", display: "grid", placeItems: "center", margin: "0 auto", fontWeight: 600, fontSize: 13 }}>{index + 1}</div><div style={{ fontWeight: 600, fontSize: 14, marginTop: 10 }}>{step}</div></div>)}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>{["Review", "Approval Email", "Sign In"].map((step, index) => <div key={step} style={{ textAlign: "center" }}><div style={{ width: 36, height: 36, borderRadius: "50%", background: index === 0 ? "#FAFAFA" : "rgba(17,17,17,.95)", border: "1px solid #FAFAFA66", color: index === 0 ? "#0A0A0A" : "white", display: "grid", placeItems: "center", margin: "0 auto", fontWeight: 600, fontSize: 13 }}>{index + 1}</div><div style={{ fontWeight: 600, fontSize: 14, marginTop: 10 }}>{step}</div></div>)}</div>
             </div>
             <div className="row gap-3" style={{ justifyContent: "center", marginTop: 32 }}><Button variant="ghost" onClick={() => navigate("home")} icon={<IconHome size={16} />}>Back to home</Button><Button variant="secondary" iconRight={<IconArrowUpRight size={15} />}>Read the docs</Button></div>
           </Card>

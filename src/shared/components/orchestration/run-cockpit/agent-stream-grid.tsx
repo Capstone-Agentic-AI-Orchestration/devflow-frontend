@@ -42,13 +42,13 @@ interface AgentPanelProps {
 }
 
 const AGENTS: AgentDef[] = [
-  { nodeId: "parse_requirements", label: "Requirements", role: "Parser", color: "#4F8BFF", icon: <IconFileText size={15} /> },
-  { nodeId: "negotiate_contract", label: "Contract", role: "Architect", color: "#A78BFA", icon: <IconShield size={15} /> },
-  { nodeId: "architecture_agent", label: "Architecture", role: "System design", color: "#6366F1", icon: <IconWorkflow size={15} /> },
-  { nodeId: "frontend_agent", label: "Frontend", role: "UI engineer", color: "#F97316", icon: <IconCode size={15} /> },
+  { nodeId: "parse_requirements", label: "Requirements", role: "Parser", color: "#FAFAFA", icon: <IconFileText size={15} /> },
+  { nodeId: "negotiate_contract", label: "Contract", role: "Architect", color: "#C4C4C4", icon: <IconShield size={15} /> },
+  { nodeId: "architecture_agent", label: "Architecture", role: "System design", color: "#C4C4C4", icon: <IconWorkflow size={15} /> },
+  { nodeId: "frontend_agent", label: "Frontend", role: "UI engineer", color: "#FF6B35", icon: <IconCode size={15} /> },
   { nodeId: "backend_agent", label: "Backend", role: "API engineer", color: "#10B981", icon: <IconCpu size={15} /> },
   { nodeId: "database_agent", label: "Database", role: "Schema engineer", color: "#14B8A6", icon: <IconDatabase size={15} /> },
-  { nodeId: "self_critique", label: "Self-Review", role: "Quality check", color: "#E879F9", icon: <IconCheckCircle size={15} /> },
+  { nodeId: "self_critique", label: "Self-Review", role: "Quality check", color: "#C4C4C4", icon: <IconCheckCircle size={15} /> },
   { nodeId: "validate_outputs", label: "Validation", role: "Reviewer", color: "#FBBF24", icon: <IconCheckCircle size={15} /> },
   { nodeId: "commit_to_github", label: "GitHub", role: "Delivery", color: "#34D399", icon: <IconGitBranch size={15} /> },
 ];
@@ -65,7 +65,7 @@ function resolveState(runtime: NodeRuntime | undefined, stream: AgentStreamState
 
 const STATE_META: Record<AgentState, { label: string; tone: string }> = {
   idle: { label: "Waiting", tone: "#64748B" },
-  running: { label: "Streaming", tone: "#4F8BFF" },
+  running: { label: "Streaming", tone: "#FAFAFA" },
   done: { label: "Done", tone: "#34D399" },
   error: { label: "Failed", tone: "#EF4444" },
 };

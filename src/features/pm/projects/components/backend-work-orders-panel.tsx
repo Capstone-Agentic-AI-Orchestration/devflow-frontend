@@ -239,7 +239,7 @@ export function BackendWorkOrdersPanel({ projectId, workOrders, tasks, artifacts
           {tasks.length > 0 && (
             <div style={{ display: "grid", gap: 6, maxHeight: 132, overflow: "auto", paddingRight: 2 }}>
               {tasks.slice(0, 4).map((task) => (
-                <button key={task.id} onClick={() => createFromTask(task)} style={{ padding: "8px 10px", border: "1px solid var(--border)", borderRadius: 8, background: task.id === form.taskId ? "rgba(79,139,255,.14)" : "rgba(8,14,32,.35)", color: "white", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
+                <button key={task.id} onClick={() => createFromTask(task)} style={{ padding: "8px 10px", border: "1px solid var(--border)", borderRadius: 8, background: task.id === form.taskId ? "rgba(255,255,255,.14)" : "rgba(10,10,10,.35)", color: "white", cursor: "pointer", textAlign: "left", fontFamily: "inherit" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 700 }}>{task.title}</div>
                   <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 2 }}>{task.assignedTo?.fullName || task.assignedTo?.email || "Unassigned"} - {task.status}</div>
                 </button>

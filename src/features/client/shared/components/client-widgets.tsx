@@ -5,8 +5,8 @@ import { Card } from "@/shared/components/ui";
 import { IconCheck } from "@/shared/components/icons";
 
 const STAGES = [
-  { key: "INTAKE", label: "Intake", tint: "#4F8BFF" },
-  { key: "SCOPING", label: "Scoping", tint: "#8B5CF6" },
+  { key: "INTAKE", label: "Intake", tint: "#FAFAFA" },
+  { key: "SCOPING", label: "Scoping", tint: "#A1A1A1" },
   { key: "BUILD", label: "Build", tint: "#10B981" },
   { key: "REVIEW", label: "Review", tint: "#F59E0B" },
   { key: "DELIVERED", label: "Delivered", tint: "#22C55E" },
@@ -14,7 +14,7 @@ const STAGES = [
 
 export function ClientStatusPill({ tone = "blue", children }) {
   const tones = {
-    blue: { bg: "rgba(59,130,246,.12)", fg: "#93C5FD", dot: "#3B82F6", anim: true },
+    blue: { bg: "rgba(255,255,255,.12)", fg: "#FAFAFA", dot: "#3B82F6", anim: true },
     green: { bg: "rgba(16,185,129,.12)", fg: "#6EE7B7", dot: "#10B981" },
     amber: { bg: "rgba(245,158,11,.12)", fg: "#FBBF24", dot: "#F59E0B" },
     red: { bg: "rgba(239,68,68,.12)", fg: "#FCA5A5", dot: "#EF4444" },
@@ -29,7 +29,7 @@ export function ClientStatusPill({ tone = "blue", children }) {
   );
 }
 
-export function KPICard({ label, value, sub, icon, tint = "#4F8BFF", children }) {
+export function KPICard({ label, value, sub, icon, tint = "#FAFAFA", children }) {
   return (
     <Card style={{ padding: 22 }}>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -72,7 +72,7 @@ export function StageTimeline({ currentKey, dense = false }) {
           const size = dense ? 32 : 44;
           return (
             <div key={stage.key} style={{ textAlign: "center" }}>
-              <div style={{ width: size, height: size, borderRadius: "50%", background: done ? `linear-gradient(135deg, ${stage.tint}, ${stage.tint}cc)` : active ? `radial-gradient(circle at 30% 30%, ${stage.tint}, ${stage.tint}aa)` : "rgba(15,23,42,.95)", border: `1px solid ${active ? stage.tint : done ? `${stage.tint}99` : "var(--border)"}`, color: done || active ? "white" : "var(--text-3)", display: "grid", placeItems: "center", margin: "0 auto", fontWeight: 700, fontSize: dense ? 12 : 14, boxShadow: active ? `0 0 0 6px ${stage.tint}22` : "none", position: "relative", zIndex: 1 }}>
+              <div style={{ width: size, height: size, borderRadius: "50%", background: done ? `linear-gradient(135deg, ${stage.tint}, ${stage.tint}cc)` : active ? `radial-gradient(circle at 30% 30%, ${stage.tint}, ${stage.tint}aa)` : "rgba(17,17,17,.95)", border: `1px solid ${active ? stage.tint : done ? `${stage.tint}99` : "var(--border)"}`, color: done || active ? "white" : "var(--text-3)", display: "grid", placeItems: "center", margin: "0 auto", fontWeight: 700, fontSize: dense ? 12 : 14, boxShadow: active ? `0 0 0 6px ${stage.tint}22` : "none", position: "relative", zIndex: 1 }}>
                 {done ? <IconCheck size={14} stroke={3} /> : index + 1}
               </div>
               <div style={{ fontWeight: active ? 600 : 500, fontSize: dense ? 12 : 13, marginTop: 10, color: active ? "white" : done ? "var(--text-2)" : "var(--text-3)" }}>{stage.label}</div>

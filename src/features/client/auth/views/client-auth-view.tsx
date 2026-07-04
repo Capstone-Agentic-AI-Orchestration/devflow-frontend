@@ -56,7 +56,6 @@ function AuthBrandPanel({ heading, sub }) {
     <aside className="auth-premium-brand">
       <div className="auth-premium-orb auth-premium-orb--1" />
       <div className="auth-premium-orb auth-premium-orb--2" />
-      <div className="auth-premium-orb auth-premium-orb--3" />
       <button type="button" className="auth-brand-logo" onClick={() => router.push("/")} aria-label="Back to home">
         <Logo />
       </button>
@@ -101,13 +100,13 @@ function AuthSubmitButton({ children, submitting, ...props }) {
         width: "100%", height: 52,
         padding: "0 24px 0 28px",
         borderRadius: 999,
-        background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
+        background: "#FAFAFA",
         border: "none",
-        color: "white",
+        color: "#0A0A0A",
         fontWeight: 600, fontSize: 15,
         cursor: submitting ? "not-allowed" : "pointer",
         opacity: submitting ? 0.6 : 1,
-        boxShadow: "0 8px 28px rgba(47,107,255,0.35)",
+        boxShadow: "0 8px 28px rgba(255,255,255,0.12)",
         transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
         position: "relative",
         overflow: "hidden",
@@ -135,7 +134,7 @@ function PremiumCheckbox({ checked, onChange, children }) {
     <label className="auth-premium-checkbox">
       <input type="checkbox" checked={checked} onChange={onChange} />
       <span className="check-box">
-        {checked && <IconCheck size={10} stroke={3} style={{ color: "white" }} />}
+        {checked && <IconCheck size={10} stroke={3} style={{ color: "#0A0A0A" }} />}
       </span>
       {children}
     </label>
@@ -355,11 +354,11 @@ function SignUpForm({ initialEmail = "", onDone }) {
     <form onSubmit={submit} noValidate>
       <div style={{
         padding: 16, borderRadius: 16,
-        background: "rgba(47,107,255,0.08)",
-        border: "1px solid rgba(79,139,255,0.25)",
+        background: "rgba(255,255,255,0.08)",
+        border: "1px solid rgba(255,255,255,0.25)",
         display: "flex", gap: 12, marginBottom: 24,
       }}>
-        <IconMail size={18} style={{ color: "#93C5FD", flexShrink: 0, marginTop: 1 }} />
+        <IconMail size={18} style={{ color: "#FAFAFA", flexShrink: 0, marginTop: 1 }} />
         <div style={{ fontSize: 13, color: "var(--text-2)", lineHeight: 1.55 }}>
           <strong style={{ color: "white" }}>You were invited by Alphaexplora.</strong> Complete your account to access your client dashboard.
         </div>
@@ -404,7 +403,7 @@ function SignUpForm({ initialEmail = "", onDone }) {
         <label className="auth-premium-checkbox" style={{ alignItems: "flex-start", gap: 10 }}>
           <input type="checkbox" checked={form.terms} onChange={(e) => setForm({ ...form, terms: e.target.checked })} />
           <span className="check-box" style={{ marginTop: 1 }}>
-            {form.terms && <IconCheck size={10} stroke={3} style={{ color: "white" }} />}
+            {form.terms && <IconCheck size={10} stroke={3} style={{ color: "#0A0A0A" }} />}
           </span>
           I agree to Alphaexplora's Terms of Service and Privacy Policy.
         </label>
@@ -418,12 +417,12 @@ function SignUpForm({ initialEmail = "", onDone }) {
             display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12,
             width: "100%", height: 52,
             padding: "0 24px 0 28px", borderRadius: 999,
-            background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
-            border: "none", color: "white",
+            background: "#FAFAFA",
+            border: "none", color: "#0A0A0A",
             fontWeight: 600, fontSize: 15,
             cursor: submitting ? "not-allowed" : "pointer",
             opacity: submitting ? 0.6 : 1,
-            boxShadow: "0 8px 28px rgba(47,107,255,0.35)",
+            boxShadow: "0 8px 28px rgba(255,255,255,0.12)",
             transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
           }}
           className="auth-premium-submit pricing-cta-btn"
@@ -523,12 +522,12 @@ function ForgotForm() {
             display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12,
             width: "100%", height: 52,
             padding: "0 24px 0 28px", borderRadius: 999,
-            background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
-            border: "none", color: "white",
+            background: "#FAFAFA",
+            border: "none", color: "#0A0A0A",
             fontWeight: 600, fontSize: 15,
             cursor: submitting ? "not-allowed" : "pointer",
             opacity: submitting ? 0.6 : 1,
-            boxShadow: "0 8px 28px rgba(47,107,255,0.35)",
+            boxShadow: "0 8px 28px rgba(255,255,255,0.12)",
             transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
           }}
           className="auth-premium-submit pricing-cta-btn"
@@ -607,11 +606,11 @@ function ResetForm({ onDone }) {
             display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12,
             width: "100%", height: 52,
             padding: "0 24px 0 28px", borderRadius: 999,
-            background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
-            border: "none", color: "white",
+            background: "#FAFAFA",
+            border: "none", color: "#0A0A0A",
             fontWeight: 600, fontSize: 15,
             cursor: "pointer",
-            boxShadow: "0 8px 28px rgba(47,107,255,0.35)",
+            boxShadow: "0 8px 28px rgba(255,255,255,0.12)",
             transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
             marginTop: 24,
           }}
@@ -653,12 +652,12 @@ function ResetForm({ onDone }) {
             display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 12,
             width: "100%", height: 52,
             padding: "0 24px 0 28px", borderRadius: 999,
-            background: "linear-gradient(135deg, #2F6BFF, #4F8BFF)",
-            border: "none", color: "white",
+            background: "#FAFAFA",
+            border: "none", color: "#0A0A0A",
             fontWeight: 600, fontSize: 15,
             cursor: submitting ? "not-allowed" : "pointer",
             opacity: submitting ? 0.6 : 1,
-            boxShadow: "0 8px 28px rgba(47,107,255,0.35)",
+            boxShadow: "0 8px 28px rgba(255,255,255,0.12)",
             transition: "all 0.7s cubic-bezier(0.32,0.72,0,1)",
           }}
           className="auth-premium-submit pricing-cta-btn"

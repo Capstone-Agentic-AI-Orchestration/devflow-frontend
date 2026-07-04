@@ -46,3 +46,4 @@ next-env.d.ts
 # Testing artifacts
 test-results/
 playwright-report/
+*.log

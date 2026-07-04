@@ -41,18 +41,18 @@ export function DevFlowProjectTimeline({ timeline, loading, error, emptyText, co
 
 function timelineView(type) {
   const map = {
-    PROJECT_CREATED: { color: "#60A5FA", icon: <IconPlus size={14} /> },
-    PROJECT_UPDATED: { color: "#93C5FD", icon: <IconActivity size={14} /> },
-    MEMBER_ADDED: { color: "#A78BFA", icon: <IconUser size={14} /> },
+    PROJECT_CREATED: { color: "#D4D4D4", icon: <IconPlus size={14} /> },
+    PROJECT_UPDATED: { color: "#FAFAFA", icon: <IconActivity size={14} /> },
+    MEMBER_ADDED: { color: "#C4C4C4", icon: <IconUser size={14} /> },
     MEMBER_REMOVED: { color: "#94A3B8", icon: <IconUser size={14} /> },
     ARTIFACT_SHARED: { color: "#6EE7B7", icon: <IconFileText size={14} /> },
     ARTIFACT_UNSHARED: { color: "#94A3B8", icon: <IconFileText size={14} /> },
     ARTIFACT_REVIEWED: { color: "#FBBF24", icon: <IconCheck size={14} /> },
     REVISION_HANDLED: { color: "#6EE7B7", icon: <IconCheck size={14} /> },
-    TASK_CREATED: { color: "#60A5FA", icon: <IconPlus size={14} /> },
-    TASK_ASSIGNED: { color: "#A78BFA", icon: <IconUser size={14} /> },
+    TASK_CREATED: { color: "#D4D4D4", icon: <IconPlus size={14} /> },
+    TASK_ASSIGNED: { color: "#C4C4C4", icon: <IconUser size={14} /> },
     TASK_STATUS_CHANGED: { color: "#FBBF24", icon: <IconActivity size={14} /> },
-    TASK_COMMENTED: { color: "#93C5FD", icon: <IconMessageCircle size={14} /> },
+    TASK_COMMENTED: { color: "#FAFAFA", icon: <IconMessageCircle size={14} /> },
     NOTIFICATION_SENT: { color: "#94A3B8", icon: <IconActivity size={14} /> },
   };
   return map[type] || { color: "#94A3B8", icon: <IconActivity size={14} /> };

@@ -14,8 +14,8 @@ function labelFor(nodeId: string): string {
 }
 
 const PHASE_TONE: Record<string, string> = {
-  entering: "#93C5FD",
-  running: "#93C5FD",
+  entering: "#FAFAFA",
+  running: "#FAFAFA",
   exiting: "#6EE7B7",
   error: "#FCA5A5",
   skipped: "#94A3B8",
@@ -57,8 +57,8 @@ export function NodeInspector({ projectId, nodeId }: NodeInspectorProps) {
             <span>{runtime.progressLabel ?? "Progress"}</span>
             <span className="mono" style={{ fontVariantNumeric: "tabular-nums" }}>{Math.round(runtime.progressPct)}%</span>
           </div>
-          <div style={{ height: 6, borderRadius: 999, background: "rgba(8,14,32,.8)", overflow: "hidden" }}>
-            <div style={{ width: `${runtime.progressPct}%`, height: "100%", background: "#2F6BFF", transition: "width .3s ease" }} />
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(10,10,10,.8)", overflow: "hidden" }}>
+            <div style={{ width: `${runtime.progressPct}%`, height: "100%", background: "#FAFAFA", transition: "width .3s ease" }} />
           </div>
         </div>
       )}
@@ -75,7 +75,7 @@ export function NodeInspector({ projectId, nodeId }: NodeInspectorProps) {
       {runtime?.error && <NodeErrorCard projectId={projectId} nodeId={nodeId} error={runtime.error} />}
 
       <div>
-        <div style={{ color: "#C4B5FD", fontSize: 12, fontWeight: 800, marginBottom: 6 }}>Agent thinking</div>
+        <div style={{ color: "#D4D4D4", fontSize: 12, fontWeight: 800, marginBottom: 6 }}>Agent thinking</div>
         {recentChunks.length === 0 ? (
           <div style={{ color: "var(--text-3)", fontSize: 12 }}>No reasoning streamed yet.</div>
         ) : (
@@ -88,7 +88,7 @@ export function NodeInspector({ projectId, nodeId }: NodeInspectorProps) {
               padding: 8,
               borderRadius: 8,
               border: "1px solid rgba(148,163,184,.14)",
-              background: "rgba(8,14,32,.55)",
+              background: "rgba(10,10,10,.55)",
             }}
           >
             {recentChunks.map((c, i) => (
@@ -98,7 +98,7 @@ export function NodeInspector({ projectId, nodeId }: NodeInspectorProps) {
                   style={{
                     fontSize: 9.5,
                     fontWeight: 700,
-                    color: c.type === "error" ? "#FCA5A5" : c.type === "tool-call" ? "#C4B5FD" : "#93C5FD",
+                    color: c.type === "error" ? "#FCA5A5" : c.type === "tool-call" ? "#D4D4D4" : "#FAFAFA",
                   }}
                 >
                   {c.type}
@@ -115,7 +115,7 @@ export function NodeInspector({ projectId, nodeId }: NodeInspectorProps) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ borderRadius: 6, border: "1px solid rgba(148,163,184,.14)", background: "rgba(8,14,32,.5)", padding: "6px 8px" }}>
+    <div style={{ borderRadius: 6, border: "1px solid rgba(148,163,184,.14)", background: "rgba(10,10,10,.5)", padding: "6px 8px" }}>
       <div style={{ color: "var(--text-3)", fontSize: 9.5, textTransform: "uppercase", letterSpacing: ".04em" }}>{label}</div>
       <div className="mono" style={{ color: "white", fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{value}</div>
     </div>

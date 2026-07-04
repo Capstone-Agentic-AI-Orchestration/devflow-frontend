@@ -26,9 +26,9 @@ function phaseVisual(phase: NodePhase | null | undefined, accent: string): {
     case "running":
       return {
         border: accent,
-        background: "rgba(59,130,246,.10)",
+        background: "rgba(255,255,255,.10)",
         glow: `0 0 0 1px ${accent}66, 0 0 18px ${accent}55`,
-        badge: "#93C5FD",
+        badge: "#FAFAFA",
         badgeText: "Active",
         pulse: true,
       };
@@ -53,7 +53,7 @@ function phaseVisual(phase: NodePhase | null | undefined, accent: string): {
     case "skipped":
       return {
         border: "rgba(148,163,184,.3)",
-        background: "rgba(15,23,42,.55)",
+        background: "rgba(17,17,17,.55)",
         glow: "none",
         badge: "#94A3B8",
         badgeText: "Skipped",
@@ -62,7 +62,7 @@ function phaseVisual(phase: NodePhase | null | undefined, accent: string): {
     default:
       return {
         border: "rgba(148,163,184,.18)",
-        background: "rgba(15,23,42,.6)",
+        background: "rgba(17,17,17,.6)",
         glow: "none",
         badge: "#64748B",
         badgeText: "Idle",
@@ -85,7 +85,7 @@ export function PipelineNode({ data, selected }: NodeProps) {
       style={{
         width: 176,
         borderRadius: 10,
-        border: `1px solid ${selected ? "#93C5FD" : visual.border}`,
+        border: `1px solid ${selected ? "#FAFAFA" : visual.border}`,
         background: visual.background,
         boxShadow: selected ? "0 0 0 2px rgba(147,197,253,.5)" : visual.glow,
         padding: 10,
@@ -129,13 +129,13 @@ export function PipelineNode({ data, selected }: NodeProps) {
       </div>
 
       {runtime?.progressLabel && (visual.badgeText === "Active") && (
-        <div style={{ color: "#93C5FD", fontSize: 10.5, marginTop: 6, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ color: "#FAFAFA", fontSize: 10.5, marginTop: 6, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {runtime.progressLabel}
         </div>
       )}
 
       {typeof pct === "number" && (
-        <div style={{ marginTop: 7, height: 4, borderRadius: 999, background: "rgba(8,14,32,.8)", overflow: "hidden" }}>
+        <div style={{ marginTop: 7, height: 4, borderRadius: 999, background: "rgba(10,10,10,.8)", overflow: "hidden" }}>
           <div
             style={{
               width: `${Math.min(100, Math.max(0, pct))}%`,

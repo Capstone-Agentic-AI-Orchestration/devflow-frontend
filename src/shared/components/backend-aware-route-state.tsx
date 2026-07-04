@@ -43,7 +43,7 @@ export function BackendAwareRouteState({
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
         <Card style={{ padding: 18 }}>
-          <div className="row gap-2" style={{ color: "#93C5FD" }}><IconFolder size={16} />Backend projects</div>
+          <div className="row gap-2" style={{ color: "#FAFAFA" }}><IconFolder size={16} />Backend projects</div>
           <div style={{ fontSize: 28, fontWeight: 700, marginTop: 10 }}>{loading ? "..." : projects.length}</div>
           <div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 4 }}>{error ? compactError(error) : "Visible to the current authenticated role."}</div>
         </Card>
@@ -59,7 +59,7 @@ export function BackendAwareRouteState({
           <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>What still needs an API</h3>
           <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
             {pending.map((item) => (
-              <div key={item} className="row gap-3" style={{ padding: 12, background: "rgba(8,14,32,.45)", border: "1px solid var(--border)", borderRadius: 8 }}>
+              <div key={item} className="row gap-3" style={{ padding: 12, background: "rgba(10,10,10,.45)", border: "1px solid var(--border)", borderRadius: 8 }}>
                 <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#F59E0B", flexShrink: 0 }} />
                 <span style={{ color: "var(--text-2)", fontSize: 13 }}>{item}</span>
               </div>

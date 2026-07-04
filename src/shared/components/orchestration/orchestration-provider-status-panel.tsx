@@ -219,7 +219,7 @@ export function OrchestrationProviderStatusPanel({
               }}
             >
               <div className="row gap-2" style={{ minWidth: 0 }}>
-                <IconCpu size={13} style={{ color: provider.active ? "#93C5FD" : "var(--text-3)", flexShrink: 0, marginTop: 2 }} />
+                <IconCpu size={13} style={{ color: provider.active ? "#FAFAFA" : "var(--text-3)", flexShrink: 0, marginTop: 2 }} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 12.5, fontWeight: 700 }}>{provider.displayName}</div>
                   <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 2, overflowWrap: "anywhere" }}>

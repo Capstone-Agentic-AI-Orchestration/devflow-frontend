@@ -125,7 +125,7 @@ function AdminPageHeader({ title, subtitle, actions, live = true }) {
   );
 }
 
-function StatCard({ label, value, sub, icon, tint = "#4F8BFF" }) {
+function StatCard({ label, value, sub, icon, tint = "#FAFAFA" }) {
   return (
     <Card style={{ padding: 16 }}>
       <div style={{ width: 34, height: 34, borderRadius: 8, background: `${tint}22`, color: tint, border: `1px solid ${tint}44`, display: "grid", placeItems: "center" }}>{icon}</div>
@@ -176,7 +176,7 @@ export function AdminOverviewView() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 20 }}>
         <StatCard label="Projects" value={directory.loading ? "..." : String(projects.length)} sub="Backend records" icon={<IconFolder size={16} />} />
         <StatCard label="Users" value={directory.loading ? "..." : String(users.length)} sub="From project memberships" icon={<IconUsers size={16} />} tint="#10B981" />
-        <StatCard label="Repositories" value={directory.loading ? "..." : `${reposLinked}/${projects.length}`} sub="Repo URLs linked" icon={<IconGitHub size={16} />} tint="#A78BFA" />
+        <StatCard label="Repositories" value={directory.loading ? "..." : `${reposLinked}/${projects.length}`} sub="Repo URLs linked" icon={<IconGitHub size={16} />} tint="#C4C4C4" />
         <StatCard label="Active handoffs" value={directory.loading ? "..." : String(activeWorkOrders)} sub="Work orders in motion" icon={<IconWorkflow size={16} />} tint="#F59E0B" />
       </div>
 
@@ -264,7 +264,7 @@ export function AdminUsersView() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 18 }}>
         <StatCard label="All users" value={usersState.loading ? "..." : String(users.length)} sub="Known to admin" icon={<IconUsers size={16} />} />
         <StatCard label="PM/Admin" value={countRoles(users, ["PM", "ADMIN"])} sub="Can manage projects" icon={<IconShield size={16} />} tint="#10B981" />
-        <StatCard label="Developers" value={countRoles(users, ["DEV"])} sub="Delivery members" icon={<IconCode size={16} />} tint="#A78BFA" />
+        <StatCard label="Developers" value={countRoles(users, ["DEV"])} sub="Delivery members" icon={<IconCode size={16} />} tint="#C4C4C4" />
         <StatCard label="Clients" value={countRoles(users, ["CLIENT"])} sub="Members or invites" icon={<IconBell size={16} />} tint="#F59E0B" />
       </div>
       {usersState.error && <ErrorCard message={usersState.error} />}
@@ -622,7 +622,7 @@ export function AdminOrchestrationView() {
           <StatCard label="Runs" value={runsLoading ? "..." : String(runs.length)} sub={latestRun ? `${latestRun.trigger} latest` : "No runs recorded"} icon={<IconCpu size={16} />} />
           <StatCard label="Executions" value={runsLoading ? "..." : String(executions.length)} sub={`${executions.filter((item) => item.status === "SUCCEEDED").length} succeeded`} icon={<IconWorkflow size={16} />} tint="#10B981" />
           <StatCard label="Running" value={String(executions.filter((item) => item.status === "RUNNING").length)} sub={latestRun?.currentNode || "No active node"} icon={<IconActivity size={16} />} tint="#F59E0B" />
-          <StatCard label="Events" value={runsLoading ? "..." : String(events.length)} sub="Event log records" icon={<IconFileText size={16} />} tint="#A78BFA" />
+          <StatCard label="Events" value={runsLoading ? "..." : String(events.length)} sub="Event log records" icon={<IconFileText size={16} />} tint="#C4C4C4" />
         </div>
       </Card>
       <div style={{ marginBottom: 18 }}>
@@ -714,7 +714,7 @@ export function AdminCostView() {
     <div data-screen-label="Admin - Cost">
       <AdminPageHeader title="Cost & Usage" subtitle="Token budget, orchestration run, and event volume from the admin usage API." live={Boolean(projects.length)} actions={<Button variant="secondary" size="sm" icon={<IconRefresh size={13} />} onClick={usageState.refresh}>Refresh</Button>} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 18 }}>
-        <StatCard label="Token budget used" value={budgetTotal ? `${Math.round((consumed / budgetTotal) * 100)}%` : "0%"} sub={`${consumed.toLocaleString()} / ${budgetTotal.toLocaleString()} tokens`} icon={<IconCreditCard size={16} />} tint="#A78BFA" />
+        <StatCard label="Token budget used" value={budgetTotal ? `${Math.round((consumed / budgetTotal) * 100)}%` : "0%"} sub={`${consumed.toLocaleString()} / ${budgetTotal.toLocaleString()} tokens`} icon={<IconCreditCard size={16} />} tint="#C4C4C4" />
         <StatCard label="Budgeted projects" value={usageState.loading ? "..." : String(projects.length)} sub="RunBudget rows" icon={<IconDatabase size={16} />} />
         <StatCard label="Recent runs" value={usageState.loading ? "..." : String(usage.totals.runCount)} sub={`${usage.totals.eventCount.toLocaleString()} events`} icon={<IconWorkflow size={16} />} tint="#F59E0B" />
       </div>
@@ -739,7 +739,7 @@ export function AdminAuditView() {
         <PanelHeader title="Admin activity audit" subtitle="Role, status, domain, repository, handoff, and settings actions." badge={auditState.loading ? "Loading" : `${events.length} events`} />
         {auditState.loading ? <EmptyState text="Loading activity..." /> : events.length === 0 ? <EmptyState text="No admin audit events yet." /> : events.map((event, index) => (
           <div key={event.id} className="row" style={{ padding: "12px 16px", borderBottom: index < events.length - 1 ? "1px solid var(--border)" : 0, gap: 12, alignItems: "flex-start" }}>
-            <IconFileText size={14} style={{ color: "#93C5FD", marginTop: 2, flexShrink: 0 }} />
+            <IconFileText size={14} style={{ color: "#FAFAFA", marginTop: 2, flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 13 }}>{event.summary}</div>
               <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 3 }}>{event.actor?.email || "System"} - {event.action} - {formatDevFlowDate(event.createdAt)}</div>
@@ -957,7 +957,7 @@ function ProjectManagementRow({ project, border, onOpen }) {
 function DomainRow({ domain, border, onVerify }) {
   return (
     <div className="row" style={{ padding: "14px 18px", borderBottom: border ? "1px solid var(--border)" : 0, gap: 12, alignItems: "center" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 8, display: "grid", placeItems: "center", background: "rgba(79,139,255,.12)", color: "#93C5FD", flexShrink: 0 }}><IconCloud size={15} /></div>
+      <div style={{ width: 36, height: 36, borderRadius: 8, display: "grid", placeItems: "center", background: "rgba(255,255,255,.12)", color: "#FAFAFA", flexShrink: 0 }}><IconCloud size={15} /></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="mono" style={{ fontWeight: 800, fontSize: 12.5 }}>{domain.name}</div>
         <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 3 }}>{domain.type} - {domain.owner || domain.environment || "Platform"}{domain.target ? ` - ${domain.target}` : ""}</div>
@@ -973,10 +973,10 @@ function RepoRow({ item, border, onOpenProject, onLink, onCreate, creating }) {
   const projectStatus = item.status || (item.repoUrl ? "Linked" : "Missing");
   return (
     <div className="row" style={{ padding: "14px 18px", borderBottom: border ? "1px solid var(--border)" : 0, gap: 12, alignItems: "center" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 8, display: "grid", placeItems: "center", background: "rgba(168,85,247,.14)", color: "#C4B5FD", flexShrink: 0 }}><IconGitHub size={15} /></div>
+      <div style={{ width: 36, height: 36, borderRadius: 8, display: "grid", placeItems: "center", background: "rgba(168,85,247,.14)", color: "#D4D4D4", flexShrink: 0 }}><IconGitHub size={15} /></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: 13.5 }}>{companyName}</div>
-        <div className="mono" style={{ color: item.repoUrl ? "#93C5FD" : "var(--text-3)", fontSize: 11.5, marginTop: 3, overflowWrap: "anywhere" }}>{item.repoUrl || "No repository URL stored"}</div>
+        <div className="mono" style={{ color: item.repoUrl ? "#FAFAFA" : "var(--text-3)", fontSize: 11.5, marginTop: 3, overflowWrap: "anywhere" }}>{item.repoUrl || "No repository URL stored"}</div>
       </div>
       <Badge tone={item.repoUrl ? "green" : "amber"}>{item.repoUrl ? "Linked" : projectStatus}</Badge>
       {item.repoUrl ? <Button variant="secondary" size="sm" icon={<IconExternalLink size={13} />} onClick={() => window.open(item.repoUrl, "_blank", "noopener,noreferrer")}>GitHub</Button> : <>
@@ -1056,7 +1056,7 @@ function BudgetRow({ project, border }) {
         </div>
         <Badge tone={pct >= 90 ? "red" : pct >= 70 ? "amber" : "green"}>{pct}%</Badge>
       </div>
-      <div style={{ height: 7, borderRadius: 999, background: "rgba(8,14,32,.7)", marginTop: 10 }}>
+      <div style={{ height: 7, borderRadius: 999, background: "rgba(10,10,10,.7)", marginTop: 10 }}>
         <div style={{ width: `${Math.min(100, pct)}%`, height: "100%", borderRadius: 999, background: pct >= 90 ? "#EF4444" : pct >= 70 ? "#F59E0B" : "#10B981" }} />
       </div>
     </div>
@@ -1086,12 +1086,12 @@ function SignalRow({ icon, label, value, tone }) {
 }
 
 function SmallFact({ label, value }) {
-  return <div style={{ padding: 10, border: "1px solid var(--border)", borderRadius: 8, background: "rgba(8,14,32,.45)" }}><div style={{ color: "var(--text-3)", fontSize: 11 }}>{label}</div><div style={{ color: "white", fontWeight: 800, fontSize: 13, marginTop: 3 }}>{value}</div></div>;
+  return <div style={{ padding: 10, border: "1px solid var(--border)", borderRadius: 8, background: "rgba(10,10,10,.45)" }}><div style={{ color: "var(--text-3)", fontSize: 11 }}>{label}</div><div style={{ color: "white", fontWeight: 800, fontSize: 13, marginTop: 3 }}>{value}</div></div>;
 }
 
 function Avatar({ label }) {
   return (
-    <div style={{ width: 38, height: 38, borderRadius: "50%", display: "grid", placeItems: "center", background: "linear-gradient(135deg,#4F8BFF,#8B5CF6)", color: "white", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>
+    <div style={{ width: 38, height: 38, borderRadius: "50%", display: "grid", placeItems: "center", background: "#1F1F1F", color: "white", fontSize: 12, fontWeight: 800, flexShrink: 0 }}>
       {projectInitials(label || "Admin")}
     </div>
   );

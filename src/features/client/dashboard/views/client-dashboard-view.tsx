@@ -48,10 +48,10 @@ export function ClientDashboardView() {
       />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 16, marginBottom: 24 }}>
-        <KPICard label="Current Stage" value={engagementStage} icon={<IconRocket size={18} />} tint="#8B5CF6" sub={selectedProject ? "Backend status" : "Awaiting project selection"}>
+        <KPICard label="Current Stage" value={engagementStage} icon={<IconRocket size={18} />} tint="#A1A1A1" sub={selectedProject ? "Backend status" : "Awaiting project selection"}>
           <div style={{ marginTop: 10, fontSize: 12, color: "var(--text-3)" }}>{selectedProject ? `${engagementProgress}% complete` : "No backend project yet"}</div>
         </KPICard>
-        <KPICard label="Days in Engagement" value={selectedProject ? daysSince(selectedProject.createdAt) : "0"} icon={<IconClock size={18} />} tint="#4F8BFF" sub={selectedProject ? "since project creation" : "not started"}>
+        <KPICard label="Days in Engagement" value={selectedProject ? daysSince(selectedProject.createdAt) : "0"} icon={<IconClock size={18} />} tint="#FAFAFA" sub={selectedProject ? "since project creation" : "not started"}>
           <div style={{ marginTop: 10, fontSize: 12, color: "var(--text-3)" }}>{selectedProject ? "Tracked from backend" : "Waiting for project selection"}</div>
         </KPICard>
         <KPICard label="Visible Artifacts" value={String(outputs.artifacts.length)} icon={<IconFileText size={18} />} tint="#10B981" sub="from backend">
@@ -72,8 +72,8 @@ export function ClientDashboardView() {
               </div>
               <Badge tone="blue">{selectedProject ? "Backend timeline" : "No project"}</Badge>
             </div>
-            <div style={{ marginTop: 28, padding: 16, background: "rgba(139,92,246,.08)", border: "1px solid rgba(139,92,246,.20)", borderRadius: 12, display: "flex", gap: 14, alignItems: "flex-start" }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(139,92,246,.18)", color: "#C4B5FD", display: "grid", placeItems: "center", flexShrink: 0 }}><IconActivity size={16} /></div>
+            <div style={{ marginTop: 28, padding: 16, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.20)", borderRadius: 12, display: "flex", gap: 14, alignItems: "flex-start" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,.18)", color: "#D4D4D4", display: "grid", placeItems: "center", flexShrink: 0 }}><IconActivity size={16} /></div>
               <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.55 }}><strong style={{ color: "white" }}>{engagementStage}.</strong> <span style={{ color: "var(--text-2)" }}>{selectedProject ? selectedProject.brief : "No project is selected yet."}</span></div>
             </div>
           </Card>
@@ -103,8 +103,8 @@ export function ClientDashboardView() {
             <h4 style={{ fontSize: 14, fontWeight: 600, margin: 0, marginBottom: 4 }}>Quick Actions</h4>
             <p style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 16 }}>{selectedProject ? lifecycle.nextAction : "Common tasks at your fingertips"}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <QuickAction icon={<IconMessageCircle size={16} />} tint="#4F8BFF" title="Messages" sub="Threaded chat API pending" onClick={() => navigate("chat")} />
-              <QuickAction icon={<IconUpload size={16} />} tint="#8B5CF6" title="Documents" sub="Backend artifacts and upload status" onClick={() => navigate("documents")} />
+              <QuickAction icon={<IconMessageCircle size={16} />} tint="#FAFAFA" title="Messages" sub="Threaded chat API pending" onClick={() => navigate("chat")} />
+              <QuickAction icon={<IconUpload size={16} />} tint="#A1A1A1" title="Documents" sub="Backend artifacts and upload status" onClick={() => navigate("documents")} />
               <QuickAction icon={<IconLayout size={16} />} tint="#10B981" title="View product" sub="Backend project and artifacts" onClick={() => navigate("product")} />
             </div>
           </Card>
@@ -119,9 +119,9 @@ export function ClientDashboardView() {
             )}
           </Card>
 
-          <Card style={{ padding: 22, background: "linear-gradient(135deg, rgba(47,107,255,.10), rgba(139,92,246,.06))" }}>
+          <Card style={{ padding: 22, background: "linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.06))" }}>
             <div className="row gap-3" style={{ alignItems: "flex-start" }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(47,107,255,.20)", color: "#93C5FD", display: "grid", placeItems: "center", flexShrink: 0 }}><IconRocket size={17} /></div>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,.20)", color: "#FAFAFA", display: "grid", placeItems: "center", flexShrink: 0 }}><IconRocket size={17} /></div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>Next milestone</div>
                 <div style={{ color: "var(--text-2)", fontSize: 12.5, marginTop: 4, lineHeight: 1.5 }}>{selectedProject ? `${lifecycle.nextAction} - ${engagementProgress}% complete.` : "No milestone is available until a backend project is selected."}</div>
@@ -160,10 +160,10 @@ function ClientBackendEngagement({ loading, error, project, projectCount }) {
   const lifecycle = devflowLifecycleView(project);
 
   return (
-    <Card style={{ padding: 18, marginBottom: 20, border: "1px solid rgba(79,139,255,.28)" }}>
+    <Card style={{ padding: 18, marginBottom: 20, border: "1px solid rgba(255,255,255,.28)" }}>
       <div className="row" style={{ justifyContent: "space-between", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
         <div className="row gap-3" style={{ minWidth: 0 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 11, background: "linear-gradient(135deg,#4F8BFF,#8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 700, flexShrink: 0 }}>{projectInitials(project.companyName)}</div>
+          <div style={{ width: 42, height: 42, borderRadius: 11, background: "#1F1F1F", display: "grid", placeItems: "center", color: "white", fontWeight: 700, flexShrink: 0 }}>{projectInitials(project.companyName)}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>{project.companyName}</div>
             <div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 2 }}>{project.stackKey} - created {formatDevFlowDate(project.createdAt)}</div>
@@ -186,7 +186,7 @@ function daysSince(value) {
 
 function QuickAction({ icon, tint, title, sub, onClick, badge }) {
   return (
-    <button onClick={onClick} style={{ width: "100%", textAlign: "left", cursor: "pointer", padding: "10px 12px", background: "rgba(8,14,32,.5)", border: "1px solid var(--border)", borderRadius: 10, display: "flex", alignItems: "center", gap: 12, color: "white", fontFamily: "inherit" }}>
+    <button onClick={onClick} style={{ width: "100%", textAlign: "left", cursor: "pointer", padding: "10px 12px", background: "rgba(10,10,10,.5)", border: "1px solid var(--border)", borderRadius: 10, display: "flex", alignItems: "center", gap: 12, color: "white", fontFamily: "inherit" }}>
       <div style={{ width: 32, height: 32, borderRadius: 8, background: `${tint}22`, color: tint, display: "grid", placeItems: "center", flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontWeight: 600, fontSize: 13 }}>{title}</div><div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 2 }}>{sub}</div></div>
       {badge && <span className="cs-nav-badge cs-nav-badge--text">{badge}</span>}
@@ -206,7 +206,7 @@ function BackendTeam({ project }) {
     <>
       {visibleMembers.map((member) => (
         <div key={member.id} className="row gap-3" style={{ alignItems: "center", marginTop: 12 }}>
-          <AvatarCircle initials={projectInitials(member.user.fullName || member.user.email)} color={member.role === "PM" ? "linear-gradient(135deg,#10B981,#14B8A6)" : "linear-gradient(135deg,#4F8BFF,#8B5CF6)"} online={false} />
+          <AvatarCircle initials={projectInitials(member.user.fullName || member.user.email)} color={member.role === "PM" ? "#1F1F1F" : "#1F1F1F"} online={false} />
           <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontWeight: 600, fontSize: 13.5 }}>{member.user.fullName || member.user.email || member.user.id}</div><div style={{ color: "var(--text-3)", fontSize: 12 }}>{member.role}</div></div>
           <button className="cs-iconbtn" style={{ width: 30, height: 30 }} title="Message"><IconMessageCircle size={14} /></button>
         </div>

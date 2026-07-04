@@ -194,7 +194,7 @@ export function BackendArtifactsPanel({ projectId, artifacts, tasks, members, lo
         {artifacts.map((artifact: any) => (
           <button key={artifact.id} onClick={() => openPreview(artifact.id)} style={{ width: "100%", padding: "12px 16px", border: 0, borderBottom: "1px solid var(--border)", background: "transparent", color: "white", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
             <div className="row gap-3" style={{ alignItems: "flex-start" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(79,139,255,.14)", color: "#93C5FD", display: "grid", placeItems: "center", flexShrink: 0 }}><IconFileText size={15} /></div>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,.14)", color: "#FAFAFA", display: "grid", placeItems: "center", flexShrink: 0 }}><IconFileText size={15} /></div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="mono" style={{ fontSize: 12.5, fontWeight: 700, color: "white", overflow: "hidden", textOverflow: "ellipsis" }}>{artifact.filePath}</div>
                 <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 3 }}>{artifact.agentType} - {formatBackendDate(artifact.createdAt)}</div>
@@ -238,7 +238,7 @@ export function BackendArtifactsPanel({ projectId, artifacts, tasks, members, lo
               </div>
             )}
             <ArtifactValidationPanel artifact={preview} />
-            <div style={{ display: "grid", gap: 10, padding: 12, border: "1px solid rgba(79,139,255,.22)", background: "rgba(79,139,255,.06)", borderRadius: 10 }}>
+            <div style={{ display: "grid", gap: 10, padding: 12, border: "1px solid rgba(255,255,255,.22)", background: "rgba(255,255,255,.06)", borderRadius: 10 }}>
               <div className="row" style={{ justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                 <div><div style={{ fontSize: 13, fontWeight: 700 }}>PM output handoff</div><div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 2 }}>Approve internally, request rework, or publish to client review.</div></div>
                 <OutputReviewBadge status={preview.outputReviewStatus} />
@@ -293,7 +293,7 @@ export function BackendArtifactsPanel({ projectId, artifacts, tasks, members, lo
                       {devMembers.map((m: any) => <option key={m.userId} value={m.userId}>{m.user.fullName || m.user.email || m.user.id}</option>)}
                     </Select>
                   </Field>
-                  <div style={{ padding: 10, borderRadius: 8, border: "1px solid rgba(148,163,184,.22)", background: "rgba(8,14,32,.42)", color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.45 }}>
+                  <div style={{ padding: 10, borderRadius: 8, border: "1px solid rgba(148,163,184,.22)", background: "rgba(10,10,10,.42)", color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.45 }}>
                     <div style={{ color: "white", fontWeight: 700, marginBottom: 4 }}>Revision: {preview.displayName || preview.filePath}</div>
                     {preview.reviewNote || "Client requested a revision for this artifact."}
                   </div>
@@ -302,7 +302,7 @@ export function BackendArtifactsPanel({ projectId, artifacts, tasks, members, lo
               </div>
             )}
             <Field label="Client display name" helper="Used only when this artifact is shared with the client."><Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={preview.filePath} /></Field>
-            <pre style={{ margin: 0, maxHeight: 520, overflow: "auto", padding: 16, borderRadius: 10, border: "1px solid var(--border)", background: "rgba(8,14,32,.85)", color: "var(--text-2)", fontSize: 12, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{preview.content ?? ""}</pre>
+            <pre style={{ margin: 0, maxHeight: 520, overflow: "auto", padding: 16, borderRadius: 10, border: "1px solid var(--border)", background: "rgba(10,10,10,.85)", color: "var(--text-2)", fontSize: 12, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{preview.content ?? ""}</pre>
           </div>
         ) : null}
       </Modal>

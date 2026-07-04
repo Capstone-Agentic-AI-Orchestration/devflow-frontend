@@ -46,7 +46,7 @@ export function DevFlowNotificationBell() {
                   border: 0,
                   borderBottom: "1px solid var(--border)",
                   padding: "12px 14px",
-                  background: notification.readAt ? "transparent" : "rgba(79,139,255,.10)",
+                  background: notification.readAt ? "transparent" : "rgba(255,255,255,.10)",
                   color: "white",
                   cursor: notification.readAt ? "default" : "pointer",
                   textAlign: "left",
@@ -58,7 +58,7 @@ export function DevFlowNotificationBell() {
                     <div style={{ fontSize: 13, fontWeight: 700 }}>{notification.title}</div>
                     {notification.body && <div style={{ color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.45, marginTop: 4 }}>{notification.body}</div>}
                   </div>
-                  {!notification.readAt && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#60A5FA", flexShrink: 0, marginTop: 5 }} />}
+                  {!notification.readAt && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#D4D4D4", flexShrink: 0, marginTop: 5 }} />}
                 </div>
                 <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 7 }}>
                   {notification.actor?.fullName || notification.actor?.email || "System"} - {formatNotificationDate(notification.createdAt)}

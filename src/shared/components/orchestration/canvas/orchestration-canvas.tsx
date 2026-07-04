@@ -63,7 +63,7 @@ function CanvasInner({ projectId, live = true, height = 460 }: OrchestrationCanv
           target: e.target,
           animated: active,
           style: {
-            stroke: active ? "#93C5FD" : done ? "rgba(16,185,129,.5)" : "rgba(148,163,184,.25)",
+            stroke: active ? "#FAFAFA" : done ? "rgba(16,185,129,.5)" : "rgba(148,163,184,.25)",
             strokeWidth: active ? 2 : 1.5,
           },
         };
@@ -100,8 +100,8 @@ function CanvasInner({ projectId, live = true, height = 460 }: OrchestrationCanv
               pannable
               zoomable
               maskColor="rgba(5,11,31,.7)"
-              style={{ background: "rgba(8,14,32,.8)", border: "1px solid rgba(148,163,184,.16)" }}
-              nodeColor={(n) => (n.data as PipelineNodeData)?.color ?? "#4F8BFF"}
+              style={{ background: "rgba(10,10,10,.8)", border: "1px solid rgba(148,163,184,.16)" }}
+              nodeColor={(n) => (n.data as PipelineNodeData)?.color ?? "#FAFAFA"}
             />
             <Controls showInteractive={false} />
           </ReactFlow>

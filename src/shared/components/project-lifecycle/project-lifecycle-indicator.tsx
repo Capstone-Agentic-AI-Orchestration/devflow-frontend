@@ -1,16 +1,12 @@
 // @ts-nocheck
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
   IconCheck,
   IconClipboard,
-  IconUsers,
   IconRocket,
   IconCode,
   IconGitBranch,
-  IconAlertTriangle,
-  IconArrowRight,
 } from "@/shared/components/icons";
 
 export interface LifecycleStage {
@@ -22,32 +18,24 @@ export interface LifecycleStage {
   nextAction: string;
 }
 
-export type LifecycleStageId = "draft" | "kickoff" | "build" | "review" | "delivered";
+export type LifecycleStageId = "draft" | "build" | "review" | "delivered";
 
 export const LIFECYCLE_STAGES: LifecycleStage[] = [
   {
     id: "draft",
     label: "Draft",
     shortLabel: "Draft",
-    description: "Set up project brief and team",
+    description: "Describe what the agents should build",
     icon: IconClipboard,
-    nextAction: "Complete project setup",
-  },
-  {
-    id: "kickoff",
-    label: "Kickoff",
-    shortLabel: "Kickoff",
-    description: "Define scope, milestones, and readiness",
-    icon: IconUsers,
-    nextAction: "Complete kickoff checklist",
+    nextAction: "Start orchestration",
   },
   {
     id: "build",
     label: "Build",
     shortLabel: "Build",
-    description: "Run agent orchestration pipeline",
+    description: "Agents parse, contract, and generate code",
     icon: IconRocket,
-    nextAction: "Start orchestration",
+    nextAction: "Watch the build",
   },
   {
     id: "review",
@@ -67,36 +55,27 @@ export const LIFECYCLE_STAGES: LifecycleStage[] = [
   },
 ];
 
-const STAGE_ORDER: LifecycleStageId[] = ["draft", "kickoff", "build", "review", "delivered"];
+const STAGE_ORDER: LifecycleStageId[] = ["draft", "build", "review", "delivered"];
 
 export function getStageIndex(id: LifecycleStageId): number {
   return STAGE_ORDER.indexOf(id);
 }
 
-export function getStageById(id: string): LifecycleStage | undefined {
-  return LIFECYCLE_STAGES.find((s) => s.id === id);
-}
-
-export function mapProjectStatusToLifecycleStage(status: string, kickoffStatus?: string): LifecycleStageId {
+export function mapProjectStatusToLifecycleStage(status: string): LifecycleStageId {
   if (!status) return "draft";
 
   switch (status) {
     case "DELIVERED":
       return "delivered";
     case "COMMITTING":
-      return "review";
     case "AWAITING_GATE_1":
     case "AWAITING_GATE_2":
+      return "review";
     case "GENERATING_CODE":
     case "PARSING_REQUIREMENTS":
     case "NEGOTIATING_CONTRACT":
-      return "build";
-    case "PENDING":
     case "FAILED":
-      if (kickoffStatus === "READY" || kickoffStatus === "LOCKED") {
-        return "kickoff";
-      }
-      return "draft";
+      return "build";
     default:
       return "draft";
   }
@@ -105,17 +84,6 @@ export function mapProjectStatusToLifecycleStage(status: string, kickoffStatus?:
 export function getStageProgress(stageId: LifecycleStageId): number {
   const index = getStageIndex(stageId);
   return Math.round(((index + 1) / STAGE_ORDER.length) * 100);
-}
-
-export function getOrchestratorRouteForStage(stageId: LifecycleStageId): string {
-  const map: Record<LifecycleStageId, string> = {
-    draft: "brief",
-    kickoff: "kickoff",
-    build: "run",
-    review: "gate-2",
-    delivered: "delivery",
-  };
-  return map[stageId] ?? "brief";
 }
 
 export interface ProjectLifecycleIndicatorProps {
@@ -192,99 +160,3 @@ export function ProjectLifecycleIndicator({
   );
 }
 
-export function LifecycleStageCard({
-  stage,
-  projectId,
-  isCurrent,
-  progress,
-  signals,
-}: {
-  stage: LifecycleStage;
-  projectId: string;
-  isCurrent: boolean;
-  progress?: number;
-  signals?: Record<string, any>;
-}) {
-  const router = useRouter();
-  const Icon = stage.icon;
-
-  return (
-    <button
-      type="button"
-      className={`lifecycle-card ${isCurrent ? "lifecycle-card-current" : "lifecycle-card-past"}`}
-      onClick={() => router.push(`/pm/project/${projectId}`)}
-    >
-      <div className="lifecycle-card-icon">
-        <Icon size={18} />
-      </div>
-      <div className="lifecycle-card-body">
-        <div className="lifecycle-card-title">{stage.label}</div>
-        <div className="lifecycle-card-desc">{stage.description}</div>
-        {progress !== undefined && (
-          <div className="lifecycle-card-bar">
-            <div className="lifecycle-card-bar-fill" style={{ width: `${progress}%` }} />
-          </div>
-        )}
-      </div>
-      {signals?.nextAction && (
-        <div className="lifecycle-card-action">
-          <span>{signals.nextAction}</span>
-          <IconArrowRight size={12} />
-        </div>
-      )}
-    </button>
-  );
-}
-
-export function LifecycleOverviewBanner({
-  currentStage,
-  projectId,
-}: {
-  currentStage: LifecycleStageId;
-  projectId: string;
-}) {
-  const router = useRouter();
-  const stage = getStageById(currentStage);
-  if (!stage) return null;
-
-  const stageIndex = getStageIndex(currentStage);
-  const orchestratorRoute = getOrchestratorRouteForStage(currentStage);
-
-  const tips: Record<LifecycleStageId, string> = {
-    draft: "Set up your project brief, choose a tech stack, and invite team members to get started.",
-    kickoff: "Complete the kickoff checklist — define scope, milestones, required documents, and confirm readiness.",
-    build: "Launch the orchestration pipeline. The AI agents will parse requirements, negotiate a contract, and generate code in parallel.",
-    review: "Review generated code artifacts and approve or reject at each gate. Approve Gate 2 to commit to GitHub.",
-    delivered: "The project has been delivered. Review the repository and delivery notes.",
-  };
-
-  const actions: Record<LifecycleStageId, { label: string; route: string }> = {
-    draft: { label: "Open wizard", route: `/pm/orchestrate/${projectId}/brief` },
-    kickoff: { label: "Open kickoff", route: `/pm/orchestrate/${projectId}/kickoff` },
-    build: { label: "Open orchestration", route: `/pm/orchestrate/${projectId}/run` },
-    review: { label: "Open review", route: `/pm/orchestrate/${projectId}/gate-2` },
-    delivered: { label: "View delivery", route: `/pm/orchestrate/${projectId}/delivery` },
-  };
-
-  return (
-    <div className="lifecycle-banner">
-      <div className="lifecycle-banner-icon">
-        <stage.icon size={20} />
-      </div>
-      <div className="lifecycle-banner-content">
-        <div className="lifecycle-banner-title">
-          Stage {stageIndex + 1} of 5: <strong>{stage.label}</strong>
-        </div>
-        <div className="lifecycle-banner-desc">{tips[currentStage]}</div>
-      </div>
-      <button
-        type="button"
-        className="btn btn-primary btn-sm"
-        onClick={() => router.push(actions[currentStage].route)}
-      >
-        {actions[currentStage].label}
-        <IconArrowRight size={14} />
-      </button>
-    </div>
-  );
-}

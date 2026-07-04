@@ -14,7 +14,7 @@ export function PMSettingsView() {
       <ProfileSettingsPanel
         title="Project manager profile"
         subtitle="Update your display name and workspace preferences."
-        accent="linear-gradient(135deg,#4F8BFF,#8B5CF6)"
+        accent="#1F1F1F"
       />
     </div>
   );

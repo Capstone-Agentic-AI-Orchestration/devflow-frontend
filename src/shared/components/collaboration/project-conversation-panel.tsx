@@ -99,7 +99,7 @@ export function ProjectConversationPanel({
                   width: "100%",
                   border: 0,
                   borderBottom: "1px solid var(--border)",
-                  background: active?.id === conversation.id ? "rgba(79,139,255,.12)" : "transparent",
+                  background: active?.id === conversation.id ? "rgba(255,255,255,.12)" : "transparent",
                   color: "white",
                   cursor: "pointer",
                   textAlign: "left",
@@ -129,7 +129,7 @@ export function ProjectConversationPanel({
       <Card style={{ padding: 0, overflow: "hidden", minHeight: 520 }}>
         <div style={{ padding: 18, borderBottom: "1px solid var(--border)" }}>
           <div className="row gap-3">
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(79,139,255,.14)", color: "#93C5FD", display: "grid", placeItems: "center" }}><IconMessageCircle size={17} /></div>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255,255,255,.14)", color: "#FAFAFA", display: "grid", placeItems: "center" }}><IconMessageCircle size={17} /></div>
             <div>
               <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>{active?.title || "No conversation selected"}</h3>
               <div style={{ color: "var(--text-3)", fontSize: 12, marginTop: 3 }}>{active ? `${active.category} - ${active.visibility}` : "Create a thread to start messaging."}</div>
@@ -144,7 +144,7 @@ export function ProjectConversationPanel({
             <div style={{ color: "var(--text-3)", fontSize: 13 }}>{messages.loading ? "Loading messages..." : "No messages yet."}</div>
           ) : (
             messages.messages.map((message) => (
-              <div key={message.id} style={{ padding: 13, border: "1px solid var(--border)", borderRadius: 8, background: "rgba(8,14,32,.45)" }}>
+              <div key={message.id} style={{ padding: 13, border: "1px solid var(--border)", borderRadius: 8, background: "rgba(10,10,10,.45)" }}>
                 <div className="row" style={{ justifyContent: "space-between", gap: 10 }}>
                   <span style={{ fontSize: 12.5, fontWeight: 700 }}>{message.author?.fullName || message.author?.email || "System"}</span>
                   <span style={{ color: "var(--text-3)", fontSize: 11 }}>{formatDevFlowDate(message.createdAt)}</span>

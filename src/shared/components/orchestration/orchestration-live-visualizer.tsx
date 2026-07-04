@@ -83,11 +83,11 @@ const AGENT_LANES: Array<{
   color: string;
   icon: ReactNode;
 }> = [
-  { agentType: "FRONTEND", label: "Frontend", color: "#F97316", icon: <IconCode size={14} /> },
+  { agentType: "FRONTEND", label: "Frontend", color: "#FF6B35", icon: <IconCode size={14} /> },
   { agentType: "BACKEND", label: "Backend", color: "#10B981", icon: <IconCpu size={14} /> },
   { agentType: "DATABASE", label: "Database", color: "#14B8A6", icon: <IconDatabase size={14} /> },
-  { agentType: "ARCHITECTURE", label: "Architecture", color: "#A78BFA", icon: <IconWorkflow size={14} /> },
-  { agentType: "CONTRACT", label: "Contract", color: "#4F8BFF", icon: <IconShield size={14} /> },
+  { agentType: "ARCHITECTURE", label: "Architecture", color: "#C4C4C4", icon: <IconWorkflow size={14} /> },
+  { agentType: "CONTRACT", label: "Contract", color: "#FAFAFA", icon: <IconShield size={14} /> },
 ];
 
 export function OrchestrationLiveVisualizer({
@@ -168,7 +168,7 @@ export function OrchestrationLiveVisualizer({
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.78)", border: "1px solid rgba(148,163,184,.14)", overflow: "hidden" }}>
+            <div style={{ height: 8, borderRadius: 999, background: "rgba(10,10,10,.78)", border: "1px solid rgba(148,163,184,.14)", overflow: "hidden" }}>
               <div
                 className={latestRun?.status === "RUNNING" || activeWorkOrders.length ? "orchestration-live-fill" : undefined}
                 style={{
@@ -176,7 +176,7 @@ export function OrchestrationLiveVisualizer({
                   height: "100%",
                   background: isFailed
                     ? "linear-gradient(90deg, #EF4444, #FCA5A5)"
-                    : "linear-gradient(90deg, #2F6BFF, #10B981, #A78BFA)",
+                    : "#FAFAFA",
                   transition: "width .35s ease",
                 }}
               />
@@ -210,11 +210,11 @@ export function OrchestrationLiveVisualizer({
             padding: 12,
             borderRadius: 8,
             border: "1px solid rgba(148,163,184,.16)",
-            background: "rgba(8,14,32,.52)",
+            background: "rgba(10,10,10,.52)",
           }}
         >
           <div className="row" style={{ justifyContent: "space-between", gap: 10, marginBottom: 10, flexWrap: "wrap" }}>
-            <div className="row gap-2" style={{ color: "#93C5FD", fontSize: 12.5, fontWeight: 800 }}>
+            <div className="row gap-2" style={{ color: "#FAFAFA", fontSize: 12.5, fontWeight: 800 }}>
               <IconCode size={14} />
               Coding lanes
             </div>
@@ -241,11 +241,11 @@ export function OrchestrationLiveVisualizer({
             padding: 12,
             borderRadius: 8,
             border: "1px solid rgba(148,163,184,.16)",
-            background: "rgba(8,14,32,.52)",
+            background: "rgba(10,10,10,.52)",
             minWidth: 0,
           }}
         >
-          <div className="row gap-2" style={{ color: "#C4B5FD", fontSize: 12.5, fontWeight: 800, marginBottom: 10 }}>
+          <div className="row gap-2" style={{ color: "#D4D4D4", fontSize: 12.5, fontWeight: 800, marginBottom: 10 }}>
             <IconActivity size={14} />
             Live coding feed
           </div>
@@ -326,13 +326,13 @@ function FlowStageCard({ stage, state, current }: { stage: FlowStage; state: Sta
         <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.25 }}>{stage.label}</div>
         <div style={{ color: "var(--text-3)", fontSize: 11.5, lineHeight: 1.45, marginTop: 4 }}>{stage.subtitle}</div>
         {(state === "active" || state === "blocked") && stage.context && (
-          <div style={{ color: state === "blocked" ? "#FCA5A5" : "#93C5FD", fontSize: 11.5, lineHeight: 1.45, marginTop: 6, fontStyle: "italic" }}>
+          <div style={{ color: state === "blocked" ? "#FCA5A5" : "#FAFAFA", fontSize: 11.5, lineHeight: 1.45, marginTop: 6, fontStyle: "italic" }}>
             {stage.context}
           </div>
         )}
       </div>
       <div className="row" style={{ justifyContent: "space-between", gap: 8, position: "relative" }}>
-        <span className="mono" style={{ color: current ? "#93C5FD" : "var(--text-2)", fontSize: 11.5, overflowWrap: "anywhere" }}>{stage.metric}</span>
+        <span className="mono" style={{ color: current ? "#FAFAFA" : "var(--text-2)", fontSize: 11.5, overflowWrap: "anywhere" }}>{stage.metric}</span>
         {current && <span style={{ width: 7, height: 7, borderRadius: 999, background: "#3B82F6", boxShadow: "0 0 12px #3B82F6" }} />}
       </div>
       {state === "done" && stage.context && (
@@ -368,7 +368,7 @@ function AgentLane({
       style={{
         padding: 10,
         borderRadius: 8,
-        background: "rgba(15,23,42,.72)",
+        background: "rgba(17,17,17,.72)",
         border: `1px solid ${active ? `${lane.color}66` : "rgba(148,163,184,.16)"}`,
         minWidth: 0,
       }}
@@ -578,7 +578,7 @@ function buildActivityFeed({
       label: `${workOrder.agentType.toLowerCase()}.work_order`,
       summary: `${workOrder.title} ${workOrder.executionAttempt ? `(attempt ${workOrder.executionAttempt})` : ""}`.trim(),
       at: workOrder.lastEventAt || workOrder.executionStartedAt || workOrder.updatedAt,
-      color: "#93C5FD",
+      color: "#FAFAFA",
       icon: <IconCode size={14} />,
       kind: "work_order" as const,
     }));
@@ -588,7 +588,7 @@ function buildActivityFeed({
     label: normalizeNode(event.nodeName),
     summary: `${event.eventType}${event.runTokens ? ` - ${event.runTokens} tokens` : ""}`,
     at: event.occurredAt,
-    color: event.eventType === "FAILED" ? "#FCA5A5" : event.eventType === "COMPLETED" ? "#6EE7B7" : "#C4B5FD",
+    color: event.eventType === "FAILED" ? "#FCA5A5" : event.eventType === "COMPLETED" ? "#6EE7B7" : "#D4D4D4",
     icon: event.eventType === "FAILED" ? <IconAlertTriangle size={14} /> : <IconActivity size={14} />,
     kind: "event" as const,
   }));
@@ -608,7 +608,7 @@ function buildActivityFeed({
     label: `${execution.agentType.toLowerCase()}.execution`,
     summary: `${execution.status}${execution.workOrder?.title ? ` - ${execution.workOrder.title}` : ""}`,
     at: execution.completedAt || execution.updatedAt || execution.startedAt,
-    color: execution.status === "FAILED" ? "#FCA5A5" : execution.status === "SUCCEEDED" ? "#6EE7B7" : "#93C5FD",
+    color: execution.status === "FAILED" ? "#FCA5A5" : execution.status === "SUCCEEDED" ? "#6EE7B7" : "#FAFAFA",
     icon: <IconRocket size={14} />,
     kind: "execution" as const,
   }));
@@ -675,12 +675,12 @@ function stateVisual(state: StageState): { tone: BadgeTone; color: string; borde
     return { tone: "green", color: "#6EE7B7", border: "rgba(16,185,129,.34)", background: "rgba(16,185,129,.08)", iconBackground: "rgba(16,185,129,.14)" };
   }
   if (state === "active") {
-    return { tone: "blue", color: "#93C5FD", border: "rgba(59,130,246,.42)", background: "rgba(59,130,246,.10)", iconBackground: "rgba(59,130,246,.16)" };
+    return { tone: "blue", color: "#FAFAFA", border: "rgba(255,255,255,.42)", background: "rgba(255,255,255,.10)", iconBackground: "rgba(255,255,255,.16)" };
   }
   if (state === "blocked") {
     return { tone: "red", color: "#FCA5A5", border: "rgba(239,68,68,.38)", background: "rgba(239,68,68,.09)", iconBackground: "rgba(239,68,68,.15)" };
   }
-  return { tone: "gray", color: "#94A3B8", border: "rgba(148,163,184,.16)", background: "rgba(15,23,42,.58)", iconBackground: "rgba(148,163,184,.08)" };
+  return { tone: "gray", color: "#94A3B8", border: "rgba(148,163,184,.16)", background: "rgba(17,17,17,.58)", iconBackground: "rgba(148,163,184,.08)" };
 }
 
 function normalizeNode(node: string): string {

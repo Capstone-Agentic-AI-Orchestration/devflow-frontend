@@ -6,7 +6,7 @@
  * Falls back to a static button on touch and reduced-motion.
  */
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { useRef, useState, type ReactNode } from "react";
 
 interface MagneticButtonProps {
@@ -23,11 +23,10 @@ export function MagneticButton({
   strength = 0.25,
 }: MagneticButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
-  const reduced = useReducedMotion();
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
   const handleMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     setPos({
       x: (e.clientX - rect.left - rect.width / 2) * strength,

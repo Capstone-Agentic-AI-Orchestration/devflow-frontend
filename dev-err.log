@@ -776,294 +776,152 @@ Persisting failed: Another write batch or compaction is already active (Only a s
 Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-       className="faq-answer"
-+                               style={{opacity:1}}
--                               style={{height:"auto",opacity:"1"}}
-                                ref={function useMotionRef.useCallback}
-                              >
-                    <CTASection>
-                      <SectionReveal as="section" className="cta" id="cta">
-                        <section ref={{current:null}} className="cta" id="cta">
-                          <div className="cta-inner">
-                            <div className="cta-terminal">
-                              <div>
-                              <pre className="cta-termin...">
-                                <code>
-                                <div
-+                                 className="cta-terminal-glow is-static"
--                                 className={"cta-terminal-glow "}
-                                  aria-hidden="true"
-                                >
-                            ...
-                  ...
-            ...
-          ...
- 
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/features/marketing/home/components/MagneticButton.tsx:26:35)
-[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <HTTPAccessFallbackErrorBoundary pathname="/" notFound={{...}} forbidden={undefined} unauthorized={undefined} ...>
-      <RedirectBoundary>
-        <RedirectErrorBoundary router={{...}}>
-          <InnerLayoutRouter url="/#how-it-w..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
-            <SegmentViewNode type="page" pagePath="(marketing...">
-              <SegmentTrieNode>
-              <MarketingHomePage>
-                <MarketingHomeView>
-                  <MarketingNav>
-                  <main data-screen-label="01 Landing">
-                    <Hero>
-                    <AnatomyOfRun>
-                    <HowItWorks>
-                    ...
-                      <PresenceChild isPresent={true} initial={false} custom={undefined} presenceAffectsLayout={true} ...>
-                        <PopChild pop={false} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
-                          <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={false}>
-                            <motion.div className="faq-answer" initial={{height:"auto", ...}} animate={{opacity:1}} ...>
-                              <div
-                                className="faq-answer"
-+                               style={{opacity:1}}
--                               style={{height:"auto",opacity:"1"}}
-                                ref={function useMotionRef.useCallback}
-                              >
-                    <CTASection>
-                      <SectionReveal as="section" className="cta" id="cta">
-                        <section ref={{current:null}} className="cta" id="cta">
-                          <div className="cta-inner">
-                            <div className="cta-terminal">
-                              <div>
-                              <pre className="cta-termin...">
-                                <code>
-                                <div
-+                                 className="cta-terminal-glow is-static"
--                                 className={"cta-terminal-glow "}
-                                  aria-hidden="true"
-                                >
-                            ...
-                  ...
-            ...
-          ...
- 
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/features/marketing/home/components/MagneticButton.tsx:26:35)
-[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <HTTPAccessFallbackErrorBoundary pathname="/" notFound={{...}} forbidden={undefined} unauthorized={undefined} ...>
-      <RedirectBoundary>
-        <RedirectErrorBoundary router={{...}}>
-          <InnerLayoutRouter url="/#how-it-w..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
-            <SegmentViewNode type="page" pagePath="(marketing...">
-              <SegmentTrieNode>
-              <MarketingHomePage>
-                <MarketingHomeView>
-                  <MarketingNav>
-                  <main data-screen-label="01 Landing">
-                    <Hero>
-                    <AnatomyOfRun>
-                    <HowItWorks>
-                    ...
-                      <PresenceChild isPresent={true} initial={false} custom={undefined} presenceAffectsLayout={true} ...>
-                        <PopChild pop={false} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
-                          <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={false}>
-                            <motion.div className="faq-answer" initial={{height:"auto", ...}} animate={{opacity:1}} ...>
-                              <div
-                                className="faq-answer"
-+                               style={{opacity:1}}
--                               style={{height:"auto",opacity:"1"}}
-                                ref={function useMotionRef.useCallback}
-                              >
-                    <CTASection>
-                      <SectionReveal as="section" className="cta" id="cta">
-                        <section ref={{current:null}} className="cta" id="cta">
-                          <div className="cta-inner">
-                            <div className="cta-terminal">
-                              <div>
-                              <pre className="cta-termin...">
-                                <code>
-                                <div
-+                                 className="cta-terminal-glow is-static"
--                                 className={"cta-terminal-glow "}
-                                  aria-hidden="true"
-                                >
-                            ...
-                  ...
-            ...
-          ...
- 
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/features/marketing/home/components/MagneticButton.tsx:26:35)
-[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <HTTPAccessFallbackErrorBoundary pathname="/" notFound={{...}} forbidden={undefined} unauthorized={undefined} ...>
-      <RedirectBoundary>
-        <RedirectErrorBoundary router={{...}}>
-          <InnerLayoutRouter url="/#how-it-w..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
-            <SegmentViewNode type="page" pagePath="(marketing...">
-              <SegmentTrieNode>
-              <MarketingHomePage>
-                <MarketingHomeView>
-                  <MarketingNav>
-                  <main data-screen-label="01 Landing">
-                    <Hero>
-                    <AnatomyOfRun>
-                    <HowItWorks>
-                    ...
-                      <PresenceChild isPresent={true} initial={false} custom={undefined} presenceAffectsLayout={true} ...>
-                        <PopChild pop={false} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
-                          <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={false}>
-                            <motion.div className="faq-answer" initial={{height:"auto", ...}} animate={{opacity:1}} ...>
-                              <div
-                                className="faq-answer"
-+                               style={{opacity:1}}
--                               style={{height:"auto",opacity:"1"}}
-                                ref={function useMotionRef.useCallback}
-                              >
-                    <CTASection>
-                      <SectionReveal as="section" className="cta" id="cta">
-                        <section ref={{current:null}} className="cta" id="cta">
-                          <div className="cta-inner">
-                            <div className="cta-terminal">
-                              <div>
-                              <pre className="cta-termin...">
-                                <code>
-                                <div
-+                                 className="cta-terminal-glow is-static"
--                                 className={"cta-terminal-glow "}
-                                  aria-hidden="true"
-                                >
-                            ...
-                  ...
-            ...
-          ...
- 
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
 Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/features/marketing/home/components/MagneticButton.tsx:26:35)
-[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <HTTPAccessFallbackErrorBoundary pathname="/" notFound={{...}} forbidden={undefined} unauthorized={undefined} ...>
-      <RedirectBoundary>
-        <RedirectErrorBoundary router={{...}}>
-          <InnerLayoutRouter url="/#how-it-w..." tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} ...>
-            <SegmentViewNode type="page" pagePath="(marketing...">
-              <SegmentTrieNode>
-              <MarketingHomePage>
-                <MarketingHomeView>
-                  <MarketingNav>
-                  <main data-screen-label="01 Landing">
-                    <Hero>
-                    <AnatomyOfRun>
-                    <HowItWorks>
-                    ...
-                      <PresenceChild isPresent={true} initial={false} custom={undefined} presenceAffectsLayout={true} ...>
-                        <PopChild pop={false} isPresent={true} anchorX="left" anchorY="top" root={undefined}>
-                          <PopChildMeasure isPresent={true} childRef={{current:null}} sizeRef={{...}} pop={false}>
-                            <motion.div className="faq-answer" initial={{height:"auto", ...}} animate={{opacity:1}} ...>
-                              <div
-                                className="faq-answer"
-+                               style={{opacity:1}}
--                               style={{height:"auto",opacity:"1"}}
-                                ref={function useMotionRef.useCallback}
-                              >
-                    <CTASection>
-                      <SectionReveal as="section" className="cta" id="cta">
-                        <section ref={{current:null}} className="cta" id="cta">
-                          <div className="cta-inner">
-                            <div className="cta-terminal">
-                              <div>
-                              <pre className="cta-termin...">
-                                <code>
-                                <div
-+                                 className="cta-terminal-glow is-static"
--                                 className={"cta-terminal-glow "}
-                                  aria-hidden="true"
-                                >
-                            ...
-                  ...
-            ...
-          ...
- 
-Persisting failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
-[browser] You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled (src/features/marketing/home/components/MagneticButton.tsx:26:35)
-[browser] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-https://react.dev/link/hydration-mismatch
-
-  ...
-    <HTTPAccessFallbackErrorBoundary pathname="/" notFound={{...}} forbidden={undefined} unauthorized={undefined} ...>
-      <RedirectBoundary>
-        <RedirectErrorBoundary router={{...}}>
-          <InnerLayoutRouter url="/" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
-            <SegmentViewNode type="page" pagePath="(marketing...">
-              <SegmentTrieNode>
-              <MarketingHomePage>
+Compaction failed: Another write batch or compaction is already active (Only a single write operations is allowed at a time)
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+Error: Can't resolve '../design/reset.css' in 'C:\Users\Personal\Desktop\DevFlow\devflow-frontend\src\shared\styles'
+    [2m[at finishWithoutResolve (C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:27:1)][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\DescriptionFilePlugin.js:89:43][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at C:\Users\Personal\Desktop\DevFlow\devflow-frontend\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m {
+  details: "resolve '../design/reset.css' in 'C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\src\\shared\\styles'\n" +
+    '  using description file: C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\package.json (relative path: ./src/shared/styles)\n' +
+    '    using description file: C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\package.json (relative path: ./src/shared/design/reset.css)\n' +
+    '      no extension\n' +
+    "        C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\src\\shared\\design\\reset.css doesn't exist\n" +
+    '      .css\n' +
+    "        C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\src\\shared\\design\\reset.css.css doesn't exist\n" +
+    '      as directory\n' +
+    "        C:\\Users\\Personal\\Desktop\\DevFlow\\devflow-frontend\\src\\shared\\design\\reset.css doesn't exist"
+}
+⚠ Found a change in next.config.mjs. Restarting the server to apply the changes...
+ketingHomePage>
                 <MarketingHomeView>
                   <MarketingNav>
                   <main data-screen-label="01 Landing">

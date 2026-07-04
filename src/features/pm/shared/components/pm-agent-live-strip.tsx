@@ -15,12 +15,12 @@ export const AGENT_CONFIG: Array<{
   label: string;
   color: string;
 }> = [
-  { nodeId: "parse_requirements", label: "Requirements", color: "#4F8BFF" },
-  { nodeId: "negotiate_contract", label: "Contract", color: "#A78BFA" },
-  { nodeId: "frontend_agent", label: "Frontend", color: "#F97316" },
+  { nodeId: "parse_requirements", label: "Requirements", color: "#FAFAFA" },
+  { nodeId: "negotiate_contract", label: "Contract", color: "#C4C4C4" },
+  { nodeId: "frontend_agent", label: "Frontend", color: "#FF6B35" },
   { nodeId: "backend_agent", label: "Backend", color: "#10B981" },
   { nodeId: "database_agent", label: "Database", color: "#14B8A6" },
-  { nodeId: "architecture_agent", label: "Architecture", color: "#A78BFA" },
+  { nodeId: "architecture_agent", label: "Architecture", color: "#C4C4C4" },
   { nodeId: "validate_outputs", label: "Validator", color: "#FBBF24" },
 ];
 
@@ -152,15 +152,15 @@ function AgentStreamRenderer({ buffer, chunks, isActive, nodeId }: { buffer: str
   return (
     <div style={{ marginTop: 6 }}>
       {lastDecision && (
-        <div style={{ background: "rgba(79,139,255,.08)", borderRadius: 8, padding: "6px 10px", marginBottom: 6 }}>
+        <div style={{ background: "rgba(255,255,255,.08)", borderRadius: 8, padding: "6px 10px", marginBottom: 6 }}>
           <span style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.5 }}>{lastDecision.chunk}</span>
         </div>
       )}
       {lastToolCall && (
         <div style={{ background: "rgba(168,85,247,.08)", borderRadius: 8, padding: "6px 10px", marginBottom: 6 }}>
           <div className="row gap-2" style={{ alignItems: "flex-start" }}>
-            <IconCode size={12} style={{ color: "#A78BFA", marginTop: 2, flexShrink: 0 }} />
-            <span style={{ color: "#A78BFA", fontSize: 12, lineHeight: 1.5 }}>{lastToolCall.chunk}</span>
+            <IconCode size={12} style={{ color: "#C4C4C4", marginTop: 2, flexShrink: 0 }} />
+            <span style={{ color: "#C4C4C4", fontSize: 12, lineHeight: 1.5 }}>{lastToolCall.chunk}</span>
           </div>
         </div>
       )}

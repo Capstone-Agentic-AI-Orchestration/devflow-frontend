@@ -943,11 +943,28 @@ export interface StartDevFlowOrchestrationResult {
   runId: string;
 }
 
+export interface DevFlowOrchestrationContract {
+  projectId: string;
+  projectName: string;
+  description: string;
+  requirements: {
+    projectType: string;
+    features: string[];
+    techStack: { frontend: string; backend: string; database: string; styling: string };
+    complexity: "simple" | "medium" | "complex";
+    estimatedFiles: number;
+  };
+  fileManifest: string[];
+  acceptanceCriteria: string[];
+  lockedAt: string;
+}
+
 export interface DevFlowOrchestrationStatus {
   status: string;
   currentNode: string;
   retryCount: number;
   error: string | null;
+  contract?: DevFlowOrchestrationContract | null;
   companyName: string;
   brief: string;
   stackKey: string;

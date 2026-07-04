@@ -104,7 +104,7 @@ export function DevDashboardView() {
 function Metric({ icon, label, value, sub }) {
   return (
     <Card style={{ padding: 16 }}>
-      <div className="row gap-2" style={{ color: "#C4B5FD" }}>{icon}<span style={{ fontSize: 12, color: "var(--text-2)" }}>{label}</span></div>
+      <div className="row gap-2" style={{ color: "#D4D4D4" }}>{icon}<span style={{ fontSize: 12, color: "var(--text-2)" }}>{label}</span></div>
       <div style={{ fontSize: 26, fontWeight: 800, marginTop: 10 }}>{value}</div>
       <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 4 }}>{sub}</div>
     </Card>

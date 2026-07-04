@@ -3,84 +3,31 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { AgentLiveStrip } from "@/features/pm/shared/components/pm-agent-live-strip";
-import { ActivityConsole } from "@/shared/components/orchestration/activity-console";
-import { RunStatusBanner } from "@/shared/components/orchestration/run-status-banner";
 import { useSocketSubscription } from "@/shared/hooks/use-socket-subscription";
 import { PMPageHeader } from "@/features/pm/shared/components/pm-page-header";
-import { Badge, Button, Card, Field, Input, Modal, Select, Tabs, Textarea } from "@/shared/components/ui";
+import { Badge, Button, Card, Field, Input, Select, Tabs, Textarea } from "@/shared/components/ui";
 import { DevFlowProjectTimeline } from "@/shared/components/project-timeline/devflow-project-timeline";
 import { OrchestrationProviderStatusPanel } from "@/shared/components/orchestration/orchestration-provider-status-panel";
-import { OrchestrationLiveVisualizer } from "@/shared/components/orchestration/orchestration-live-visualizer";
 import {
-  IconActivity,
-  IconAlertTriangle,
   IconArrowLeft,
-  IconArrowRight,
-  IconCalendar,
   IconCheck,
-  IconCheckCircle,
-  IconCircle,
-  IconClipboard,
-  IconClose,
-  IconCode,
-  IconCpu,
-  IconDatabase,
-  IconDownload,
-  IconEdit,
   IconExternalLink,
-  IconFileText,
   IconFolder,
   IconGitBranch,
   IconGitHub,
-  IconHash,
-  IconLock,
-  IconMessageCircle,
-  IconMoreVertical,
   IconPlus,
-  IconPlay,
-  IconRefresh,
-  IconRocket,
-  IconSearch,
-  IconSend,
-  IconSettings,
-  IconShield,
-  IconStar,
-  IconUpload,
-  IconUser,
-  IconUsers,
-  IconWorkflow,
 } from "@/shared/components/icons";
 import {
   addDevFlowProjectMember,
-  addDevFlowProjectTaskComment,
-  approveDevFlowGate1,
-  approveDevFlowGate2,
   createDevFlowAdminRepository,
-  createDevFlowKickoffTasks,
-  createDevFlowKickoffWorkOrders,
-  createDevFlowProjectTask,
-  createDevFlowWorkOrder,
-  dispatchDevFlowWorkOrder,
   getDevFlowDeliveryReadiness,
-  getDevFlowOrchestrationRuns,
-  getDevFlowProjectTaskActivity,
   getDevFlowProject,
-  getDevFlowProjectArtifact,
-  handleDevFlowArtifactRevision,
-  publishDevFlowArtifactOutput,
   rerunReadyDevFlowWorkOrders,
   removeDevFlowProjectMember,
-  retryDevFlowWorkOrder,
-  reviewDevFlowArtifactOutput,
   resolveDevFlowProjectDeliveryRevision,
   searchDevFlowProfiles,
   startDevFlowOrchestration,
-  updateDevFlowArtifactSharing,
   updateDevFlowProject,
-  updateDevFlowProjectKickoff,
-  updateDevFlowProjectTask,
-  updateDevFlowWorkOrder,
   verifyDevFlowGithubDelivery,
   verifyDevFlowLlmProvider,
 } from "@/shared/api/devflow-api";
@@ -89,41 +36,18 @@ import {
   ProjectLifecycleIndicator,
   mapProjectStatusToLifecycleStage,
   getStageIndex,
-  LIFECYCLE_STAGES,
 } from "@/shared/components/project-lifecycle/project-lifecycle-indicator";
-import {
-  SectionTitle,
-  MiniStat,
-  FactRow,
-  OrchestrationFact,
-  OrchestrationRunBadge,
-  BackendTaskStatusBadge,
-  ProjectTaskStatusDot,
-  WorkOrderStatusBadge,
-  WorkOrderPriorityBadge,
-  BackendReviewBadge,
-  ArtifactValidationBadge,
-  OutputReviewBadge,
-} from "../components/pm-project-ui";
+import { SectionTitle } from "../components/pm-project-ui";
 import { BackendWorkOrdersPanel } from "../components/backend-work-orders-panel";
-import { BackendOrchestrationPanel } from "../components/backend-orchestration-panel";
-import { BackendKickoffPanel } from "../components/backend-kickoff-panel";
-import { BackendTasksPanel } from "../components/backend-tasks-panel";
 import { BackendDeliveryReviewPanel } from "../components/backend-delivery-review-panel";
 import { BackendArtifactsPanel } from "../components/backend-artifacts-panel";
 import { ProjectNextActionHero } from "../components/project-next-action-hero";
+import { GateReviewPanel } from "../components/gate-review-panel";
+import { OrchestrationRunCockpit } from "@/shared/components/orchestration/run-cockpit/orchestration-run-cockpit";
 import {
-  kickoffFormFromDetail,
-  clientInviteSummary,
   projectManagerIds,
-  orchestrationReadinessBlockers,
-  workOrderDispatchBlocker,
-  backendStatusBits,
-  githubAutopushStatus,
   compactBackendError,
   formatBackendDate,
-  groupArtifactsByAgent,
-  orchestrationTriggerLabel,
 } from "../utils/pm-project-detail.utils";
 
 export function PMProjectDetailView({ projectId }: { projectId: string }) {
@@ -199,9 +123,6 @@ function BackendProjectDetail({ project, onBack }) {
   const outputs = useDevFlowProjectOutputs(detail.id, { includeEvents: true, includeTasks: true, includeTimeline: true, includeWorkOrders: true });
   const orchestration = useDevFlowOrchestrationStatus(detail.id);
   const provider = useDevFlowOrchestrationProviderStatus(detail.id);
-  const [orchestrationRuns, setOrchestrationRuns] = useState([]);
-  const [orchestrationRunsLoading, setOrchestrationRunsLoading] = useState(false);
-  const [orchestrationRunsError, setOrchestrationRunsError] = useState("");
   const [deliveryReadiness, setDeliveryReadiness] = useState(null);
   const [deliveryReadinessLoading, setDeliveryReadinessLoading] = useState(false);
   const [deliveryReadinessError, setDeliveryReadinessError] = useState("");
@@ -229,40 +150,12 @@ function BackendProjectDetail({ project, onBack }) {
   });
   const [memberForm, setMemberForm] = useState({ email: "", role: "DEV" });
 
-  const status = backendStatusBits(detail.status);
-  const kickoffReady = detail.kickoff?.status === "READY" || detail.kickoff?.status === "LOCKED";
-  const lifecycle = detail.lifecycle || {
-    label: status.label,
-    tone: status.tone,
-    nextAction: "Open project",
-    progress: 0,
-    signals: {},
-  };
-  const lifecycleStageId = mapProjectStatusToLifecycleStage(detail.status, detail.kickoff?.status);
+  const lifecycleStageId = mapProjectStatusToLifecycleStage(detail.status);
   const lifecycleStageIndex = getStageIndex(lifecycleStageId);
   const completedStagesFromProject = new Set(
-    ["draft", "kickoff", "build", "review", "delivered"].slice(0, lifecycleStageIndex) as any,
+    ["draft", "build", "review", "delivered"].slice(0, lifecycleStageIndex) as any,
   );
-  const budgetPct = detail.runBudget
-    ? Math.min(100, Math.round((detail.runBudget.tokensConsumed / detail.runBudget.tokenBudget) * 100))
-    : 0;
   const managerIds = projectManagerIds(detail);
-  const readyExecutableWorkOrders = outputs.workOrders.filter((workOrder) => workOrder.status === "READY" && workOrder.instructions?.trim());
-  const orchestrationBlockers = orchestrationReadinessBlockers(detail, outputs.workOrders, outputs.loading);
-  const providerActionBlocked = provider.loading || provider.error || (provider.status && !provider.status.available);
-  const canStartOrchestration = orchestrationBlockers.length === 0 && !detail.runId && !starting && !providerActionBlocked;
-
-  const refreshOrchestrationRuns = async (quiet = false) => {
-    if (!quiet) setOrchestrationRunsLoading(true);
-    setOrchestrationRunsError("");
-    try {
-      setOrchestrationRuns(await getDevFlowOrchestrationRuns(detail.id));
-    } catch (nextError) {
-      setOrchestrationRunsError(nextError instanceof Error ? nextError.message : String(nextError));
-    } finally {
-      if (!quiet) setOrchestrationRunsLoading(false);
-    }
-  };
 
   const refreshDeliveryReadiness = async () => {
     setDeliveryReadinessLoading(true);
@@ -348,7 +241,6 @@ function BackendProjectDetail({ project, onBack }) {
   }, [memberForm.email, memberForm.role]);
 
   useEffect(() => {
-    refreshOrchestrationRuns();
     refreshDeliveryReadiness();
   }, [detail.id]);
 
@@ -456,7 +348,6 @@ function BackendProjectDetail({ project, onBack }) {
   };
 
   const startRun = async () => {
-    const blockers = orchestrationReadinessBlockers(detail, outputs.workOrders, outputs.loading);
     const providerBlocker = provider.error || (provider.status && !provider.status.available ? provider.status.reason : "");
     if (provider.loading) {
       setError("Wait for the agent provider check to finish before starting orchestration.");
@@ -466,11 +357,6 @@ function BackendProjectDetail({ project, onBack }) {
       setError(providerBlocker);
       return;
     }
-    if (blockers.length && !detail.runId) {
-      setError(blockers[0]);
-      setTab(blockers[0].includes("work order") ? "build" : "build");
-      return;
-    }
 
     setStarting(true);
     setError("");
@@ -478,7 +364,7 @@ function BackendProjectDetail({ project, onBack }) {
       await startDevFlowOrchestration(detail.id);
       await new Promise((resolve) => window.setTimeout(resolve, 1200));
       setDetail(await getDevFlowProject(detail.id));
-      await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), provider.refresh?.(), refreshOrchestrationRuns(), refreshDeliveryReadiness()]);
+      await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), provider.refresh?.(), refreshDeliveryReadiness()]);
       setTab("build");
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : String(nextError));
@@ -487,36 +373,18 @@ function BackendProjectDetail({ project, onBack }) {
     }
   };
 
-  const [gateAction, setGateAction] = useState("");
-
-  const approveGate = async (gate: "architecture" | "code", approved: boolean) => {
-    setGateAction(`${gate}-${approved}`);
-    setError("");
-    try {
-      const fn = gate === "architecture" ? approveDevFlowGate1 : approveDevFlowGate2;
-      await fn(detail.id, approved);
-      setDetail(await getDevFlowProject(detail.id));
-    } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : String(nextError));
-    } finally {
-      setGateAction("");
-    }
+  const scrollToGateReview = () => {
+    document.getElementById("gate-review")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const rerunReadyWorkOrders = async () => {
-    const blockers = orchestrationReadinessBlockers(detail, outputs.workOrders, outputs.loading);
-    if (blockers.length) {
-      setError(blockers[0]);
-      return;
-    }
-
     setOrchestrationAction("rerun-ready");
     setError("");
     try {
       await rerunReadyDevFlowWorkOrders(detail.id);
       await new Promise((resolve) => window.setTimeout(resolve, 1200));
       setDetail(await getDevFlowProject(detail.id));
-      await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), provider.refresh?.(), refreshOrchestrationRuns(), refreshDeliveryReadiness()]);
+      await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), provider.refresh?.(), refreshDeliveryReadiness()]);
     } catch (nextError) {
       setError(nextError instanceof Error ? nextError.message : String(nextError));
     } finally {
@@ -524,18 +392,6 @@ function BackendProjectDetail({ project, onBack }) {
     }
   };
 
-  const retryFailedWorkOrder = async (workOrderId) => {
-    setOrchestrationAction(workOrderId);
-    setError("");
-    try {
-      await retryDevFlowWorkOrder(detail.id, workOrderId);
-      await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), refreshOrchestrationRuns(), refreshDeliveryReadiness()]);
-    } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : String(nextError));
-    } finally {
-      setOrchestrationAction("");
-    }
-  };
 
   return (
     <div data-screen-label={`PM - Backend Project - ${detail.id}`}>
@@ -543,12 +399,7 @@ function BackendProjectDetail({ project, onBack }) {
         title={detail.companyName}
         subtitle={`${detail.stackKey} - ${detail.id}`}
         actions={
-          <div className="row gap-2">
-            <Button variant="secondary" size="sm" icon={<IconArrowLeft size={14} />} onClick={onBack}>All projects</Button>
-            <Button variant="secondary" size="sm" icon={<IconWorkflow size={13} />} onClick={() => router.push(`/pm/orchestrate/${detail.id}/brief`)}>
-              Guided wizard
-            </Button>
-          </div>
+          <Button variant="secondary" size="sm" icon={<IconArrowLeft size={14} />} onClick={onBack}>All projects</Button>
         }
       />
 
@@ -558,35 +409,33 @@ function BackendProjectDetail({ project, onBack }) {
           currentStage={lifecycleStageId}
           maxReachedStage={lifecycleStageId}
           completedStages={completedStagesFromProject}
-          onClickStage={(stage) => router.push(`/pm/orchestrate/${detail.id}/${stage === "draft" ? "brief" : stage === "kickoff" ? "kickoff" : stage === "build" ? "run" : stage === "review" ? "gate-2" : "delivery"}`)}
+          onClickStage={(stage) => setTab(stage === "review" || stage === "delivered" ? "review" : "build")}
         />
       </div>
 
       <ProjectNextActionHero
-        projectName={detail.companyName}
         stackKey={detail.stackKey}
         status={detail.status}
         runId={detail.runId}
         repoUrl={detail.repoUrl}
-        kickoffReady={kickoffReady}
-        readyWorkOrderCount={readyExecutableWorkOrders.length}
-        totalWorkOrderCount={outputs.workOrders.length}
         artifactCount={outputs.artifacts.length}
-        hasRunBudget={Boolean(detail.runBudget)}
-        tokensConsumed={detail.runBudget?.tokensConsumed}
-        tokenBudget={detail.runBudget?.tokenBudget}
-        retryCount={detail.runBudget?.retryCount}
-        maxRetries={detail.runBudget?.maxRetries}
-        orchestrationBlockers={orchestrationBlockers}
         providerAvailable={provider.status?.available}
         providerReason={provider.status?.reason || provider.error}
         isStarting={starting}
         onStart={startRun}
-        onApproveGate1={() => approveGate("architecture", true)}
-        onRejectGate1={() => approveGate("architecture", false)}
-        onApproveGate2={() => approveGate("code", true)}
-        onRejectGate2={() => approveGate("code", false)}
-        onCreateRepo={handleCreateRepo}
+        onReviewGate1={scrollToGateReview}
+        onReviewGate2={scrollToGateReview}
+      />
+
+      <GateReviewPanel
+        projectId={detail.id}
+        status={detail.status}
+        contract={orchestration.status?.contract}
+        artifacts={outputs.artifacts}
+        onDecided={async () => {
+          setDetail(await getDevFlowProject(detail.id));
+          await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), refreshDeliveryReadiness()]);
+        }}
       />
 
       {error && (
@@ -609,28 +458,16 @@ function BackendProjectDetail({ project, onBack }) {
       <div style={{ marginTop: 18 }}>
         {tab === "build" && (
           <div style={{ display: "grid", gap: 18 }}>
-            <BackendKickoffPanel
-              detail={detail}
-              tasks={outputs.tasks}
-              workOrders={outputs.workOrders}
-              loading={outputs.loading}
-              error={outputs.error}
-              onChanged={async () => {
-                setDetail(await getDevFlowProject(detail.id));
-                await Promise.all([outputs.refresh?.(), refreshDeliveryReadiness()]);
-              }}
-            />
-            <BackendTasksPanel
-              projectId={detail.id}
-              tasks={outputs.tasks}
-              artifacts={outputs.artifacts}
-              members={detail.members}
-              loading={outputs.loading}
-              error={outputs.error}
-              onChanged={async () => {
-                await Promise.all([outputs.refresh?.(), refreshDeliveryReadiness()]);
-              }}
-            />
+            {detail.runId && (
+              <OrchestrationRunCockpit
+                projectId={detail.id}
+                projectName={detail.companyName}
+                status={detail.status}
+                onStart={startRun}
+                onRerun={rerunReadyWorkOrders}
+                starting={starting || orchestrationAction === "rerun-ready"}
+              />
+            )}
             <BackendWorkOrdersPanel
               projectId={detail.id}
               workOrders={outputs.workOrders}
@@ -640,41 +477,6 @@ function BackendProjectDetail({ project, onBack }) {
               error={outputs.error}
               onChanged={async () => {
                 await Promise.all([outputs.refresh?.(), refreshDeliveryReadiness()]);
-              }}
-            />
-            <BackendOrchestrationPanel
-              detail={detail}
-              status={orchestration.status}
-              statusLoading={orchestration.loading}
-              statusError={orchestration.error}
-              providerStatus={provider.status}
-              providerLoading={provider.loading}
-              providerError={provider.error}
-              githubVerification={githubVerification}
-              githubVerificationLoading={githubVerificationLoading}
-              githubVerificationError={githubVerificationError}
-              llmVerification={llmVerification}
-              llmVerificationLoading={llmVerificationLoading}
-              llmVerificationError={llmVerificationError}
-              workOrders={outputs.workOrders}
-              artifacts={outputs.artifacts}
-              events={outputs.events}
-              runs={orchestrationRuns}
-              runsLoading={orchestrationRunsLoading}
-              runsError={orchestrationRunsError}
-              blockers={orchestrationBlockers}
-              starting={starting}
-              actionId={orchestrationAction}
-              creatingRepo={creatingRepo}
-              onCreateRepo={handleCreateRepo}
-              onStart={startRun}
-              onRerunReady={rerunReadyWorkOrders}
-              onRetryFailedWorkOrder={retryFailedWorkOrder}
-              onVerifyGithubDelivery={verifyGithubDelivery}
-              onVerifyLlmProvider={verifyLlmProvider}
-              onRefresh={async () => {
-                setDetail(await getDevFlowProject(detail.id));
-                await Promise.all([outputs.refresh?.(), orchestration.refresh?.(), provider.refresh?.(), refreshOrchestrationRuns(), refreshDeliveryReadiness()]);
               }}
             />
           </div>
@@ -760,7 +562,7 @@ function BackendProjectDetail({ project, onBack }) {
                   <Field label="Search profile">
                     <Input value={memberForm.email} onChange={(event) => setMemberForm((current) => ({ ...current, email: event.target.value }))} placeholder="name or email" />
                   </Field>
-                  <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden", background: "rgba(8,14,32,.45)", minHeight: 94 }}>
+                  <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden", background: "rgba(10,10,10,.45)", minHeight: 94 }}>
                     {memberForm.email.trim().length < 2 ? (
                       <div style={{ padding: 14, color: "var(--text-3)", fontSize: 12.5 }}>Type at least 2 characters to search profiles.</div>
                     ) : memberSearchLoading ? (
@@ -779,7 +581,7 @@ function BackendProjectDetail({ project, onBack }) {
                           onClick={() => setSelectedProfile(profile)}
                           style={{
                             width: "100%", padding: "10px 12px", border: 0, borderBottom: "1px solid var(--border)",
-                            background: selectedProfile?.id === profile.id ? "rgba(79,139,255,.14)" : "transparent",
+                            background: selectedProfile?.id === profile.id ? "rgba(255,255,255,.14)" : "transparent",
                             color: "white", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                           }}
                         >
@@ -815,58 +617,77 @@ function BackendProjectDetail({ project, onBack }) {
         )}
 
         {tab === "settings" && (
-          <Card style={{ padding: 22, maxWidth: 780 }}>
-            <SectionTitle title="Project settings" subtitle="Update backend project metadata" />
-            <div style={{ display: "grid", gap: 14, marginTop: 16 }}>
-              <Field label="Company">
-                <Input value={form.companyName} onChange={(event) => setForm((current) => ({ ...current, companyName: event.target.value }))} />
-              </Field>
-              <Field label="Stack">
-                <Input value={form.stackKey} onChange={(event) => setForm((current) => ({ ...current, stackKey: event.target.value }))} />
-              </Field>
-              <Field label="Status">
-                <Select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))}>
-                  <option value="PENDING">Pending</option>
-                  <option value="PARSING_REQUIREMENTS">Parsing requirements</option>
-                  <option value="NEGOTIATING_CONTRACT">Negotiating contract</option>
-                  <option value="AWAITING_GATE_1">Awaiting gate 1</option>
-                  <option value="GENERATING_CODE">Generating code</option>
-                  <option value="AWAITING_GATE_2">Awaiting gate 2</option>
-                  <option value="COMMITTING">Committing</option>
-                  <option value="DELIVERED">Delivered</option>
-                  <option value="FAILED">Failed</option>
-                </Select>
-              </Field>
-              <Field label="Repo URL">
-                <Input value={form.repoUrl} onChange={(event) => setForm((current) => ({ ...current, repoUrl: event.target.value }))} placeholder="https://github.com/org/repo" />
-              </Field>
-              <Field label="Brief">
-                <Textarea rows={5} value={form.brief} onChange={(event) => setForm((current) => ({ ...current, brief: event.target.value }))} />
-              </Field>
-              <Button variant="primary" size="sm" icon={<IconCheck size={13} />} onClick={saveProject} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
-            </div>
-          </Card>
+          <div style={{ display: "grid", gap: 18, maxWidth: 780 }}>
+            <Card style={{ padding: 22 }}>
+              <SectionTitle title="Project settings" subtitle="Update backend project metadata" />
+              <div style={{ display: "grid", gap: 14, marginTop: 16 }}>
+                <Field label="Company">
+                  <Input value={form.companyName} onChange={(event) => setForm((current) => ({ ...current, companyName: event.target.value }))} />
+                </Field>
+                <Field label="Stack">
+                  <Input value={form.stackKey} onChange={(event) => setForm((current) => ({ ...current, stackKey: event.target.value }))} />
+                </Field>
+                <Field label="Status">
+                  <Select value={form.status} onChange={(event) => setForm((current) => ({ ...current, status: event.target.value }))}>
+                    <option value="PENDING">Pending</option>
+                    <option value="PARSING_REQUIREMENTS">Parsing requirements</option>
+                    <option value="NEGOTIATING_CONTRACT">Negotiating contract</option>
+                    <option value="AWAITING_GATE_1">Awaiting gate 1</option>
+                    <option value="GENERATING_CODE">Generating code</option>
+                    <option value="AWAITING_GATE_2">Awaiting gate 2</option>
+                    <option value="COMMITTING">Committing</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="FAILED">Failed</option>
+                  </Select>
+                </Field>
+                <Field label="Repo URL">
+                  <Input value={form.repoUrl} onChange={(event) => setForm((current) => ({ ...current, repoUrl: event.target.value }))} placeholder="https://github.com/org/repo" />
+                </Field>
+                <Field label="Brief">
+                  <Textarea rows={5} value={form.brief} onChange={(event) => setForm((current) => ({ ...current, brief: event.target.value }))} />
+                </Field>
+                <Button variant="primary" size="sm" icon={<IconCheck size={13} />} onClick={saveProject} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
+              </div>
+            </Card>
+
+            <Card style={{ padding: 22 }}>
+              <SectionTitle title="Delivery setup" subtitle="GitHub repository and provider connections" />
+              <div style={{ marginTop: 14 }}>
+                {detail.repoUrl ? (
+                  <div className="row gap-2" style={{ padding: 10, border: "1px solid rgba(16,185,129,.24)", background: "rgba(16,185,129,.08)", borderRadius: 8, color: "var(--text-2)", fontSize: 12.5, justifyContent: "space-between", flexWrap: "wrap" }}>
+                    <span className="row gap-2"><IconGitBranch size={13} style={{ color: "#6EE7B7" }} /> Generated repository is linked.</span>
+                    <a href={detail.repoUrl} target="_blank" rel="noreferrer" className="row gap-1" style={{ color: "#FAFAFA", fontWeight: 700 }}>Open repo <IconExternalLink size={12} /></a>
+                  </div>
+                ) : (
+                  <div className="row gap-2" style={{ padding: 10, border: "1px solid rgba(255,255,255,.24)", background: "rgba(255,255,255,.07)", borderRadius: 8, color: "var(--text-2)", fontSize: 12.5, justifyContent: "space-between", flexWrap: "wrap" }}>
+                    <span className="row gap-2"><IconGitHub size={13} style={{ color: "#FAFAFA" }} /> No GitHub repository linked.</span>
+                    <Button variant="secondary" size="sm" onClick={handleCreateRepo} disabled={creatingRepo}>{creatingRepo ? "Creating..." : "Create GitHub repository"}</Button>
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: 14 }}>
+                <OrchestrationProviderStatusPanel
+                  status={provider.status}
+                  loading={provider.loading}
+                  error={provider.error ? compactBackendError(provider.error) : ""}
+                  githubVerification={githubVerification}
+                  githubVerificationLoading={githubVerificationLoading}
+                  githubVerificationError={githubVerificationError ? compactBackendError(githubVerificationError) : ""}
+                  onVerifyGithubDelivery={verifyGithubDelivery}
+                  llmVerification={llmVerification}
+                  llmVerificationLoading={llmVerificationLoading}
+                  llmVerificationError={llmVerificationError ? compactBackendError(llmVerificationError) : ""}
+                  onVerifyLlmProvider={verifyLlmProvider}
+                />
+              </div>
+            </Card>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-// BackendOrchestrationPanel → ../components/backend-orchestration-panel
-// OrchestrationRunBadge, OrchestrationFact → ../components/pm-project-ui
-// orchestrationTriggerLabel → ../utils/pm-project-detail.utils
-// BackendKickoffPanel → ../components/backend-kickoff-panel
-// BackendTasksPanel → ../components/backend-tasks-panel
-// BackendWorkOrdersPanel → ../components/backend-work-orders-panel
-// TaskActivityModal, TaskActivityRow, taskActivityLabel → ../components/backend-tasks-panel
-// ProjectTaskStatusDot, BackendTaskStatusBadge → ../components/pm-project-ui
-// WorkOrderStatusBadge, WorkOrderPriorityBadge → ../components/pm-project-ui
-
-// BackendDeliveryReviewPanel → ../components/backend-delivery-review-panel
-// deliveryReviewStatusView, ReviewNote → ../components/pm-project-ui
-// BackendArtifactsPanel, ArtifactPreviewModal → ../components/backend-artifacts-panel
-// BackendReviewBadge, ArtifactValidationBadge, ArtifactValidationPanel → ../components/backend-artifacts-panel
-// workOrderAgentTypeFromArtifact, OutputReviewBadge → ../components/backend-artifacts-panel
 
 function BackendPersonAvatar({ profile }) {
   const label = profile.fullName || profile.email || profile.id || "User";
@@ -878,7 +699,7 @@ function BackendPersonAvatar({ profile }) {
     .join("") || "U";
 
   return (
-    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #4F8BFF, #8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#1F1F1F", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
       {initials}
     </div>
   );

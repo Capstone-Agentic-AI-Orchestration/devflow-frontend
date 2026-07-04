@@ -120,7 +120,7 @@ export function DevOrchestratorView() {
                 <span style={{ color: "var(--text-2)", fontSize: 12 }}>Lifecycle progress</span>
                 <span className="mono" style={{ fontSize: 12, color: "white" }}>{lifecycle.progress}%</span>
               </div>
-              <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.7)", overflow: "hidden" }}>
+              <div style={{ height: 8, borderRadius: 999, background: "rgba(10,10,10,.7)", overflow: "hidden" }}>
                 <div style={{ width: `${lifecycle.progress}%`, height: "100%", background: lifecycleProgressColor(lifecycle.tone) }} />
               </div>
             </div>
@@ -264,7 +264,7 @@ export function DevOutputView({ projectId }) {
 function OrchestratorMetric({ icon, label, value, sub }) {
   return (
     <Card style={{ padding: 16 }}>
-      <div className="row gap-2" style={{ color: "#C4B5FD" }}>{icon}<span style={{ color: "var(--text-2)", fontSize: 12 }}>{label}</span></div>
+      <div className="row gap-2" style={{ color: "#D4D4D4" }}>{icon}<span style={{ color: "var(--text-2)", fontSize: 12 }}>{label}</span></div>
       <div style={{ fontSize: 23, fontWeight: 800, marginTop: 10 }}>{value}</div>
       <div style={{ color: "var(--text-3)", fontSize: 11.5, marginTop: 4 }}>{sub}</div>
     </Card>

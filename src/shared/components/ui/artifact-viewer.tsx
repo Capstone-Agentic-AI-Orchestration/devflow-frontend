@@ -31,7 +31,7 @@ function inferLanguage(filePath: string): string {
 }
 
 const AGENT_COLORS: Record<string, string> = {
-  frontend: "#F97316", backend: "#10B981", database: "#14B8A6", architecture: "#A78BFA",
+  frontend: "#FF6B35", backend: "#10B981", database: "#14B8A6", architecture: "#C4C4C4",
 };
 
 export function ArtifactViewer({
@@ -45,7 +45,7 @@ export function ArtifactViewer({
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const lang = language ?? inferLanguage(filePath);
-  const color = agentType ? AGENT_COLORS[agentType] ?? "#4F8BFF" : "#4F8BFF";
+  const color = agentType ? AGENT_COLORS[agentType] ?? "#FAFAFA" : "#FAFAFA";
 
   const handleCopy = async () => {
     try {

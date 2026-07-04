@@ -3,19 +3,25 @@
 /**
  * MarketingNav — minimal top navigation for the marketing site.
  * Logo + 2 links + 1 CTA. No dropdowns, no mega-menus.
+ *
+ * Anchor links scroll through Lenis so they glide with the same easing as
+ * wheel scroll. On secondary pages (no target in the DOM) the `/#hash` href
+ * falls through to a normal navigation back to the landing page.
  */
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
+import { useLenis } from "lenis/react";
 import "./MarketingNav.css";
 
 const NAV_LINKS = [
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#faq", label: "FAQ" },
+  { hash: "#how-it-works", label: "How it works" },
+  { hash: "#faq", label: "FAQ" },
 ];
 
 export function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
+  const lenis = useLenis();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -23,6 +29,14 @@ export function MarketingNav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleAnchor = (e: MouseEvent<HTMLAnchorElement>, hash: string) => {
+    const target = document.querySelector(hash);
+    if (!target) return; // not on the landing page — navigate to /#hash
+    e.preventDefault();
+    if (lenis) lenis.scrollTo(hash, { offset: -72 });
+    else target.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <nav className={`mnav ${scrolled ? "is-scrolled" : ""}`}>
@@ -34,15 +48,26 @@ export function MarketingNav() {
 
         <div className="mnav-links">
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="mnav-link">
+            <a
+              key={link.hash}
+              href={`/${link.hash}`}
+              className="mnav-link"
+              onClick={(e) => handleAnchor(e, link.hash)}
+            >
               {link.label}
             </a>
           ))}
         </div>
 
         <div className="mnav-cta">
-          <a href="/sign-in" className="mnav-signin">Sign in</a>
-          <a href="#cta" className="mnav-start">Start →</a>
+          <Link href="/client/sign-in" className="mnav-signin">Sign in</Link>
+          <a
+            href="/#cta"
+            className="mnav-start"
+            onClick={(e) => handleAnchor(e, "#cta")}
+          >
+            Start →
+          </a>
         </div>
       </div>
     </nav>

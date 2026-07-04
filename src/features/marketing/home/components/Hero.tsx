@@ -10,6 +10,7 @@
 import { useGSAP } from "@gsap/react";
 import { useRef } from "react";
 import dynamic from "next/dynamic";
+import { useLenis } from "lenis/react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import { MagneticButton } from "./MagneticButton";
 import "./Hero.css";
@@ -22,6 +23,7 @@ export function Hero() {
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
 
   useGSAP(
     () => {
@@ -30,8 +32,6 @@ export function Hero() {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduced) {
         gsap.set([headlineRef.current, paragraphRef.current, ctaRef.current], {
-          opacity: 1,
-          x: 0,
           clipPath: "none",
         });
         return;
@@ -45,19 +45,19 @@ export function Hero() {
 
       tl.fromTo(
         headlineRef.current,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.8 }
+        { clipPath: "inset(0 100% 0 0)" },
+        { clipPath: "inset(0 0% 0 0)", duration: 0.8 }
       )
         .fromTo(
           paragraphRef.current,
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
           "-=0.3"
         )
         .fromTo(
           ctaRef.current,
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          { y: 16, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
           "-=0.2"
         );
     },
@@ -65,6 +65,10 @@ export function Hero() {
   );
 
   const handleCta = () => {
+    if (lenis) {
+      lenis.scrollTo("#cta", { offset: -72 });
+      return;
+    }
     const cta = document.getElementById("cta");
     if (cta) cta.scrollIntoView({ behavior: "smooth", block: "start" });
   };

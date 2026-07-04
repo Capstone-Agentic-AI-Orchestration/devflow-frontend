@@ -111,7 +111,7 @@ function AdminSidebar({ route, onNavigate, mobileOpen, setMobileOpen, adminName,
         <div className="cs-spacer" />
         <a className="cs-support"><IconLifeBuoy size={15} /> Help &amp; Support</a>
         <div className="cs-user">
-          <span style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 600, fontSize: 13, flexShrink: 0, position: "relative", border: "1px solid rgba(255,255,255,.08)" }}>{adminInitials}</span>
+          <span style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg,#C4C4C4,#A1A1A1)", display: "grid", placeItems: "center", color: "white", fontWeight: 600, fontSize: 13, flexShrink: 0, position: "relative", border: "1px solid rgba(255,255,255,.08)" }}>{adminInitials}</span>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontWeight: 600, fontSize: 13.5, color: "white", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{adminName}</div>
             <div style={{ fontSize: 12, color: "var(--text-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{adminEmail}</div>
@@ -148,7 +148,7 @@ function AdminTopBar({ title, onMenu, onNavigate, adminName, adminEmail, adminIn
         </div>
         <button className="cs-iconbtn" aria-label="Notifications"><IconBell size={17} /><span className="cs-iconbtn-badge">5</span></button>
         <div ref={ref} className="cs-avatar-wrap">
-          <button className="cs-avatar-trigger" onClick={() => setOpen((value) => !value)}><span style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#6366F1,#8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 600, fontSize: 12 }}>{adminInitials}</span><IconChevronDown size={14} style={{ color: "var(--text-3)" }} /></button>
+          <button className="cs-avatar-trigger" onClick={() => setOpen((value) => !value)}><span style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg,#C4C4C4,#A1A1A1)", display: "grid", placeItems: "center", color: "white", fontWeight: 600, fontSize: 12 }}>{adminInitials}</span><IconChevronDown size={14} style={{ color: "var(--text-3)" }} /></button>
           {open && <div className="cs-menu"><div className="cs-menu-header"><div style={{ fontWeight: 600, fontSize: 14 }}>{adminName}</div><div style={{ fontSize: 12, color: "var(--text-3)" }}>{adminEmail}</div></div><button className="cs-menu-item" onClick={() => { setOpen(false); onNavigate("settings"); }}><IconUser size={15} /> Profile &amp; settings</button><button className="cs-menu-item"><IconShield size={15} /> Security</button><div className="cs-menu-sep" /><button className="cs-menu-item cs-menu-item--danger" onClick={() => onNavigate("__signout")}><IconLogout size={15} /> Sign out</button></div>}
         </div>
       </div>

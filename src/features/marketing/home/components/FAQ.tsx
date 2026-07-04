@@ -5,7 +5,7 @@
  * No "agency" question. No fake urgency. Just the 3 things prospects ask.
  */
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { SectionReveal } from "@/shared/components/layout/SectionReveal";
 import "./FAQ.css";
@@ -26,7 +26,6 @@ const QUESTIONS = [
 ];
 
 export function FAQ() {
-  const reduced = useReducedMotion();
   const [open, setOpen] = useState(0);
 
   const toggle = (i: number) => {
@@ -34,7 +33,7 @@ export function FAQ() {
   };
 
   return (
-    <SectionReveal as="section" className="faq">
+    <SectionReveal as="section" className="faq" id="faq">
       <div className="faq-inner">
         <div className="faq-head">
           <p className="faq-eyebrow">Common questions</p>
@@ -74,9 +73,9 @@ export function FAQ() {
                   {isOpen && (
                     <motion.div
                       className="faq-answer"
-                      initial={reduced ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
-                      animate={reduced ? { opacity: 1 } : { height: "auto", opacity: 1 }}
-                      exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
                       transition={{ type: "spring", stiffness: 200, damping: 25, mass: 0.8 }}
                     >
                       <div className="faq-answer-inner">

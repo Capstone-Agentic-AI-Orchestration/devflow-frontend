@@ -50,8 +50,8 @@ export function devflowLifecycleView(project?: { status?: DevFlowProjectStatus |
 export function lifecycleProgressColor(tone?: string | null) {
   const map: Record<string, string> = {
     gray: "#94A3B8",
-    blue: "#60A5FA",
-    purple: "#A78BFA",
+    blue: "#D4D4D4",
+    purple: "#C4C4C4",
     yellow: "#FBBF24",
     amber: "#FBBF24",
     green: "#34D399",

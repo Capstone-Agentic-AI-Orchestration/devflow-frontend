@@ -92,10 +92,10 @@ function BackendProjectCard({ project, onOpen }) {
   const initials = projectInitials(project.companyName);
 
   return (
-    <Card hover style={{ padding: 22, cursor: "pointer", border: "1px solid rgba(79,139,255,.28)" }} onClick={onOpen}>
+    <Card hover style={{ padding: 22, cursor: "pointer", border: "1px solid rgba(255,255,255,.28)" }} onClick={onOpen}>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
         <div className="row gap-3" style={{ alignItems: "center", minWidth: 0 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "linear-gradient(135deg,#4F8BFF,#8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{initials}</div>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "#1F1F1F", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{initials}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{ color: "var(--text-3)", fontSize: 11.5 }}>Backend assignment</div>
             <div className="mono" style={{ fontSize: 11, color: "var(--text-4)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis" }}>{project.id}</div>
@@ -105,22 +105,22 @@ function BackendProjectCard({ project, onOpen }) {
       </div>
       <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.3 }}>{project.companyName}</div>
       <div className="row" style={{ marginTop: 12, gap: 8, flexWrap: "wrap" }}>
-        <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(168,85,247,.15)", color: "#C4B5FD", fontSize: 11, fontWeight: 600, border: "1px solid rgba(168,85,247,.30)" }}>Assigned member</span>
-        <span style={{ padding: "3px 9px", borderRadius: 999, background: "rgba(79,139,255,.14)", color: "#93C5FD", fontSize: 11, fontWeight: 600, border: "1px solid rgba(79,139,255,.28)" }}>{lifecycle.nextAction}</span>
-        {lifecycle.signals?.openTasks > 0 && <span style={{ padding: "3px 9px", borderRadius: 999, background: "rgba(79,139,255,.14)", color: "#93C5FD", fontSize: 11, fontWeight: 600, border: "1px solid rgba(79,139,255,.28)" }}>{lifecycle.signals.openTasks} tasks</span>}
+        <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(168,85,247,.15)", color: "#D4D4D4", fontSize: 11, fontWeight: 600, border: "1px solid rgba(168,85,247,.30)" }}>Assigned member</span>
+        <span style={{ padding: "3px 9px", borderRadius: 999, background: "rgba(255,255,255,.14)", color: "#FAFAFA", fontSize: 11, fontWeight: 600, border: "1px solid rgba(255,255,255,.28)" }}>{lifecycle.nextAction}</span>
+        {lifecycle.signals?.openTasks > 0 && <span style={{ padding: "3px 9px", borderRadius: 999, background: "rgba(255,255,255,.14)", color: "#FAFAFA", fontSize: 11, fontWeight: 600, border: "1px solid rgba(255,255,255,.28)" }}>{lifecycle.signals.openTasks} tasks</span>}
       </div>
       <div style={{ marginTop: 16 }}>
         <div className="row" style={{ justifyContent: "space-between", marginBottom: 5 }}>
           <span style={{ fontSize: 11, color: "var(--text-2)" }}>Backend progress</span>
           <span className="mono" style={{ fontSize: 11, color: "white", fontWeight: 600 }}>{lifecycle.progress}%</span>
         </div>
-        <div style={{ height: 6, borderRadius: 999, background: "rgba(8,14,32,.7)" }}>
+        <div style={{ height: 6, borderRadius: 999, background: "rgba(10,10,10,.7)" }}>
           <div style={{ width: `${lifecycle.progress}%`, height: "100%", borderRadius: 999, background: lifecycleProgressColor(lifecycle.tone) }} />
         </div>
       </div>
       <div className="row" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border)", justifyContent: "space-between" }}>
         <span style={{ fontSize: 11.5, color: "var(--text-3)" }}>Created {formatDevFlowDate(project.createdAt)}</span>
-        <span className="row gap-1" style={{ alignItems: "center", color: "#93C5FD", fontSize: 12, fontWeight: 500 }}>Open <IconArrowRight size={11} /></span>
+        <span className="row gap-1" style={{ alignItems: "center", color: "#FAFAFA", fontSize: 12, fontWeight: 500 }}>Open <IconArrowRight size={11} /></span>
       </div>
     </Card>
   );
@@ -173,14 +173,14 @@ function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator }) {
 
       <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 16, alignItems: "flex-start", marginBottom: 18 }}>
         <div className="row gap-4" style={{ alignItems: "center", minWidth: 0 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 13, background: "linear-gradient(135deg,#4F8BFF,#8B5CF6)", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 17, flexShrink: 0 }}>{initials}</div>
+          <div style={{ width: 52, height: 52, borderRadius: 13, background: "#1F1F1F", display: "grid", placeItems: "center", color: "white", fontWeight: 700, fontSize: 17, flexShrink: 0 }}>{initials}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{ color: "var(--text-3)", fontSize: 12 }}>Backend project - <span className="mono">{project.id}</span></div>
             <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: 0, margin: "3px 0 6px" }}>{project.companyName}</h1>
             <div className="row gap-2" style={{ flexWrap: "wrap" }}>
               <Badge tone={lifecycle.tone}>{lifecycle.label}</Badge>
               <Badge tone={status.tone}>{status.label}</Badge>
-              <span style={{ padding: "2px 10px", borderRadius: 999, background: "rgba(168,85,247,.15)", color: "#C4B5FD", fontSize: 11, fontWeight: 600, border: "1px solid rgba(168,85,247,.30)" }}>My role: Developer</span>
+              <span style={{ padding: "2px 10px", borderRadius: 999, background: "rgba(168,85,247,.15)", color: "#D4D4D4", fontSize: 11, fontWeight: 600, border: "1px solid rgba(168,85,247,.30)" }}>My role: Developer</span>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator }) {
               <span style={{ color: "var(--text-2)", fontSize: 12 }}>Backend progress</span>
               <span className="mono" style={{ color: "white", fontSize: 12 }}>{lifecycle.progress}%</span>
             </div>
-            <div style={{ height: 8, borderRadius: 999, background: "rgba(8,14,32,.7)" }}>
+            <div style={{ height: 8, borderRadius: 999, background: "rgba(10,10,10,.7)" }}>
               <div style={{ width: `${lifecycle.progress}%`, height: "100%", borderRadius: 999, background: lifecycleProgressColor(lifecycle.tone) }} />
             </div>
           </div>
@@ -228,7 +228,7 @@ function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator }) {
             <div style={{ color: "var(--text-3)", fontSize: 13 }}>No members assigned yet.</div>
           ) : project.members.map((member) => (
             <div key={member.id} className="row gap-3" style={{ padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: member.role === "DEV" ? "linear-gradient(135deg,#A855F7,#EC4899)" : "linear-gradient(135deg,#4F8BFF,#8B5CF6)", color: "white", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700 }}>{projectInitials(member.user.fullName || member.user.email)}</div>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: member.role === "DEV" ? "#1F1F1F" : "#1F1F1F", color: "white", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700 }}>{projectInitials(member.user.fullName || member.user.email)}</div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{member.user.fullName || member.user.email || member.user.id}</div>
                 <div style={{ fontSize: 11.5, color: "var(--text-3)" }}>{member.role}</div>
@@ -237,7 +237,7 @@ function BackendDevProjectDetail({ project, onBack, onOpenOrchestrator }) {
           ))}
         </Card>
 
-        <Card style={{ padding: 18, background: "linear-gradient(135deg, rgba(168,85,247,.08), rgba(79,139,255,.04))" }}>
+        <Card style={{ padding: 18, background: "linear-gradient(135deg, rgba(168,85,247,.08), rgba(255,255,255,.04))" }}>
           <h4 style={{ fontSize: 13.5, fontWeight: 600, margin: 0 }}>Developer access</h4>
           <p style={{ color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.55, marginTop: 8 }}>
             This page is visible because this account is assigned through project membership. Developers can inspect delivery state without PM-only edit controls.
@@ -331,7 +331,7 @@ function DevBackendTasks({ projectId, tasks, loading, error, onChanged }) {
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700 }}>{task.title}</div>
               {task.description && <div style={{ color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.45, marginTop: 4 }}>{task.description}</div>}
-              {task.artifact && <div className="mono" style={{ color: "#93C5FD", fontSize: 11, marginTop: 6, overflow: "hidden", textOverflow: "ellipsis" }}>{task.artifact.displayName || task.artifact.filePath}</div>}
+              {task.artifact && <div className="mono" style={{ color: "#FAFAFA", fontSize: 11, marginTop: 6, overflow: "hidden", textOverflow: "ellipsis" }}>{task.artifact.displayName || task.artifact.filePath}</div>}
               {task.artifact?.reviewStatus === "REVISION_REQUESTED" && (
                 <div style={{ marginTop: 8, padding: 10, borderRadius: 8, border: "1px solid rgba(245,158,11,.28)", background: "rgba(245,158,11,.07)", color: "var(--text-2)", fontSize: 12.5, lineHeight: 1.45 }}>
                   <div className="row gap-2" style={{ marginBottom: task.artifact.reviewNote ? 5 : 0, flexWrap: "wrap" }}>
@@ -448,7 +448,7 @@ function DevTaskActivityModal({ open, onClose, task, activity, loading, error, c
 function DevTaskActivityRow({ item }) {
   const isComment = item.type === "COMMENT";
   return (
-    <div style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 8, background: isComment ? "rgba(79,139,255,.08)" : "rgba(8,14,32,.45)" }}>
+    <div style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 8, background: isComment ? "rgba(255,255,255,.08)" : "rgba(10,10,10,.45)" }}>
       <div className="row" style={{ justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 12.5, fontWeight: 700 }}>{item.actor?.fullName || item.actor?.email || "System"}</div>
@@ -539,7 +539,7 @@ function DevBackendArtifacts({ artifacts, loading, error }) {
           <div style={{ color: "var(--text-3)", fontSize: 13, marginTop: 14 }}>No backend artifacts yet.</div>
         ) : artifacts.slice(0, 8).map((artifact) => (
           <button key={artifact.id} onClick={() => openPreview(artifact)} className="row gap-3" style={{ width: "100%", padding: "10px 0", border: 0, borderBottom: "1px solid var(--border)", background: "transparent", color: "white", cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
-            <IconFileText size={14} style={{ color: "#93C5FD", flexShrink: 0 }} />
+            <IconFileText size={14} style={{ color: "#FAFAFA", flexShrink: 0 }} />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div className="mono" style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis" }}>{artifact.filePath}</div>
               <div style={{ color: "var(--text-3)", fontSize: 11.5 }}>{artifact.agentType} - {formatDevFlowDate(artifact.createdAt)}</div>
@@ -602,7 +602,7 @@ function DevArtifactPreviewModal({ open, onClose, artifact, loading, error }) {
               {artifact.revisionResolutionNote && <div>{artifact.revisionResolutionNote}</div>}
             </div>
           )}
-          <pre style={{ margin: 0, maxHeight: 520, overflow: "auto", padding: 16, borderRadius: 10, border: "1px solid var(--border)", background: "rgba(8,14,32,.85)", color: "var(--text-2)", fontSize: 12, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{artifact.content ?? ""}</pre>
+          <pre style={{ margin: 0, maxHeight: 520, overflow: "auto", padding: 16, borderRadius: 10, border: "1px solid var(--border)", background: "rgba(10,10,10,.85)", color: "var(--text-2)", fontSize: 12, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{artifact.content ?? ""}</pre>
         </div>
       ) : null}
     </Modal>
@@ -662,7 +662,7 @@ function DevBackendEvents({ events, loading, error }) {
 
 function BackendWorkspaceStat({ label, value }) {
   return (
-    <Card style={{ padding: 12, background: "rgba(8,14,32,.45)" }}>
+    <Card style={{ padding: 12, background: "rgba(10,10,10,.45)" }}>
       <div style={{ fontSize: 12, color: "var(--text-3)" }}>Backend</div>
       <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 3 }}>{label}: {value}</div>
     </Card>
@@ -693,7 +693,7 @@ export function ArtifactTree({ node, depth = 0, initiallyOpen = false }) {
       </div>
     );
   }
-  const extColor = { tsx: "#3B82F6", ts: "#3B82F6", py: "#10B981", sql: "#14B8A6", md: "#A78BFA", json: "#F59E0B", yml: "#EC4899", txt: "#94A3B8" }[node.ext] || "#94A3B8";
+  const extColor = { tsx: "#3B82F6", ts: "#3B82F6", py: "#10B981", sql: "#14B8A6", md: "#C4C4C4", json: "#F59E0B", yml: "#EC4899", txt: "#94A3B8" }[node.ext] || "#94A3B8";
   return (
     <div style={{ padding: "5px 12px", paddingLeft: 12 + depth * 18, display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: "var(--text-2)" }}>
       <span style={{ width: 11 }} />

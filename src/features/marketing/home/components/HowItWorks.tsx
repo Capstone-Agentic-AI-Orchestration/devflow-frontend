@@ -33,7 +33,7 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <SectionReveal as="section" className="how">
+    <SectionReveal as="section" className="how" id="how-it-works">
       <div className="how-inner">
         <div className="how-head">
           <p className="how-eyebrow">The flow</p>
