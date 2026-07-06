@@ -13,12 +13,14 @@ import dynamic from "next/dynamic";
 import { useLenis } from "lenis/react";
 import { gsap, registerGsapPlugins } from "@/lib/gsap";
 import { MagneticButton } from "./MagneticButton";
+import { AgentNetworkGraph, ParticleFieldCanvas } from "./VisualPrimitives";
+import type { SceneProgressProps } from "./cinema-progress";
 import "./Hero.css";
 
 // WebGL scene is client-only — no SSR.
 const HeroScene = dynamic(() => import("./HeroScene").then((m) => m.HeroScene), { ssr: false });
 
-export function Hero() {
+export function Hero({ cinematic = false, interactive = false, sceneName = "hero" }: SceneProgressProps) {
   const rootRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const paragraphRef = useRef<HTMLParagraphElement>(null);
@@ -65,6 +67,10 @@ export function Hero() {
   );
 
   const handleCta = () => {
+    if (cinematic) {
+      window.dispatchEvent(new Event("marketing-cinema-scroll-cta"));
+      return;
+    }
     if (lenis) {
       lenis.scrollTo("#cta", { offset: -72 });
       return;
@@ -75,24 +81,27 @@ export function Hero() {
 
   return (
     <section ref={rootRef} className="hero">
-      <HeroScene />
+      <ParticleFieldCanvas variant="hero" className="hero-particles" sceneName={sceneName} interactive={interactive || cinematic} />
+      <HeroScene cinematic={cinematic} sceneName={sceneName} interactive={interactive || cinematic} />
+      <AgentNetworkGraph className="hero-agent-graph" sceneName={sceneName} interactive={interactive || cinematic} />
       <div className="hero-inner">
-        <h1 ref={headlineRef} className="hero-headline">
+        <h1 ref={headlineRef} className="hero-headline" data-cinema-reveal>
           <span>One prompt,</span>
           <br />
           <span>build everything.</span>
         </h1>
-        <p ref={paragraphRef} className="hero-paragraph">
+        <p ref={paragraphRef} className="hero-paragraph" data-cinema-reveal>
           The first LangGraph-powered multi-agent system that turns a single
-          brief into a production-grade application — frontend, backend,
+          brief into a production-grade application: frontend, backend,
           database, architecture, reviewed and shipped to GitHub in days.
         </p>
-        <div ref={ctaRef} className="hero-cta">
+        <div ref={ctaRef} className="hero-cta" data-cinema-reveal>
           <MagneticButton
             className="hero-button"
             onClick={handleCta}
           >
-            Start building →
+            Start building
+            <span aria-hidden="true">↗</span>
           </MagneticButton>
         </div>
       </div>

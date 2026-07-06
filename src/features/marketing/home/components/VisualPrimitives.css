@@ -1,0 +1,149 @@
+.particle-field {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.agent-graph {
+  position: relative;
+  color: #fff;
+}
+
+.agent-graph.is-interactive {
+  pointer-events: auto;
+}
+
+.agent-graph svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.agent-graph-line {
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 0.16;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 180ms ease, stroke-width 180ms ease, opacity 180ms ease;
+}
+
+.agent-graph-line--active {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.72);
+  stroke-width: 0.42;
+  stroke-dasharray: 1.4 1.2;
+  animation: agentLineDrift 2.8s linear infinite;
+}
+
+.agent-graph-node,
+.agent-graph-origin {
+  fill: #fff;
+}
+
+.agent-graph-origin {
+  opacity: 0.9;
+}
+
+.agent-graph-label {
+  position: absolute;
+  transform: translate(9px, -11px);
+  display: grid;
+  gap: 1px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 12px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-shadow: 0 0 18px rgba(0, 0, 0, 0.9);
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+button.agent-graph-label {
+  appearance: none;
+  border: 0;
+  background: rgba(255, 255, 255, 0.035);
+  padding: 5px 7px;
+  text-align: left;
+  font: inherit;
+  cursor: crosshair;
+}
+
+.agent-graph-label em {
+  display: none;
+  color: #48e56a;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.agent-graph.is-interactive .agent-graph-line {
+  opacity: 0.72;
+}
+
+.agent-graph.is-interactive:has(.agent-graph-label:hover) .agent-graph-line,
+.agent-graph.is-interactive:has(.agent-graph-label:focus-visible) .agent-graph-line {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 0.24;
+  opacity: 0.96;
+}
+
+.agent-graph.is-interactive .agent-graph-label:hover,
+.agent-graph.is-interactive .agent-graph-label:focus-visible {
+  z-index: 4;
+  color: #fff;
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 26px rgba(255, 255, 255, 0.2);
+}
+
+.agent-graph.is-interactive .agent-graph-label:hover em,
+.agent-graph.is-interactive .agent-graph-label:focus-visible em {
+  display: block;
+}
+
+.agent-graph-label small {
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 11px;
+}
+
+.agent-graph--branch .agent-graph-label {
+  min-width: 132px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(5, 5, 5, 0.72);
+  transform: translate(12px, -50%);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.agent-graph--branch .agent-graph-label small {
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@keyframes agentLineDrift {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-graph-line--active {
+    animation: none;
+  }
+}

@@ -1,124 +1,45 @@
 "use client";
 
 /**
- * AnatomyOfRun — scroll-pinned terminal walkthrough of one orchestration run.
- *
- * The section pins when it reaches the top of the viewport; scrolling drives
- * the animation. A single terminal card is centered, zooms in, reveals each
- * log line as the user scrolls, and hands off to the next terminal with a
- * slide transition. The progress rail and stepper dots show where the run is.
- *
- * Driven by GSAP ScrollTrigger pin + scrub.
+ * AnatomyOfRun - generated-reference pinned run console.
  */
 
 import { useLayoutEffect, useRef } from "react";
 import { gsap, ScrollTrigger, registerGsapPlugins } from "@/lib/gsap";
+import { ParticleFieldCanvas } from "./VisualPrimitives";
+import type { SceneProgressProps } from "./cinema-progress";
 import "./AnatomyOfRun.css";
 
-interface RunCard {
-  key: string;
-  agent: string;
-  index: string;
-  lines: string[];
-  meta: string;
-  duration: string;
-  final?: boolean;
-}
-
-const CARDS: RunCard[] = [
-  {
-    key: "contract",
-    agent: "contract_agent",
-    index: "01 / 06",
-    lines: [
-      "> reading brief...",
-      "> parsing scope → 18 files · 12 tests · 8 acceptance criteria",
-      "> negotiating agent contracts",
-      "> contract signed",
-      "> manifest ready",
-    ],
-    meta: "contract negotiated",
-    duration: "1m 42s",
-  },
-  {
-    key: "frontend",
-    agent: "frontend_agent",
-    index: "02 / 06",
-    lines: [
-      "> scaffolding app/(dashboard)/page.tsx",
-      "> wiring data hooks → /api/orders",
-      "> running component type-check",
-      "> generating 851 tokens · 14 KB",
-      "> UI scaffolded",
-    ],
-    meta: "ui scaffolded",
-    duration: "2m 04s",
-  },
-  {
-    key: "backend",
-    agent: "backend_agent",
-    index: "03 / 06",
-    lines: [
-      "> building /api/orders route",
-      "> writing zod schema + handler + tests",
-      "> wiring service layer + auth guard",
-      "> generating 847 tokens · 12 KB",
-      "> API implemented",
-    ],
-    meta: "api implemented",
-    duration: "2m 18s",
-  },
-  {
-    key: "database",
-    agent: "database_agent",
-    index: "04 / 06",
-    lines: [
-      "> designing schema: orders, customers, line_items",
-      "> generating Prisma migration",
-      "> applying migration to staging DB",
-      "> generating 312 tokens · 4 KB",
-      "> schema migrated",
-    ],
-    meta: "schema migrated",
-    duration: "1m 06s",
-  },
-  {
-    key: "architecture",
-    agent: "architecture_agent",
-    index: "05 / 06",
-    lines: [
-      "> mapping service boundaries + queues",
-      "> validating deploy topology",
-      "> checking cost + concurrency limits",
-      "> generating 508 tokens · 7 KB",
-      "> architecture sealed",
-    ],
-    meta: "architecture sealed",
-    duration: "1m 31s",
-  },
-  {
-    key: "deploy",
-    agent: "github",
-    index: "06 / 06",
-    lines: [
-      "> git add . && git commit -m \"feat: orders flow\"",
-      "> git push origin main",
-      "> 18 files changed · 0 errors",
-      "> gate 2 approved",
-      "> deployed to GitHub",
-    ],
-    meta: "shipped to github",
-    duration: "8m 12s total",
-    final: true,
-  },
+const RUN_LINES = [
+  { n: "01", time: "00:00:01", agent: "Orchestrator", action: "Run initialized" },
+  { n: "02", time: "00:00:02", agent: "Planner", action: "Brief parsed, execution plan created" },
+  { n: "03", time: "00:00:04", agent: "Architect", action: "System design updated" },
+  { n: "04", time: "00:00:07", agent: "Engineer", action: "Code changes implemented" },
+  { n: "05", time: "00:00:18", agent: "Reviewer", action: "Changes reviewed, feedback applied" },
+  { n: "06", time: "00:00:26", agent: "QA Agent", action: "Tests generated and executed" },
+  { n: "07", time: "00:00:31", agent: "Deployer", action: "Build successful, preparing deployment" },
+  { n: "08", time: "00:00:38", agent: "Orchestrator", action: "Run completed successfully", final: true },
 ];
 
-export function AnatomyOfRun() {
+const TIMELINE = [
+  { n: "01", label: "Planner", time: "00:00:02" },
+  { n: "02", label: "Architect", time: "00:00:04" },
+  { n: "03", label: "Engineer", time: "00:00:07" },
+  { n: "04", label: "Reviewer", time: "00:00:18" },
+  { n: "05", label: "QA Agent", time: "00:00:26" },
+  { n: "06", label: "Deployer", time: "00:00:31" },
+];
+
+function emitAgent(agent: string | null) {
+  window.dispatchEvent(new CustomEvent("marketing-agent-hover", { detail: { agent, scene: "anatomy" } }));
+}
+
+export function AnatomyOfRun({ cinematic = false, interactive = false, sceneName = "anatomy" }: SceneProgressProps) {
   const rootRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -128,185 +49,139 @@ export function AnatomyOfRun() {
     const root = rootRef.current;
     const stage = stageRef.current;
     const progress = progressRef.current;
-    const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
-    const dots = dotRefs.current.filter(Boolean) as HTMLSpanElement[];
+    const lines = lineRefs.current.filter(Boolean) as HTMLDivElement[];
+    const steps = stepRefs.current.filter(Boolean) as HTMLDivElement[];
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (!root || !stage || cards.length === 0) return;
+    if (!root || !stage || !progress) return;
 
-    // Scroll-scrubbed sequence. Each card gets 0.6 units of scroll distance
-    // so the animation feels responsive without requiring an enormous scroll.
-    const SEGMENT = 0.6;
-    const INTRO = 0.12;
-    const REVEAL_START = 0.12;
-    const TRANSITION_START = 0.48;
-    const total = CARDS.length * SEGMENT + 0.25;
+    if (cinematic || reduced || window.innerWidth < 820) {
+      gsap.set([progress, ...lines, ...steps], { clearProps: "all", opacity: 1 });
+      return;
+    }
 
     const tl = gsap.timeline({
-      defaults: { ease: "power2.inOut" },
+      defaults: { ease: "power2.out" },
       scrollTrigger: {
         trigger: root,
         start: "top top",
-        end: `+=${total * 100}%`,
+        end: "+=280%",
         pin: stage,
         pinSpacing: true,
-        scrub: 0.5,
+        scrub: 0.65,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        refreshPriority: 1,
       },
     });
 
-    cards.forEach((card, i) => {
-      const at = i * SEGMENT;
-      const lines = card.querySelectorAll<HTMLElement>(".run-line");
-      const fill = card.querySelector<HTMLElement>(".run-meter-fill");
-      const dot = dots[i];
+    tl.fromTo(".anatomy-copy", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.28 }, 0)
+      .fromTo(".anatomy-console", { opacity: 0, y: 46, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.36 }, 0.05)
+      .fromTo(".anatomy-panel-ghost", { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.32, stagger: 0.04 }, 0.16);
 
-      if (i === 0) {
-        tl.fromTo(
-          card,
-          { scale: 0.82, opacity: 0, xPercent: 0 },
-          { scale: 1, opacity: 1, duration: INTRO },
-          at,
-        );
-      } else {
-        tl.fromTo(
-          card,
-          { xPercent: 100, opacity: 0, scale: 0.95 },
-          { xPercent: 0, opacity: 1, scale: 1, duration: INTRO },
-          at,
-        );
-        tl.to(
-          cards[i - 1],
-          { xPercent: -100, opacity: 0, duration: INTRO },
-          at,
-        );
+    lines.forEach((line, i) => {
+      const at = 0.28 + i * 0.12;
+      tl.fromTo(line, { opacity: 0.08, y: 12 }, { opacity: 1, y: 0, duration: 0.08 }, at);
+      if (steps[i - 1]) {
+        tl.to(steps[i - 1], { opacity: 1, scale: 1, duration: 0.08 }, at);
       }
-
-      const lineDuration = 0.06;
-      const lineStagger = 0.06;
-      lines.forEach((line, li) => {
-        tl.fromTo(
-          line,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: lineDuration },
-          at + REVEAL_START + li * lineStagger,
-        );
-      });
-
-      if (fill) {
-        tl.fromTo(
-          fill,
-          { scaleX: 0 },
-          { scaleX: 1, duration: TRANSITION_START - REVEAL_START, ease: "none" },
-          at + REVEAL_START,
-        );
-      }
-
-      if (dot) {
-        tl.fromTo(
-          dot,
-          { opacity: 0.25, scale: 1 },
-          { opacity: 1, scale: 1.25, duration: 0.08 },
-          at,
-        );
-        if (i < cards.length - 1) {
-          tl.to(
-            dot,
-            { opacity: 0.25, scale: 1, duration: 0.08 },
-            at + TRANSITION_START,
-          );
-        }
-      }
-
-      if (progress) {
-        tl.to(
-          progress,
-          { scaleX: (i + 1) / cards.length, duration: SEGMENT, ease: "none" },
-          at,
-        );
-      }
+      tl.to(progress, { scaleX: Math.min(1, (i + 1) / RUN_LINES.length), duration: 0.12, ease: "none" }, at);
     });
 
-    const last = cards[cards.length - 1];
-    tl.to(last, { opacity: 0, scale: 0.96, duration: 0.35 }, CARDS.length * SEGMENT);
-
     const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
-    const t1 = setTimeout(() => ScrollTrigger.refresh(), 150);
-    const t2 = setTimeout(() => ScrollTrigger.refresh(), 600);
-
     const onResize = () => ScrollTrigger.refresh();
     window.addEventListener("resize", onResize);
 
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(t1);
-      clearTimeout(t2);
       window.removeEventListener("resize", onResize);
       tl.kill();
       if (tl.scrollTrigger) tl.scrollTrigger.kill();
     };
-  }, []);
+  }, [cinematic]);
 
   return (
-    <section ref={rootRef} className="anatomy">
+    <section ref={rootRef} className={`anatomy ${cinematic ? "is-cinematic" : ""}`}>
       <div ref={stageRef} className="anatomy-stage">
-        <div className="anatomy-head">
-          <p className="anatomy-eyebrow">A real run</p>
-          <h2 className="anatomy-title">One brief. Six agents. Eight minutes.</h2>
-          <div className="anatomy-stepper" aria-hidden="true">
-            {CARDS.map((card, i) => (
-              <span
-                key={card.key}
-                ref={(el) => { dotRefs.current[i] = el; }}
-                className="anatomy-step"
-              />
-            ))}
+        <ParticleFieldCanvas variant="wave" className="anatomy-particles" sceneName={sceneName} interactive={interactive || cinematic} />
+        <div className="anatomy-frame" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+
+        <div className="anatomy-kicker" data-cinema-reveal>
+          <span>02</span>
+          <span>Anatomy of a run</span>
+        </div>
+
+        <div className="anatomy-layout">
+          <aside className="anatomy-copy" data-cinema-reveal>
+            <h2 className="anatomy-title">One brief.<br />Six agents.<br />Eight minutes.</h2>
+            <p className="anatomy-text">
+              DevFlow orchestrates specialized agents in parallel. Each one executes, validates,
+              and hands off until the run is complete.
+            </p>
+          </aside>
+
+          <div className="anatomy-console-wrap">
+            <div className="anatomy-panel-ghost anatomy-panel-ghost--one" aria-hidden="true" />
+            <div className="anatomy-panel-ghost anatomy-panel-ghost--two" aria-hidden="true" />
+            <article className="anatomy-console">
+              <header className="anatomy-console-head">
+                <span>RUN 7f3a9c1e</span>
+                <span className="anatomy-live"><i />Live</span>
+                <span className="anatomy-elapsed">Elapsed 02:41</span>
+              </header>
+              <div className="anatomy-console-body">
+                {RUN_LINES.map((line, i) => (
+                  <div
+                    key={line.n}
+                    ref={(el) => {
+                      lineRefs.current[i] = el;
+                    }}
+                    className={`anatomy-log ${line.final ? "is-final" : ""}`}
+                    data-agent={line.agent.toLowerCase()}
+                    tabIndex={interactive || cinematic ? 0 : undefined}
+                    onPointerEnter={() => emitAgent(line.agent)}
+                    onPointerLeave={() => emitAgent(null)}
+                    onFocus={() => emitAgent(line.agent)}
+                    onBlur={() => emitAgent(null)}
+                  >
+                    <span>{line.n}</span>
+                    <span>{line.time}</span>
+                    <strong>{line.agent}</strong>
+                    <span>→</span>
+                    <span>{line.action}</span>
+                    {line.final && <b aria-hidden="true">✓</b>}
+                  </div>
+                ))}
+              </div>
+            </article>
           </div>
         </div>
 
-        <div className="anatomy-viewport">
-          {CARDS.map((card, i) => (
-            <div
-              key={card.key}
-              ref={(el) => { cardRefs.current[i] = el; }}
-              className="run-card-wrap"
-            >
-              <article className={`run-card${card.final ? " run-card--final" : ""}`}>
-                <header className="run-card-bar">
-                  <span className="run-card-dots">
-                    <span />
-                    <span />
-                    <span />
-                  </span>
-                  <span className="run-card-agent">{card.agent}</span>
-                  <span className="run-card-index">{card.index}</span>
-                </header>
-                <div className="run-card-body">
-                  {card.lines.map((line, li) => (
-                    <p key={li} className="run-line">
-                      <span className="run-line-prompt">{line.startsWith(">") ? ">" : " "}</span>
-                      {line.replace(/^>\s?/, "")}
-                    </p>
-                  ))}
-                </div>
-                <footer className="run-card-foot">
-                  <span className="run-card-status">
-                    <span className="run-card-dot" />
-                    {card.meta}
-                  </span>
-                  <span className="run-card-dur">{card.duration}</span>
-                </footer>
-                <div className="run-meter" aria-hidden="true">
-                  <div className="run-meter-fill" />
-                </div>
-              </article>
-            </div>
-          ))}
-        </div>
-
-        <div className="anatomy-progress" aria-hidden="true">
-          <div ref={progressRef} className="anatomy-progress-fill" />
+        <div className="anatomy-timeline">
+          <button type="button" className="anatomy-pause" aria-label="Pause run animation">Ⅱ</button>
+          <div className="anatomy-rail">
+            <div ref={progressRef} className="anatomy-rail-fill" />
+            {TIMELINE.map((step, i) => (
+              <div
+                key={step.n}
+                ref={(el) => {
+                  stepRefs.current[i] = el;
+                }}
+                className="anatomy-rail-step"
+                data-agent={step.label.toLowerCase()}
+                style={{ left: `${(i / (TIMELINE.length - 1)) * 100}%` }}
+              >
+                <span className="anatomy-rail-dot" />
+                <span className="anatomy-rail-index">{step.n}</span>
+                <strong>{step.label}</strong>
+                <small>{step.time}</small>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

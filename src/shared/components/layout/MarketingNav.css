@@ -6,22 +6,25 @@
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 16px 0;
+  height: 80px;
+  padding: 0;
   transition: background var(--motion-normal), border-color var(--motion-normal), backdrop-filter var(--motion-normal);
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(3, 3, 3, 0.42);
 }
 
 .mnav.is-scrolled {
-  background: rgba(10, 10, 10, 0.8);
+  background: rgba(3, 3, 3, 0.84);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom-color: var(--border-soft);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
 }
 
 .mnav-inner {
-  max-width: 1200px;
+  max-width: none;
+  height: 100%;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 clamp(24px, 3.2vw, 42px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,24 +34,24 @@
 .mnav-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--text);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 .mnav-logo-mark {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   color: var(--text);
 }
 
 .mnav-logo-word {
-  font-family: "Geist Mono", ui-monospace, monospace;
-  font-size: 13px;
-  letter-spacing: 0.04em;
+  font-size: 20px;
+  letter-spacing: 0.12em;
 }
 
 .mnav-links {
@@ -60,8 +63,8 @@
 }
 
 .mnav-link {
-  font-size: 13px;
-  color: var(--text-2);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.76);
   text-decoration: none;
   transition: color var(--motion-fast);
 }
@@ -77,8 +80,8 @@
 }
 
 .mnav-signin {
-  font-size: 13px;
-  color: var(--text-2);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.76);
   text-decoration: none;
   transition: color var(--motion-fast);
 }
@@ -90,20 +93,24 @@
 .mnav-start {
   display: inline-flex;
   align-items: center;
-  padding: 8px 16px;
-  background: var(--text);
-  color: var(--bg-0);
-  border-radius: 2px;
-  font-size: 13px;
-  font-weight: 500;
+  justify-content: center;
+  min-width: 132px;
+  height: 44px;
+  padding: 0 20px;
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
-  transition: background var(--motion-fast), color var(--motion-fast);
+  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
 }
 
 .mnav-start:hover {
-  background: transparent;
-  color: var(--text);
-  outline: 1px solid var(--text);
+  background: #fff;
+  color: #050505;
+  border-color: #fff;
 }
 
 @media (max-width: 768px) {
@@ -112,5 +119,23 @@
   }
   .mnav-inner {
     padding: 0 20px;
+    gap: 16px;
+  }
+  .mnav-signin {
+    display: none;
+  }
+  .mnav-start {
+    min-width: 132px;
+  }
+}
+
+@media (max-width: 420px) {
+  .mnav-logo-word {
+    font-size: 18px;
+  }
+  .mnav-start {
+    min-width: 120px;
+    height: 42px;
+    padding: 0 16px;
   }
 }

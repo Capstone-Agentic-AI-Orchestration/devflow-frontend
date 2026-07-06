@@ -1,18 +1,14 @@
 "use client";
 
-/**
- * CTASection — Final call to action.
- * Terminal-style block with a mock command + a real email + brief form.
- * Subtle border pulse on the terminal, disabled on reduced-motion.
- */
-
 import { useState, type FormEvent } from "react";
 import { SectionReveal } from "@/shared/components/layout/SectionReveal";
 import { createDevFlowInquiry } from "@/shared/api/devflow-api";
 import { compactDevFlowError } from "@/shared/utils/devflow-projects";
+import { ParticleFieldCanvas } from "./VisualPrimitives";
+import type { SceneProgressProps } from "./cinema-progress";
 import "./CTASection.css";
 
-export function CTASection() {
+export function CTASection({ cinematic = false, interactive = false, sceneName = "cta" }: SceneProgressProps) {
   const [email, setEmail] = useState("");
   const [brief, setBrief] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -51,91 +47,123 @@ export function CTASection() {
     }
   };
 
-  return (
-    <SectionReveal as="section" className="cta" id="cta">
+  const briefPreview = brief.trim();
+
+  const content = (
       <div className="cta-inner">
-        <div className="cta-terminal">
-          <div className="cta-terminal-header">
-            <div className="cta-terminal-dots">
-              <span /><span /><span />
-            </div>
-            <span className="cta-terminal-label">devflow — start</span>
-          </div>
-          <pre className="cta-terminal-body">
-            <code>
-              <span className="cta-prompt">$</span>{" "}
-              <span className="cta-cmd">devflow</span>{" "}
-              <span className="cta-flag">start</span>
-              {brief.trim() && (
-                <>
-                  {" "}
-                  <span className="cta-flag">--brief</span>{" "}
-                  <span className="cta-arg">&quot;{brief.trim()}&quot;</span>
-                </>
-              )}
-            </code>
-            <div className="cta-terminal-glow" aria-hidden="true" />
-          </pre>
+        <div className="cta-head" data-cinema-reveal>
+          <p>Section 5</p>
+          <h2>Let&apos;s build what&apos;s next.</h2>
+          <span>Share a brief and we&apos;ll get back with a plan, timeline, and first steps.</span>
         </div>
 
-        <form className="cta-form" onSubmit={handleSubmit}>
-          {submitted ? (
-            <div className="cta-success">
-              <p className="cta-success-title">Brief received.</p>
-              <p className="cta-success-body">
-                You&apos;ll get a scoped contract back shortly. Watch your inbox.
-              </p>
+        <div className="cta-grid">
+          <article className="cta-terminal">
+            <header className="cta-terminal-header">
+              <span>DevFlow terminal</span>
+              <span className="cta-online"><i />Online</span>
+            </header>
+            <div className="cta-terminal-body">
+              <ParticleFieldCanvas variant="beam" className="cta-terminal-particles" sceneName={sceneName} interactive={interactive || cinematic} />
+              <div className="cta-terminal-lines">
+                <p><strong>&gt; devflow init</strong><span>Initializing DevFlow runtime...</span></p>
+                <p><strong>&gt; analyze brief</strong><span>{briefPreview ? `Parsing "${briefPreview.slice(0, 72)}${briefPreview.length > 72 ? "..." : ""}"` : "Parsing project brief and requirements..."}</span></p>
+                <p><strong>&gt; map architecture</strong><span>Designing scalable system architecture...</span></p>
+                <p><strong>&gt; assemble team</strong><span>Matching capabilities to project needs...</span></p>
+                <p><strong>&gt; schedule kickoff</strong><span>Setting timeline and milestones...</span></p>
+                <p><strong>&gt; ready</strong><span>We&apos;re ready to build.</span></p>
+                <p className="cta-cursor-line"><strong>&gt;</strong><span className="cta-cursor" aria-hidden="true" /></p>
+              </div>
             </div>
-          ) : (
-            <>
-              <div className="cta-field">
-                <label htmlFor="cta-email" className="cta-label">
-                  email
-                </label>
-                <input
-                  id="cta-email"
-                  type="email"
-                  className="cta-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  disabled={submitting}
-                />
+          </article>
+
+          <form className="cta-form" onSubmit={handleSubmit}>
+            {submitted ? (
+              <div className="cta-success">
+                <p className="cta-success-title">Brief received.</p>
+                <p className="cta-success-body">
+                  You&apos;ll get a scoped contract back shortly. Watch your inbox.
+                </p>
               </div>
+            ) : (
+              <>
+                <div className="cta-form-head">
+                  <h3>Start your project</h3>
+                  <p>Tell us about your project and goals. We&apos;ll reply with next steps.</p>
+                </div>
 
-              <div className="cta-field">
-                <label htmlFor="cta-brief" className="cta-label">
-                  brief
-                </label>
-                <textarea
-                  id="cta-brief"
-                  className="cta-textarea"
-                  value={brief}
-                  onChange={(e) => setBrief(e.target.value)}
-                  placeholder="What do you want built?"
-                  rows={3}
+                <div className="cta-field">
+                  <label htmlFor="cta-email" className="cta-label">
+                    Email
+                  </label>
+                  <input
+                    id="cta-email"
+                    type="email"
+                    className="cta-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="hello@company.com"
+                    autoComplete="email"
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div className="cta-field">
+                  <label htmlFor="cta-brief" className="cta-label">
+                    Brief
+                  </label>
+                  <textarea
+                    id="cta-brief"
+                    className="cta-textarea"
+                    value={brief}
+                    onChange={(e) => setBrief(e.target.value)}
+                    placeholder="Describe your project, goals, key features, and any relevant details."
+                    rows={5}
+                    disabled={submitting}
+                  />
+                </div>
+
+                {error && <p className="cta-error">{error}</p>}
+
+                <button
+                  type="submit"
+                  className="cta-button"
                   disabled={submitting}
-                />
-              </div>
+                >
+                  <span>{submitting ? "Starting..." : "Start"}</span>
+                  <span aria-hidden="true">→</span>
+                </button>
 
-              {error && <p className="cta-error">{error}</p>}
+                <p className="cta-secure">Your information is secure and confidential.</p>
+              </>
+            )}
+          </form>
+        </div>
 
-              <button
-                type="submit"
-                className="cta-button"
-                disabled={submitting}
-              >
-                {submitting ? "Starting..." : "Start →"}
-              </button>
-            </>
-          )}
-        </form>
-
-        <p className="cta-foot">
-          No credit card. Production-grade output. Repo ownership from day one.
-        </p>
+        <div className="cta-trust" aria-label="Trusted by ambitious teams">
+          <span>Trusted by ambitious teams</span>
+          <div>
+            <b>DevFlow</b>
+            <b>Northpoint</b>
+            <b>Veridian</b>
+            <b>Thread</b>
+            <b>Altura</b>
+          </div>
+        </div>
       </div>
+  );
+
+  if (cinematic) {
+    return (
+      <section className="cta is-cinematic">
+        {content}
+      </section>
+    );
+  }
+
+  return (
+    <SectionReveal as="section" className="cta" id="cta" y={12}>
+      {content}
     </SectionReveal>
   );
 }

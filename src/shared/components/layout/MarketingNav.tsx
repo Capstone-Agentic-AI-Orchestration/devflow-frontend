@@ -19,6 +19,12 @@ const NAV_LINKS = [
   { hash: "#faq", label: "FAQ" },
 ];
 
+const CINEMA_ANCHORS: Record<string, "how" | "faq" | "cta"> = {
+  "#how-it-works": "how",
+  "#faq": "faq",
+  "#cta": "cta",
+};
+
 export function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const lenis = useLenis();
@@ -34,6 +40,12 @@ export function MarketingNav() {
     const target = document.querySelector(hash);
     if (!target) return; // not on the landing page — navigate to /#hash
     e.preventDefault();
+    const cinema = document.querySelector('.marketing-cinema[data-cinema-mode="reel"]');
+    const scene = CINEMA_ANCHORS[hash];
+    if (cinema && scene) {
+      window.dispatchEvent(new CustomEvent("marketing-cinema-scroll-to", { detail: { scene } }));
+      return;
+    }
     if (lenis) lenis.scrollTo(hash, { offset: -72 });
     else target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
