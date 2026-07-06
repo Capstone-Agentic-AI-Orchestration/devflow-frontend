@@ -21,11 +21,25 @@ const DEFAULT_DETAIL: MarketingInteractionDetail = {
   velocity: 0,
   activeScene: "hero",
   hoveredAgent: null,
+  liveAgent: "Planner",
+  livePulse: 0,
   focusedControl: null,
   typingIntensity: 0,
   interactionIntensity: 0,
   reducedMotion: false,
 };
+
+const AGENT_SEQUENCES: Record<CinemaSceneName, string[]> = {
+  hero: ["Planner", "Architect", "Frontend", "Backend", "Database", "Reviewer"],
+  anatomy: ["Orchestrator", "Planner", "Architect", "Engineer", "Reviewer", "QA Agent", "Deployer"],
+  how: ["Analyst", "Architect", "Researcher", "Planner"],
+  faq: ["Reviewer", "Planner", "Architect"],
+  cta: ["Planner", "Architect", "Frontend", "Reviewer"],
+};
+
+function normalizeAgent(agent: string | null) {
+  return agent?.trim().toLowerCase() ?? "";
+}
 
 function getFocusableName(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return null;
@@ -60,6 +74,10 @@ export function MarketingInteractionDirector({ rootRef }: MarketingInteractionDi
       const pointer = smoothPointerRef.current;
       const velocity = clamp01(velocityRef.current);
       const typingIntensity = clamp01(typingRef.current);
+      const sceneAgents = AGENT_SEQUENCES[detailRef.current.activeScene] ?? AGENT_SEQUENCES.hero;
+      const phase = (performance.now() / 1180) % sceneAgents.length;
+      const liveAgent = sceneAgents[Math.floor(phase)] ?? sceneAgents[0] ?? "Planner";
+      const livePulse = 0.5 + Math.sin(phase * Math.PI * 2) * 0.5;
       const interactionIntensity = clamp01(
         Math.max(
           Math.abs(pointer.x - 0.5) * 0.72,
@@ -67,6 +85,7 @@ export function MarketingInteractionDirector({ rootRef }: MarketingInteractionDi
           velocity,
           typingIntensity,
           burstRef.current,
+          livePulse * 0.18,
         ),
       );
 
@@ -75,6 +94,8 @@ export function MarketingInteractionDirector({ rootRef }: MarketingInteractionDi
         pointerX: pointer.x,
         pointerY: pointer.y,
         velocity,
+        liveAgent,
+        livePulse,
         typingIntensity,
         interactionIntensity,
         reducedMotion,
@@ -86,7 +107,9 @@ export function MarketingInteractionDirector({ rootRef }: MarketingInteractionDi
       root.style.setProperty("--scroll-velocity", velocity.toFixed(4));
       root.style.setProperty("--typing-intensity", typingIntensity.toFixed(4));
       root.style.setProperty("--interaction-intensity", interactionIntensity.toFixed(4));
-      if (next.hoveredAgent) root.dataset.hoveredAgent = next.hoveredAgent.toLowerCase();
+      root.style.setProperty("--agent-live-pulse", livePulse.toFixed(4));
+      root.dataset.liveAgent = normalizeAgent(next.hoveredAgent ?? liveAgent);
+      if (next.hoveredAgent) root.dataset.hoveredAgent = normalizeAgent(next.hoveredAgent);
       else delete root.dataset.hoveredAgent;
       if (next.focusedControl) root.dataset.focusedControl = next.focusedControl;
       else delete root.dataset.focusedControl;

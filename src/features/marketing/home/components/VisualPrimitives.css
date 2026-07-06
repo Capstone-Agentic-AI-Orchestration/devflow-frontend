@@ -88,6 +88,71 @@ button.agent-graph-label {
 
 .agent-graph.is-interactive .agent-graph-line {
   opacity: 0.72;
+  stroke-dasharray: 1.8 2.4;
+  animation: agentLineDrift 4.6s linear infinite;
+}
+
+.agent-graph.is-interactive .agent-graph-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: agentNodeIdle 2.8s ease-in-out infinite;
+}
+
+.agent-graph.is-interactive .agent-graph-label {
+  animation: agentLabelBreathe 3.4s ease-in-out infinite;
+}
+
+.marketing-cinema[data-live-agent="planner"] .agent-graph-label[data-agent="planner"],
+.marketing-cinema[data-live-agent="architect"] .agent-graph-label[data-agent="architect"],
+.marketing-cinema[data-live-agent="frontend"] .agent-graph-label[data-agent="frontend"],
+.marketing-cinema[data-live-agent="backend"] .agent-graph-label[data-agent="backend"],
+.marketing-cinema[data-live-agent="database"] .agent-graph-label[data-agent="database"],
+.marketing-cinema[data-live-agent="reviewer"] .agent-graph-label[data-agent="reviewer"],
+.marketing-cinema[data-live-agent="orchestrator"] .agent-graph-label[data-agent="orchestrator"],
+.marketing-cinema[data-live-agent="engineer"] .agent-graph-label[data-agent="engineer"],
+.marketing-cinema[data-live-agent="qa agent"] .agent-graph-label[data-agent="qa agent"],
+.marketing-cinema[data-live-agent="deployer"] .agent-graph-label[data-agent="deployer"],
+.marketing-cinema[data-live-agent="analyst"] .agent-graph-label[data-agent="analyst"],
+.marketing-cinema[data-live-agent="researcher"] .agent-graph-label[data-agent="researcher"] {
+  z-index: 3;
+  color: #fff;
+  border-color: rgba(72, 229, 106, 0.52);
+  background: rgba(72, 229, 106, 0.08);
+  box-shadow:
+    0 0 calc(16px + var(--agent-live-pulse, 0) * 20px) rgba(72, 229, 106, 0.18),
+    inset 0 0 0 1px rgba(72, 229, 106, 0.12);
+}
+
+.marketing-cinema[data-live-agent="planner"] .agent-graph-label[data-agent="planner"] em,
+.marketing-cinema[data-live-agent="architect"] .agent-graph-label[data-agent="architect"] em,
+.marketing-cinema[data-live-agent="frontend"] .agent-graph-label[data-agent="frontend"] em,
+.marketing-cinema[data-live-agent="backend"] .agent-graph-label[data-agent="backend"] em,
+.marketing-cinema[data-live-agent="database"] .agent-graph-label[data-agent="database"] em,
+.marketing-cinema[data-live-agent="reviewer"] .agent-graph-label[data-agent="reviewer"] em,
+.marketing-cinema[data-live-agent="orchestrator"] .agent-graph-label[data-agent="orchestrator"] em,
+.marketing-cinema[data-live-agent="engineer"] .agent-graph-label[data-agent="engineer"] em,
+.marketing-cinema[data-live-agent="qa agent"] .agent-graph-label[data-agent="qa agent"] em,
+.marketing-cinema[data-live-agent="deployer"] .agent-graph-label[data-agent="deployer"] em,
+.marketing-cinema[data-live-agent="analyst"] .agent-graph-label[data-agent="analyst"] em,
+.marketing-cinema[data-live-agent="researcher"] .agent-graph-label[data-agent="researcher"] em {
+  display: block;
+}
+
+.marketing-cinema[data-live-agent="planner"] .agent-graph-node[data-agent="planner"],
+.marketing-cinema[data-live-agent="architect"] .agent-graph-node[data-agent="architect"],
+.marketing-cinema[data-live-agent="frontend"] .agent-graph-node[data-agent="frontend"],
+.marketing-cinema[data-live-agent="backend"] .agent-graph-node[data-agent="backend"],
+.marketing-cinema[data-live-agent="database"] .agent-graph-node[data-agent="database"],
+.marketing-cinema[data-live-agent="reviewer"] .agent-graph-node[data-agent="reviewer"],
+.marketing-cinema[data-live-agent="orchestrator"] .agent-graph-node[data-agent="orchestrator"],
+.marketing-cinema[data-live-agent="engineer"] .agent-graph-node[data-agent="engineer"],
+.marketing-cinema[data-live-agent="qa agent"] .agent-graph-node[data-agent="qa agent"],
+.marketing-cinema[data-live-agent="deployer"] .agent-graph-node[data-agent="deployer"],
+.marketing-cinema[data-live-agent="analyst"] .agent-graph-node[data-agent="analyst"],
+.marketing-cinema[data-live-agent="researcher"] .agent-graph-node[data-agent="researcher"] {
+  fill: #48e56a;
+  opacity: 1;
+  transform: scale(calc(1.2 + var(--agent-live-pulse, 0) * 0.8));
 }
 
 .agent-graph.is-interactive:has(.agent-graph-label:hover) .agent-graph-line,
@@ -142,8 +207,31 @@ button.agent-graph-label {
   }
 }
 
+@keyframes agentNodeIdle {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.26);
+  }
+}
+
+@keyframes agentLabelBreathe {
+  0%, 100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .agent-graph-line--active {
+  .agent-graph-line--active,
+  .agent-graph.is-interactive .agent-graph-line,
+  .agent-graph.is-interactive .agent-graph-node,
+  .agent-graph.is-interactive .agent-graph-label {
     animation: none;
   }
 }

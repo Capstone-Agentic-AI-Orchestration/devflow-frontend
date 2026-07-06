@@ -19,15 +19,25 @@
  * loading screen.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { ParticleFieldCanvas } from "@/features/marketing/home/components/VisualPrimitives";
 import "./LoadingScreen.css";
 
 interface LoadingScreenProps {
   onComplete?: () => void;
 }
 
-const TOTAL_MS = 2400;
+const TOTAL_MS = 2200;
 const REDUCED_MS = 900;
+
+const AGENTS = [
+  { name: "Planner", status: "Parsing brief" },
+  { name: "Architect", status: "Mapping graph" },
+  { name: "Frontend", status: "Composing UI" },
+  { name: "Backend", status: "Binding services" },
+  { name: "Database", status: "Indexing state" },
+  { name: "Reviewer", status: "Checking handoff" },
+];
 
 export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const [done, setDone] = useState(false);
@@ -56,16 +66,38 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       aria-live="polite"
       aria-label="Loading DevFlow"
     >
+      <ParticleFieldCanvas variant="subtle" className="loading-screen-particles" reducedMotion={reduced} />
       <div className="loading-screen-progress" aria-hidden="true" />
+      <div className="loading-screen-scan" aria-hidden="true" />
       <div className="loading-screen-inner">
-        <div className="loading-screen-mark" aria-hidden="true">
-          ⌬
+        <div className="loading-screen-brand">
+          <div className="loading-screen-mark" aria-hidden="true">
+            ⌬
+          </div>
+          <div>
+            <div className="loading-screen-word">devflow</div>
+            <div className="loading-screen-meta">agent system boot</div>
+          </div>
         </div>
-        <div className="loading-screen-word">devflow</div>
-        <div className="loading-screen-hairline-wrap" aria-hidden="true">
-          <div className="loading-screen-hairline" />
+
+        <div className="loading-screen-console" aria-hidden="true">
+          <div className="loading-screen-console-head">
+            <span>RUN::PRELOAD</span>
+            <span>required refresh gate</span>
+          </div>
+          <div className="loading-screen-agent-grid">
+            {AGENTS.map((agent, index) => (
+              <div key={agent.name} className="loading-screen-agent" style={{ "--agent-index": index } as CSSProperties}>
+                <span>{agent.name}</span>
+                <i />
+                <small>{agent.status}</small>
+              </div>
+            ))}
+          </div>
+          <div className="loading-screen-hairline-wrap">
+            <div className="loading-screen-hairline" />
+          </div>
         </div>
-        <div className="loading-screen-meta">building in&nbsp;progress</div>
       </div>
     </div>
   );

@@ -28,6 +28,8 @@ export interface MarketingInteractionDetail {
   velocity: number;
   activeScene: CinemaSceneName;
   hoveredAgent: string | null;
+  liveAgent: string | null;
+  livePulse: number;
   focusedControl: string | null;
   typingIntensity: number;
   interactionIntensity: number;
@@ -35,11 +37,39 @@ export interface MarketingInteractionDetail {
 }
 
 export const CINEMA_SCENES: CinemaSceneName[] = ["hero", "anatomy", "how", "faq", "cta"];
+export const CINEMA_SCENE_WEIGHTS: Record<CinemaSceneName, number> = {
+  hero: 1,
+  anatomy: 1.45,
+  how: 1,
+  faq: 1,
+  cta: 1,
+};
 
 export function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
 }
 
-export function getSceneProgress(globalProgress: number, sceneIndex: number, sceneCount = CINEMA_SCENES.length) {
-  return clamp01(globalProgress * sceneCount - sceneIndex);
+export function getSceneStart(sceneName: CinemaSceneName) {
+  return CINEMA_SCENES.slice(0, CINEMA_SCENES.indexOf(sceneName)).reduce((total, scene) => total + CINEMA_SCENE_WEIGHTS[scene], 0);
+}
+
+export function getCinemaDuration() {
+  return CINEMA_SCENES.reduce((total, scene) => total + CINEMA_SCENE_WEIGHTS[scene], 0);
+}
+
+export function getSceneProgress(globalProgress: number, sceneIndex: number) {
+  const sceneName = CINEMA_SCENES[sceneIndex] ?? "hero";
+  const duration = getCinemaDuration();
+  const playhead = clamp01(globalProgress) * duration;
+  return clamp01((playhead - getSceneStart(sceneName)) / CINEMA_SCENE_WEIGHTS[sceneName]);
+}
+
+export function getActiveSceneFromProgress(globalProgress: number) {
+  const duration = getCinemaDuration();
+  const playhead = clamp01(globalProgress) * duration;
+  let activeScene: CinemaSceneName = "hero";
+  for (const scene of CINEMA_SCENES) {
+    if (playhead >= getSceneStart(scene)) activeScene = scene;
+  }
+  return activeScene;
 }

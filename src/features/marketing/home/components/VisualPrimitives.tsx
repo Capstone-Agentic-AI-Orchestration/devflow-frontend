@@ -58,6 +58,10 @@ function seeded(index: number) {
   return (value >>> 0) / 4294967295;
 }
 
+function agentKey(agent: string) {
+  return agent.trim().toLowerCase();
+}
+
 export function ParticleFieldCanvas({
   variant = "subtle",
   className = "",
@@ -138,6 +142,7 @@ export function ParticleFieldCanvas({
       const velocity = interaction?.velocity ?? 0;
       const typing = interaction?.typingIntensity ?? 0;
       const pulse = interaction?.interactionIntensity ?? 0;
+      const livePulse = interaction?.livePulse ?? 0;
       ctx.clearRect(0, 0, width, height);
       drawGrid();
 
@@ -157,21 +162,21 @@ export function ParticleFieldCanvas({
         const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
         const influence = Math.max(0, 1 - dist / Math.max(width, height) * 1.65);
         const polarity = variant === "beam" ? -1 : 1;
-        const bend = (pulse * 30 + velocity * 48 + typing * 18) * influence * polarity;
+        const bend = (pulse * 30 + livePulse * 12 + velocity * 48 + typing * 18) * influence * polarity;
         const x = px + pull * (p.z - 0.55) + (dx / dist) * bend;
         let y = p.y * height;
 
         if (variant === "hero") {
-          y = height * (0.42 + Math.sin(p.x * 9 + drive * 3.2 + p.phase) * (0.15 - gather * 0.05 + velocity * 0.05) + Math.sin(p.x * 23 + drive + velocity * 2) * 0.035) + (p.y - 0.5) * height * (0.3 - gather * 0.1) + (dy / dist) * bend;
+          y = height * (0.42 + Math.sin(p.x * 9 + drive * 3.2 + p.phase + livePulse * 0.8) * (0.15 - gather * 0.05 + velocity * 0.05 + livePulse * 0.012) + Math.sin(p.x * 23 + drive + velocity * 2) * 0.035) + (p.y - 0.5) * height * (0.3 - gather * 0.1) + (dy / dist) * bend;
         } else if (variant === "wave") {
-          y = height * (0.58 + Math.sin(p.x * 8 + drive * 2.8 + p.phase + pulse * 1.2) * (0.07 + gather * 0.08 + pulse * 0.04)) + (p.y - 0.5) * height * 0.22 + (dy / dist) * bend * 0.65;
+          y = height * (0.58 + Math.sin(p.x * 8 + drive * 2.8 + p.phase + pulse * 1.2 + livePulse) * (0.07 + gather * 0.08 + pulse * 0.04 + livePulse * 0.018)) + (p.y - 0.5) * height * 0.22 + (dy / dist) * bend * 0.65;
         } else if (variant === "beam") {
           const beamHead = Math.max(0.08, Math.min(1, gather + typing * 0.16));
           const spread = Math.max(0.03, Math.abs(p.x - beamHead) * 0.42);
           y = height * 0.52 + (p.y - 0.5) * height * spread + Math.sin(p.x * 10 + drive * 2 + p.phase + typing * 2) * (12 + typing * 12) + (dy / dist) * bend * 0.42;
         }
 
-        const alpha = (variant === "subtle" ? 0.11 + pulse * 0.06 : 0.16 + gather * 0.1 + velocity * 0.08 + typing * 0.08) * p.z;
+        const alpha = (variant === "subtle" ? 0.11 + pulse * 0.06 + livePulse * 0.02 : 0.16 + gather * 0.1 + velocity * 0.08 + typing * 0.08 + livePulse * 0.035) * p.z;
         ctx.fillStyle = `rgba(250,250,250,${alpha})`;
         ctx.beginPath();
         ctx.arc(x, y, Math.max(0.45, p.z * 1.25), 0, Math.PI * 2);
@@ -281,7 +286,7 @@ export function AgentNetworkGraph({ className = "", nodes, mode = "network", sce
         {origin && <circle className="agent-graph-origin" cx={origin.x} cy={origin.y} r="1.2" />}
         {points.map((node) => (
           <g key={node.label}>
-            <circle className="agent-graph-node" cx={node.x} cy={node.y} r="1.15" filter={`url(#agentGlow-${id})`} />
+            <circle className="agent-graph-node" data-agent={agentKey(node.label)} cx={node.x} cy={node.y} r="1.15" filter={`url(#agentGlow-${id})`} />
           </g>
         ))}
       </svg>
@@ -293,6 +298,7 @@ export function AgentNetworkGraph({ className = "", nodes, mode = "network", sce
               key={node.label}
               type="button"
               className="agent-graph-label"
+              data-agent={agentKey(node.label)}
               style={style}
               aria-label={`${node.label} agent status`}
               onPointerEnter={() => dispatchAgent(node.label)}
@@ -302,7 +308,7 @@ export function AgentNetworkGraph({ className = "", nodes, mode = "network", sce
             >
               {node.label}
               <small>{mode === "branch" ? "Routing" : "Live agent"}</small>
-              <em>{mode === "branch" ? "Active path" : "Standing by"}</em>
+              <em>{mode === "branch" ? "Route live" : "Running checks"}</em>
             </button>
           );
         }
@@ -311,6 +317,7 @@ export function AgentNetworkGraph({ className = "", nodes, mode = "network", sce
           <span
             key={node.label}
             className="agent-graph-label"
+            data-agent={agentKey(node.label)}
             style={style}
           >
             {node.label}
